@@ -166,7 +166,7 @@ FAILED_TOOL          工具侧不可用（登录过期、选择器失效）
 
 | 天 | P1 环境与工具 | P2 模型与训练 | P3 评测与标注 |
 | --- | --- | --- | --- |
-| D1 | 真实采样（见 5.1）。只读用 `tieba_poster.py check / forum / post --dry-run`；真实发帖用 `browser_poster.py post`。交付采样记录表 | 部署 vLLM 加载 Qwen3.5-9B-Instruct；装 LLaMA-Factory；确认模型能输出可解析的 `<tool_call>` | 定义轨迹数据结构与五类分类规则；写验证器骨架 |
+| D1 | 真实采样（见 5.1）。只读用 `tieba_poster.py check / forum / post --dry-run`；真实发帖用 `browser_poster.py post`。交付采样记录表。data/candidates.json 已就位（20 条，按 split 分 train 10 / test 5 / real 5，D2 模拟器读取）| 部署 vLLM 加载 Qwen3.5-9B-Instruct；装 LLaMA-Factory；确认模型能输出可解析的 `<tool_call>` | 定义轨迹数据结构与五类分类规则；写验证器骨架 |
 | D2 | 写模拟器 `MockTiebaEnv` 与适配层 `TiebaAdapter`，参数取 D1 实测值 | **few-shot 可行性检查**（见 5.2），当天出结论 | 写发帖前健康检查（见 6.1）；把 `TiebaAdapter` 接到模拟和真实两个后端 |
 | D3 | 场景生成器：四种真值组合 + 无故障组，训练 / 测试集隔离 | 写 Agent Runner（工具调用循环 + 解析）；跑 A 组基线，每种组合 20 次 | 验证器跑通；产出基线分类统计 |
 | D4 | 真实侧健康检查回归，确认 cookie 与页面元素仍有效 | 写 `convert_to_sharegpt.py`（见 5.3）；用 `llamafactory-cli train` 训 B 组 LoRA | 人工修正 10 条失败轨迹；与 P1 复核修正逻辑是否符合 D1 实测策略 |
