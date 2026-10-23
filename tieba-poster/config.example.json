@@ -1,0 +1,16 @@
+{
+  "_说明": "复制此文件为 config.json 后填写。cookie 必填，其余可保持默认。",
+  "cookie": "BDUSS=把这里换成浏览器里的值; STOKEN=把这里换成浏览器里的值; BAIDUID=可选",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  "timeout": 20,
+  "proxy": "",
+  "default_kw": "",
+  "title_max_len": 31,
+  "content_limit": 9000,
+  "delay_range": [8, 20],
+  "sign_in": false,
+  "upload_images": false,
+  "dry_run": false,
+  "extra_fields": {},
+  "fid_map": {}
+}
