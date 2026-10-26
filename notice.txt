@@ -1,0 +1,14 @@
+1、修改tieba-poster\config.json 中的cookies（发帖的账号）
+
+2、修改2026-10-23-19-57-32\real\config.json中的poster_dir（改成tieba-poster的绝对地址）、python（改成tieba-poster/.venv/Scripts/python.exe的绝对地址）、poster_script（tieba-poster/browser_poster.py的绝对地址）和probe_script（2026-10-23-19-57-32/real/real_probe.py的绝对地址）
+
+3、修改2026-10-23-19-57-32\publish_api.py:74、2026-10-23-19-57-32\real\real_probe.py:29和2026-10-23-19-57-32\real\forum_list.py:30三个文件中的DEFAULT_POSTER_DIR
+
+4、python版本最好是在3.13，不要低于3.9
+
+5、修改发布内容有两种形式
+      (1)、python publish_api.py --kw agenttest --title "我的标题" --content-file body.txt --yes （file body.txt最好填绝对地址，如果正文内容不涉及换行也可以直接用“我的正文”这样的形式，yes必须要，不然运行时会需要再输入y或n）
+    （2)、python publish_api.py --kw agenttest --candidate c02 --yes （这种形式可以直接从candidates.json文件中取标题和正文）
+
+6、运行publish文件后会有对应的文件保存在C:\Users\15547\Desktop\2026-10-23-19-57-32\runs\publish中，里面记录了发布内容、账号和发布状态，如：是否成功、发布几次才成功以及失败的原因
+                                                              
