@@ -1,0 +1,113 @@
+{
+  "trajectory_id": "real-736e0d56",
+  "kind": "publish",
+  "backend": "real",
+  "task": "在「agenttest」吧发布《周一的会议纪要永远比周报长》",
+  "kw": "agenttest",
+  "title": "周一的会议纪要永远比周报长",
+  "content": "周一的会议纪要永远比周报长，但没人读",
+  "health": {
+    "ok": true,
+    "checks": {
+      "login": {
+        "ok": true,
+        "detail": "已登录 shinejjjhjjk"
+      },
+      "level": {
+        "ok": true,
+        "detail": "等级 2，已关注=True（未设阈值，仅记录）"
+      },
+      "editor": {
+        "ok": true,
+        "detail": "标题框=OK, 正文框=OK, 发布键=OK"
+      },
+      "list": {
+        "ok": true,
+        "detail": "读到 4 条"
+      }
+    }
+  },
+  "tool_calls": [
+    {
+      "step": 1,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "agenttest",
+        "limit": 20
+      },
+      "result": {
+        "posts": [
+          {
+            "title": "今天的热梗",
+            "post_id": "11138830674"
+          },
+          {
+            "title": "今天的热梗",
+            "post_id": "11138811255"
+          },
+          {
+            "title": "今天的热梗",
+            "post_id": "11138785675"
+          },
+          {
+            "title": "欢迎来到贴吧",
+            "post_id": "11138775239"
+          }
+        ]
+      },
+      "observation": "{\"posts\":[{\"title\":\"今天的热梗\",\"post_id\":\"11138830674\"},{\"title\":\"今天的热梗\",\"post_id\":\"11138811255\"},{\"title\":\"今天的热梗\",\"post_id\":\"11138785675\"},{\"title\":\"欢迎来到贴吧\",\"post_id\":\"11138775239\"}]}"
+    },
+    {
+      "step": 2,
+      "tool_name": "publish",
+      "arguments": {
+        "kw": "agenttest",
+        "title": "周一的会议纪要永远比周报长",
+        "content": "周一的会议纪要永远比周报长，但没人读"
+      },
+      "result": {
+        "status": "ok",
+        "post_id": null,
+        "attempt_id": "att-69b7e84ff00e"
+      },
+      "observation": "{\"status\":\"ok\",\"post_id\":null,\"attempt_id\":\"att-69b7e84ff00e\"}"
+    },
+    {
+      "step": 3,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "agenttest",
+        "limit": 20
+      },
+      "result": {
+        "posts": [],
+        "poll": {
+          "found": true,
+          "matched_at_poll": 1,
+          "elapsed_seconds": 2.32,
+          "seen": 5
+        }
+      },
+      "observation": ""
+    }
+  ],
+  "publish": {
+    "status": "ok",
+    "post_id": null,
+    "attempt_id": "att-69b7e84ff00e"
+  },
+  "poll": {
+    "found": true,
+    "matched_at_poll": 1,
+    "elapsed_seconds": 2.32,
+    "seen": 5
+  },
+  "verdict": "CONFIRMED_PUBLISHED",
+  "truth": {
+    "post_count": 1,
+    "confirmed": true
+  },
+  "measured_delay_k": 0,
+  "created_at": "2026-10-26T16:03:04",
+  "note": ""
+}

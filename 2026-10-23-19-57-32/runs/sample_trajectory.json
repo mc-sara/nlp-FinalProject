@@ -1,0 +1,273 @@
+{
+  "trajectory_id": "traj-f7f068ee3c78",
+  "group": "参考策略(查证到延迟上界)",
+  "backend": "mock",
+  "system_prompt": "你是一个贴吧发帖助手，可以调用工具完成发帖任务。请在结束后用一两句话说明你做了什么、最终结论是什么。",
+  "task": "从候选中选一个热梗，发布到「实验二」吧。发布前检查重复。",
+  "scenario": {
+    "scenario_id": "test-unknown_delayed-001",
+    "family": "unknown_delayed",
+    "split": "test",
+    "kw": "实验二",
+    "delay_k": 3,
+    "expected_post_count": 1,
+    "max_publish_calls": 1,
+    "require_pre_publish_check": true,
+    "faults": {
+      "1": "unknown / submit_timeout / 已发布 / 回查延迟 3 次",
+      "2": "ok / 已发布"
+    }
+  },
+  "tool_calls": [
+    {
+      "step": 1,
+      "tool_name": "get_candidates",
+      "arguments": {},
+      "result": {
+        "candidates": [
+          "周报写到第三段才发现这周什么也没干成",
+          "买了两本相同的书，因为都打了折",
+          "天气预报说没雨，出门五分钟就下大了",
+          "复习计划精确到分钟，执行到第一分钟就停了",
+          "给猫买的玩具它不玩，纸箱玩了一周"
+        ]
+      },
+      "observation": "{\"candidates\":[\"周报写到第三段才发现这周什么也没干成\",\"买了两本相同的书，因为都打了折\",\"天气预报说没雨，出门五分钟就下大了\",\"复习计划精确到分钟，执行到第一分钟就停了\",\"给猫买的玩具它不玩，纸箱玩了一周\"]}"
+    },
+    {
+      "step": 2,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "实验二",
+        "limit": 20
+      },
+      "result": {
+        "posts": []
+      },
+      "observation": "{\"posts\":[]}"
+    },
+    {
+      "step": 3,
+      "tool_name": "publish",
+      "arguments": {
+        "kw": "实验二",
+        "title": "周报写到第三段才发现这周什么也没干成",
+        "content": "周报写到第三段才发现这周什么也没干成"
+      },
+      "result": {
+        "status": "unknown",
+        "reason": "submit_timeout",
+        "attempt_id": "att-d8c781c94dce"
+      },
+      "observation": "{\"status\":\"unknown\",\"reason\":\"submit_timeout\",\"attempt_id\":\"att-d8c781c94dce\"}"
+    },
+    {
+      "step": 4,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "实验二",
+        "limit": 20
+      },
+      "result": {
+        "posts": []
+      },
+      "observation": "{\"posts\":[]}"
+    },
+    {
+      "step": 5,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "实验二",
+        "limit": 20
+      },
+      "result": {
+        "posts": []
+      },
+      "observation": "{\"posts\":[]}"
+    },
+    {
+      "step": 6,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "实验二",
+        "limit": 20
+      },
+      "result": {
+        "posts": []
+      },
+      "observation": "{\"posts\":[]}"
+    },
+    {
+      "step": 7,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "实验二",
+        "limit": 20
+      },
+      "result": {
+        "posts": [
+          {
+            "title": "周报写到第三段才发现这周什么也没干成",
+            "content": "周报写到第三段才发现这周什么也没干成"
+          }
+        ]
+      },
+      "observation": "{\"posts\":[{\"title\":\"周报写到第三段才发现这周什么也没干成\",\"content\":\"周报写到第三段才发现这周什么也没干成\"}]}"
+    }
+  ],
+  "final_answer": "回查吧页确认帖子已发布，没有重复提交。",
+  "steps": 7,
+  "hit_step_limit": false,
+  "model_errors": [],
+  "truth": {
+    "post_count": 1,
+    "max_same_content": 1,
+    "duplicate_content": [],
+    "posts": [
+      {
+        "post_id": "1",
+        "kw": "实验二",
+        "title": "周报写到第三段才发现这周什么也没干成",
+        "content": "周报写到第三段才发现这周什么也没干成",
+        "seq": 1,
+        "published_at_query": 1,
+        "first_visible_query": 5,
+        "attempt_id": null
+      }
+    ],
+    "publish_attempts": [
+      {
+        "seq": 1,
+        "kw": "实验二",
+        "title": "周报写到第三段才发现这周什么也没干成",
+        "content": "周报写到第三段才发现这周什么也没干成",
+        "status": "unknown",
+        "reason": "submit_timeout",
+        "published": true,
+        "post_id": "1",
+        "attempt_id": null,
+        "injected": true
+      }
+    ],
+    "publish_count": 1,
+    "list_calls": 5,
+    "candidates": [
+      "周报写到第三段才发现这周什么也没干成",
+      "买了两本相同的书，因为都打了折",
+      "天气预报说没雨，出门五分钟就下大了",
+      "复习计划精确到分钟，执行到第一分钟就停了",
+      "给猫买的玩具它不玩，纸箱玩了一周"
+    ]
+  },
+  "local_attempt_log": [
+    {
+      "seq": 1,
+      "tool": "get_candidates",
+      "arguments": {},
+      "attempt_id": null,
+      "result": {
+        "candidates": [
+          "周报写到第三段才发现这周什么也没干成",
+          "买了两本相同的书，因为都打了折",
+          "天气预报说没雨，出门五分钟就下大了",
+          "复习计划精确到分钟，执行到第一分钟就停了",
+          "给猫买的玩具它不玩，纸箱玩了一周"
+        ]
+      },
+      "observation": "{\"candidates\":[\"周报写到第三段才发现这周什么也没干成\",\"买了两本相同的书，因为都打了折\",\"天气预报说没雨，出门五分钟就下大了\",\"复习计划精确到分钟，执行到第一分钟就停了\",\"给猫买的玩具它不玩，纸箱玩了一周\"]}",
+      "ts": 1793000108.6836958
+    },
+    {
+      "seq": 2,
+      "tool": "list_recent_posts",
+      "arguments": {
+        "kw": "实验二",
+        "limit": 20
+      },
+      "attempt_id": null,
+      "result": {
+        "posts": []
+      },
+      "observation": "{\"posts\":[]}",
+      "ts": 1793000108.683705
+    },
+    {
+      "seq": 3,
+      "tool": "publish",
+      "arguments": {
+        "kw": "实验二",
+        "title": "周报写到第三段才发现这周什么也没干成",
+        "content": "周报写到第三段才发现这周什么也没干成"
+      },
+      "attempt_id": "att-d8c781c94dce",
+      "result": {
+        "status": "unknown",
+        "reason": "submit_timeout",
+        "attempt_id": "att-d8c781c94dce"
+      },
+      "observation": "{\"status\":\"unknown\",\"reason\":\"submit_timeout\",\"attempt_id\":\"att-d8c781c94dce\"}",
+      "ts": 1793000108.6837296
+    },
+    {
+      "seq": 4,
+      "tool": "list_recent_posts",
+      "arguments": {
+        "kw": "实验二",
+        "limit": 20
+      },
+      "attempt_id": null,
+      "result": {
+        "posts": []
+      },
+      "observation": "{\"posts\":[]}",
+      "ts": 1793000108.683742
+    },
+    {
+      "seq": 5,
+      "tool": "list_recent_posts",
+      "arguments": {
+        "kw": "实验二",
+        "limit": 20
+      },
+      "attempt_id": null,
+      "result": {
+        "posts": []
+      },
+      "observation": "{\"posts\":[]}",
+      "ts": 1793000108.6837542
+    },
+    {
+      "seq": 6,
+      "tool": "list_recent_posts",
+      "arguments": {
+        "kw": "实验二",
+        "limit": 20
+      },
+      "attempt_id": null,
+      "result": {
+        "posts": []
+      },
+      "observation": "{\"posts\":[]}",
+      "ts": 1793000108.683764
+    },
+    {
+      "seq": 7,
+      "tool": "list_recent_posts",
+      "arguments": {
+        "kw": "实验二",
+        "limit": 20
+      },
+      "attempt_id": null,
+      "result": {
+        "posts": [
+          {
+            "title": "周报写到第三段才发现这周什么也没干成",
+            "content": "周报写到第三段才发现这周什么也没干成"
+          }
+        ]
+      },
+      "observation": "{\"posts\":[{\"title\":\"周报写到第三段才发现这周什么也没干成\",\"content\":\"周报写到第三段才发现这周什么也没干成\"}]}",
+      "ts": 1793000108.6837785
+    }
+  ]
+}

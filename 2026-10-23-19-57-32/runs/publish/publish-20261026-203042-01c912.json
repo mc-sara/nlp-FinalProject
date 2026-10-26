@@ -1,0 +1,161 @@
+{
+  "created_at": "2026-10-26T20:30:42",
+  "outcome": "retry_ok",
+  "outcome_text": "首次 unknown（no_response），重发 3 次后成功（post_id=11139485781）",
+  "succeeded": true,
+  "first_try": false,
+  "submit_count": 4,
+  "retry_count": 3,
+  "kw": "agenttest",
+  "title": "通勤一小时的人生",
+  "title_original": "通勤一小时的人生",
+  "title_truncated": false,
+  "content": "每天来回两小时在地铁上，算下来一年有三十天是站着度过的。今天终于抢到座位，结果坐下来发现旁边大哥的耳机漏音，整段路都在听他的歌单。",
+  "content_chars": 65,
+  "content_truncated": false,
+  "status": "ok",
+  "reason": null,
+  "post_id": "11139485781",
+  "post_id_source": "recheck",
+  "attempt_id": "att-37bc405b1691",
+  "cookies": {
+    "raw": "__bid_n=19454a6b7b437281f094b1; BAIDUID_BFESS=15B541792AC7F3EFE4DE8C6B84BC7750:FG=1; BIDUPSID=15B541792AC7F3EFE4DE8C6B84BC7750; PSTM=1775893324; H_PS_PSSID=63147_67862_68143_68149_68146_68151_68166_68220_68264_68296_68336_68374_68423_68456_68541_68548_68551_68624_68614_68600_68710_68695_68665_68738_68545_68733_68773_68798_68866_68898_68906_68913_68832_68924_68943_68977_69005_69010_69020_69024_69016_69040_69034_69084_69093; ZFY=FHFVoFR9o0jfGP6juATgXTvwRMkvQLHkNASgkyeq6WY:C; BAIDU_WISE_UID=wapp_1792557095544_994; BDUSS=XhtNWdvdDR0amg5VXFXUld1dW5hLW9DWXRWeFozNWVXaUFVVVZmYkFDSkh6ZjlxSVFBQUFBJCQAAAAAAQAAAAEAAAAb2Yhhc2hpbmVqampoamprAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEdA2GpHQNhqe; BDUSS_BFESS=XhtNWdvdDR0amg5VXFXUld1dW5hLW9DWXRWeFozNWVXaUFVVVZmYkFDSkh6ZjlxSVFBQUFBJCQAAAAAAQAAAAEAAAAb2Yhhc2hpbmVqampoamprAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEdA2GpHQNhqe; STOKEN=b1a1f1bb6281ed91bc1be53f08816746ba757c9cd4978e14f760b5bd9da0f4ca; USER_JUMP=-1; TIEBA_NEW_PC=1; TIEBA_SID=H4sIAAAAAAAAA9MFAPiz3ZcBAAAA; ab_sr=1.0.1_ZDhhNzZlZjIyOTI1ZDkwMGNmYWI4Zjk1ZDMxNTE1MmRmYzk0YWJiYjIzMTA4MmVmMTc1ZDFmNTRlOGU1OWQzNTRhMjlmYjVlZTNiOGFhMTVlYmZmZWIyMmY5M2ZmOTc4MDMyN2IxMWZmNDgxMDkxYzQwY2ZmY2FkZmI1NWJhYzI4ZjM3OWVhYmJkODA4OTQzNjgzNzVkZjgwMjJhZWNmN2UxMDcyNDI0ZGZhZWM3NDM1ZjMzOWM0NWRiZGYzMTQy; TIEBAUID=26aac53c63a469b565bc3acc",
+    "count": 15,
+    "keys": [
+      "__bid_n",
+      "BAIDUID_BFESS",
+      "BIDUPSID",
+      "PSTM",
+      "H_PS_PSSID",
+      "ZFY",
+      "BAIDU_WISE_UID",
+      "BDUSS",
+      "BDUSS_BFESS",
+      "STOKEN",
+      "USER_JUMP",
+      "TIEBA_NEW_PC",
+      "TIEBA_SID",
+      "ab_sr",
+      "TIEBAUID"
+    ]
+  },
+  "login_user": "shinejjjhjjk",
+  "rounds": [
+    {
+      "round": 1,
+      "is_retry": false,
+      "attempt_id": "att-86a060158fdd",
+      "status": "unknown",
+      "reason": "no_response",
+      "post_id": null,
+      "send_elapsed": 28.55,
+      "detail": "编辑器没弹出来",
+      "verifications": [
+        {
+          "found": false,
+          "post_id": null,
+          "match": null,
+          "polls_used": 1,
+          "listed": 2,
+          "delay": 0.0,
+          "error": null,
+          "elapsed": 0.65
+        },
+        {
+          "found": false,
+          "post_id": null,
+          "match": null,
+          "polls_used": 1,
+          "listed": 2,
+          "delay": 3.0,
+          "error": null,
+          "elapsed": 3.44
+        }
+      ],
+      "conclusion": "unknown（no_response），查证未命中，重发"
+    },
+    {
+      "round": 2,
+      "is_retry": true,
+      "attempt_id": "att-7a4d06bfcd2c",
+      "status": "unknown",
+      "reason": "no_response",
+      "post_id": null,
+      "send_elapsed": 26.44,
+      "detail": "编辑器没弹出来",
+      "verifications": [
+        {
+          "found": false,
+          "post_id": null,
+          "match": null,
+          "polls_used": 1,
+          "listed": 2,
+          "delay": 0.0,
+          "error": null,
+          "elapsed": 0.47
+        },
+        {
+          "found": false,
+          "post_id": null,
+          "match": null,
+          "polls_used": 1,
+          "listed": 2,
+          "delay": 3.0,
+          "error": null,
+          "elapsed": 3.52
+        }
+      ],
+      "conclusion": "unknown（no_response），查证未命中，重发"
+    },
+    {
+      "round": 3,
+      "is_retry": true,
+      "attempt_id": "att-7d87dffc5c30",
+      "status": "unknown",
+      "reason": "no_response",
+      "post_id": null,
+      "send_elapsed": 30.42,
+      "detail": "编辑器没弹出来",
+      "verifications": [
+        {
+          "found": false,
+          "post_id": null,
+          "match": null,
+          "polls_used": 1,
+          "listed": 2,
+          "delay": 0.0,
+          "error": null,
+          "elapsed": 0.63
+        },
+        {
+          "found": false,
+          "post_id": null,
+          "match": null,
+          "polls_used": 1,
+          "listed": 2,
+          "delay": 3.0,
+          "error": null,
+          "elapsed": 3.45
+        }
+      ],
+      "conclusion": "unknown（no_response），查证未命中，重发"
+    },
+    {
+      "round": 4,
+      "is_retry": true,
+      "attempt_id": "att-37bc405b1691",
+      "status": "ok",
+      "reason": null,
+      "post_id": "11139485781",
+      "send_elapsed": 27.92,
+      "detail": "接口返回成功",
+      "verifications": [],
+      "conclusion": "ok，结束"
+    }
+  ],
+  "final": {
+    "status": "ok",
+    "post_id": "11139485781",
+    "attempt_id": "att-37bc405b1691"
+  }
+}

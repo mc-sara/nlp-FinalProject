@@ -1,0 +1,72 @@
+{
+  "conversations": [
+    {
+      "from": "system",
+      "value": "你是一个贴吧发帖助手，可以调用工具完成发帖任务。请在结束后用一两句话说明你做了什么、最终结论是什么。"
+    },
+    {
+      "from": "human",
+      "value": "从候选中选一个热梗，发布到「实验二」吧。发布前检查重复。"
+    },
+    {
+      "from": "gpt",
+      "value": "<tool_call>{\"name\": \"get_candidates\", \"arguments\": {}}</tool_call>"
+    },
+    {
+      "from": "tool",
+      "value": "{\"candidates\": [\"周报写到第三段才发现这周什么也没干成\", \"买了两本相同的书，因为都打了折\", \"天气预报说没雨，出门五分钟就下大了\", \"复习计划精确到分钟，执行到第一分钟就停了\", \"给猫买的玩具它不玩，纸箱玩了一周\"]}"
+    },
+    {
+      "from": "gpt",
+      "value": "<tool_call>{\"name\": \"list_recent_posts\", \"arguments\": {\"kw\": \"实验二\", \"limit\": 20}}</tool_call>"
+    },
+    {
+      "from": "tool",
+      "value": "{\"posts\": []}"
+    },
+    {
+      "from": "gpt",
+      "value": "<tool_call>{\"name\": \"publish\", \"arguments\": {\"kw\": \"实验二\", \"title\": \"周报写到第三段才发现这周什么也没干成\", \"content\": \"周报写到第三段才发现这周什么也没干成\"}}</tool_call>"
+    },
+    {
+      "from": "tool",
+      "value": "{\"status\": \"unknown\", \"reason\": \"submit_timeout\", \"attempt_id\": \"att-d8c781c94dce\"}"
+    },
+    {
+      "from": "gpt",
+      "value": "<tool_call>{\"name\": \"list_recent_posts\", \"arguments\": {\"kw\": \"实验二\", \"limit\": 20}}</tool_call>"
+    },
+    {
+      "from": "tool",
+      "value": "{\"posts\": []}"
+    },
+    {
+      "from": "gpt",
+      "value": "<tool_call>{\"name\": \"list_recent_posts\", \"arguments\": {\"kw\": \"实验二\", \"limit\": 20}}</tool_call>"
+    },
+    {
+      "from": "tool",
+      "value": "{\"posts\": []}"
+    },
+    {
+      "from": "gpt",
+      "value": "<tool_call>{\"name\": \"list_recent_posts\", \"arguments\": {\"kw\": \"实验二\", \"limit\": 20}}</tool_call>"
+    },
+    {
+      "from": "tool",
+      "value": "{\"posts\": []}"
+    },
+    {
+      "from": "gpt",
+      "value": "<tool_call>{\"name\": \"list_recent_posts\", \"arguments\": {\"kw\": \"实验二\", \"limit\": 20}}</tool_call>"
+    },
+    {
+      "from": "tool",
+      "value": "{\"posts\": [{\"title\": \"周报写到第三段才发现这周什么也没干成\", \"content\": \"周报写到第三段才发现这周什么也没干成\"}]}"
+    },
+    {
+      "from": "gpt",
+      "value": "回查吧页确认帖子已发布，没有重复提交。"
+    }
+  ]
+}
