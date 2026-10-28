@@ -51,6 +51,14 @@ publish(kw, title, content)     提交发帖
 `attempt_id` 由客户端生成，只进本地日志，不发给贴吧——网页端拿不到服务端请求 ID。
 `status` 的映射沿用工具已有的三级判据逻辑，三级都不确定才记 `unknown`。
 
+**已知差异，待定稿（见 §8）**：现有代码比上表多出三处。PLAN 定稿前必须二选一，否则
+P3 的分类规则无法冻结。
+
+- `rejected` 的 reason 还有 `content_invalid`、`rate_limited` 两种。
+- `ok` 在"已提交但拿不到帖子 ID"时可能返回 `post_id: null`（现有工具的 `withhold_post_id` 开关）。
+- 标题超长：模拟器按 40 字判 `rejected(title_too_long)`，真实工具在 31 字处**截断后照发**。
+  两侧语义不同，§7.2 的逐字节同构在当前实现下不可能通过。
+
 **不提供按请求 ID 查状态的接口**。真实工具没有这个能力，提供了会让模拟环境训出的策略
 在真实侧直接失效。状态查证的唯一手段就是重读吧页列表。
 
@@ -85,12 +93,12 @@ publish(kw, title, content)     提交发帖
 | 真值 | 期望行为 |
 | --- | --- |
 | 已发布，立刻可见 | 查证 → 命中 → 结束 |
-| 已发布，回查有延迟 | 查证 → 未命中 → **再查一次** → 命中 → 结束 |
+| 已发布，回查有延迟 | 查证 → 未命中 → 继续查，直到命中或到达延迟上界 → 结束 |
 | 未发布 | 查证 → 确认没有 → 重发一次 → 结束 |
 | 未发布，重发仍不确定 | 查证 → 重发 → 再查 → 收敛，不得无限重试 |
 
 第 2、3 行是本实验真正的难点：模型在第一次查证时，这两种情况的观测完全相同，
-只能靠再查一次来区分。
+只能靠继续查证来区分——但查几次取决于实测延迟 k（见 2.2），不是固定"再查一次"。
 
 另配一组无故障的正常任务，作为能力保持检查。
 
@@ -277,7 +285,7 @@ FAILED_TOOL          工具侧不可用（登录过期、选择器失效）
 ```json
 {
   "conversations": [
-    {"from": "system", "value": "你是一个贴吧发帖助手，需要正确使用工具完成任务。发布状态不确定时，不得直接重发，应先查证再决策。"},
+    {"from": "system", "value": "你是一个贴吧发帖助手，需要正确使用工具完成任务。全部结束后，用一两句话说明你做了什么、最终结论是什么。"},
     {"from": "human", "value": "从候选中选择一个热梗，发布到'测试'吧。发布前检查重复。"},
     {"from": "gpt", "value": "<tool_call>{\"name\": \"get_candidates\", \"arguments\": {}}</tool_call>"},
     {"from": "tool", "value": "{\"candidates\": [\"热梗1\", \"热梗2\"]}"},
@@ -294,14 +302,15 @@ FAILED_TOOL          工具侧不可用（登录过期、选择器失效）
 
 关键点：
 - `<tool_call>` 是 Qwen 的工具调用标记，LLaMA-Factory 原生支持
-- system 消息不得包含"超时后应先查证"这类具体策略，只给任务要求
+- system 消息必须与 `tieba_env/tools.py` 的 `SYSTEM_PROMPT` 逐字一致，只给任务要求和回答要求，
+  不得包含"超时后应先查证"这类具体策略（见 2.4）。否则组间差异会混入提示词，C 组的提升无法归因
 - 工具返回的 JSON 格式必须和 D1 实测的完全一致
 - 每条轨迹是独立的一个 JSON 对象，所有轨迹放在一个数组里
 
 **P2 在 D4 需要写的转换脚本**：
 
 ```python
-# convert_trajectory_to_sharegpt.py
+# convert_to_sharegpt.py
 def trajectory_to_sharegpt(traj: dict, system_prompt: str) -> dict:
     conversations = [{"from": "system", "value": system_prompt}]
     conversations.append({"from": "human", "value": traj["task"]})
@@ -358,8 +367,10 @@ def trajectory_to_sharegpt(traj: dict, system_prompt: str) -> dict:
 
 ### 6.3 账号约束
 
-发帖间隔沿用工具默认的随机等待区间，不下调。账号一旦触发风控，真实验证通道就断了，
-而这是论证模拟环境有效性的唯一依据，按稀缺资源对待。
+发帖间隔沿用工具默认的随机等待区间，不下调；D6 阶段另按 6.2 执行（每次不低于 10 分钟）。
+`real/config.json` 的 `publish_interval_seconds` 必须设为不小于工具默认区间的值，设为 0
+（不等待）只允许用于模拟器联调与自建吧调试，不得用于公共吧。账号一旦触发风控，真实验证
+通道就断了，而这是论证模拟环境有效性的唯一依据，按稀缺资源对待。
 
 ## 7. 验证方法
 
@@ -379,9 +390,15 @@ def trajectory_to_sharegpt(traj: dict, system_prompt: str) -> dict:
 
 - ☐ Qwen3.5-9B 的具体 checkpoint 与解码参数（temperature、top_p、最大步数）。
 - ☐ LoRA 超参：rank、target modules、学习率、训练步数。
-- ☐ 自建吧的账号与吧名；账号等级是否满足发帖门槛。
+- ☑ 自建吧吧名：agenttest（2026-10-26 起使用）。
+- ☐ 该账号等级是否满足发帖门槛（部分吧要求 4 级以上）。
 - ☐ D6 的目标公共吧选择，以及发帖内容的准备方式。
 - ☐ 回查延迟 k 的取值——等 D1 实测结果。
+- ☐ 标题超长的两侧语义二选一：模拟器改成截断（31 字），还是真实侧改成拒绝（40 字）？
+  定案后再冻结 2.1 的契约，否则 §7.2 的同构性验证无法通过。
+- ☐ `rejected` 是否纳入 `content_invalid` / `rate_limited`；`ok` 是否允许 `post_id: null`。
+- ☐ `publish_interval_seconds` 的取值与放行条件（现状为 0，与 6.3 冲突）。
+- ☐ 模拟器训练/测试用的吧名（"测试" / "实验二"）与真实侧 agenttest 不一致，是否统一。
 - ☐ 20 条训练数据是否够；不够时是扩大采样还是改用拒绝采样。
 - ☐ 人工修正的标注规则：由谁修正、多人如何对齐、是否需要交叉复核。
 - ☐ 轨迹与指标的归档格式，多次运行如何聚合。
