@@ -141,6 +141,21 @@ class TestFaultInjection(unittest.TestCase):
         self.assertEqual(third.status, STATUS_OK)
         self.assertEqual(env.truth()["post_count"], 2, "只有第 1、3 次真的写了帖子")
 
+    def test_rule_rejection_does_not_consume_fault_plan(self):
+        """硬规则挡下的发帖不占故障位：否则一个超长标题就能吃掉注入（P2 复盘发现）。"""
+        env = make_env()
+        env.reset(fault_plan={1: FaultSpec(STATUS_UNKNOWN, "submit_timeout", published=False)})
+
+        bad = env.publish("测试", "标" * 55, "热梗1")
+        self.assertEqual(bad.status, STATUS_REJECTED)
+        self.assertEqual(bad.reason, "title_too_long")
+
+        good = env.publish("测试", "分享", "热梗2")
+        self.assertEqual(good.status, STATUS_UNKNOWN, "第 1 次有效发帖必须命中 1 号故障位")
+        truth = env.truth()
+        self.assertEqual(truth["publish_count"], 1)
+        self.assertEqual(len(truth["publish_attempts"]), 2, "两次输入都留下审计记录")
+
     def test_probability_injection_is_reproducible(self):
         rates = FaultRates(error=0.05, rejected=0.1, unknown=0.5, delay_k=2)
 
@@ -273,7 +288,7 @@ class TestAdapterContract(unittest.TestCase):
         attempt_id 只在「可能已经发出去了」的 ok / unknown 上有对账价值。
         """
         env = make_env(title_limit=2)
-        env.reset(fault_plan={2: FaultSpec(STATUS_ERROR, "selector_missing")})
+        env.reset(fault_plan={1: FaultSpec(STATUS_ERROR, "selector_missing")})
         adapter = TiebaAdapter(MockBackend(env), attempt_id_factory=lambda: "att-fixed")
         rejected, _ = adapter.call("publish", {"kw": "测试", "title": "太长了", "content": "热梗1"})
         error, _ = adapter.call("publish", {"kw": "测试", "title": "a", "content": "热梗1"})
