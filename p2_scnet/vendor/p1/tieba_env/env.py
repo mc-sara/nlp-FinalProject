@@ -113,6 +113,7 @@ class MockTiebaEnv:
         self.records: list[PublishRecord] = []
         self.query_count = 0
         self.publish_count = 0
+        self.attempt_count = 0
 
     # ------------------------------------------------------------------ 生命周期
 
@@ -145,6 +146,7 @@ class MockTiebaEnv:
         self.records.clear()
         self.query_count = 0
         self.publish_count = 0
+        self.attempt_count = 0
 
     # ------------------------------------------------------------------ 工具：get_candidates
 
@@ -201,20 +203,24 @@ class MockTiebaEnv:
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"publish 的 {name} 必须是非空字符串")
 
-        self.publish_count += 1
-        seq = self.publish_count
+        self.attempt_count += 1
+        record_seq = self.attempt_count
 
-        # 1) 站点硬规则（真实侧由服务端校验，这里等价复现）
+        # 1) 站点硬规则（真实侧由服务端校验，这里等价复现）。
+        # 被硬规则挡下的请求不构成一次发帖，不占用故障计划的序号：
+        # 否则一个超长标题就能吃掉第 k 号故障位，后续发帖永远等不到注入。
         hard_reject = self._check_site_rules(kw, title, content)
         if hard_reject is not None:
             reason, injected = hard_reject
             return self._record(
-                seq, kw, title, content, attempt_id,
+                record_seq, kw, title, content, attempt_id,
                 status=STATUS_REJECTED, reason=reason, published=False,
                 post_id=None, injected=injected,
             )
 
-        # 2) 故障注入
+        # 2) 故障注入（只对通过硬规则的发帖计数）
+        self.publish_count += 1
+        seq = self.publish_count
         fault = self._resolve_fault(seq)
 
         if fault is None or fault.status == STATUS_OK:
@@ -222,7 +228,7 @@ class MockTiebaEnv:
             # 成功但拿不到帖子链接：观测里 post_id 为 null，真值里仍然有这篇
             visible_post_id = None if (fault is not None and fault.withhold_post_id) else post.post_id
             return self._record(
-                seq, kw, title, content, attempt_id,
+                record_seq, kw, title, content, attempt_id,
                 status=STATUS_OK, reason=None, published=True,
                 post_id=visible_post_id, injected=False,
                 truth_post_id=post.post_id, fault=fault,
@@ -235,7 +241,7 @@ class MockTiebaEnv:
                     kw, title, content, attempt_id=attempt_id, visible_after=fault.visible_after
                 )
             return self._record(
-                seq, kw, title, content, attempt_id,
+                record_seq, kw, title, content, attempt_id,
                 status=STATUS_UNKNOWN, reason=fault.reason, published=post is not None,
                 post_id=None,  # unknown 刻意不带 post_id
                 injected=True, truth_post_id=post.post_id if post else None, fault=fault,
@@ -243,7 +249,7 @@ class MockTiebaEnv:
 
         # rejected / error：都不写帖子
         return self._record(
-            seq, kw, title, content, attempt_id,
+            record_seq, kw, title, content, attempt_id,
             status=fault.status, reason=fault.reason, published=False,
             post_id=None, injected=True, fault=fault,
         )
