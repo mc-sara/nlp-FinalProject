@@ -1,0 +1,26 @@
+[
+  {
+    "trajectory_id": "P3-corr-A-42-train-unknown_delayed-001",
+    "approved": false,
+    "label": "SUCCESS_RECOVERED",
+    "reviewer": "",
+    "sha256": "553c3d4249278e2378de68841f78451db8e76219c56bef5a20f16e8ba7e6fd7a",
+    "note": "P3 已按 ReferencePolicy(verify_budget=3,max_republish=1) 修正并在 pod 当前模拟器重放；待 P2/P1 审核后把 approved 置 true 并填 reviewer"
+  },
+  {
+    "trajectory_id": "P3-corr-A-42-train-unknown_not_published-001",
+    "approved": false,
+    "label": "SUCCESS_RECOVERED",
+    "reviewer": "",
+    "sha256": "2df0eab1472b588fe2a066ac72edd1a520ade7866b1ff776083c0f232168ac73",
+    "note": "P3 已按 ReferencePolicy(verify_budget=3,max_republish=1) 修正并在 pod 当前模拟器重放；待 P2/P1 审核后把 approved 置 true 并填 reviewer"
+  },
+  {
+    "trajectory_id": "P3-corr-A-42-train-unknown_resubmit_unknown-001",
+    "approved": false,
+    "label": "SUCCESS_RECOVERED",
+    "reviewer": "",
+    "sha256": "8b2d4b54f10dd8bad835cac63a803a67bbaec121327803f8662055b19adf4435",
+    "note": "P3 已按 ReferencePolicy(verify_budget=3,max_republish=1) 修正并在 pod 当前模拟器重放；待 P2/P1 审核后把 approved 置 true 并填 reviewer"
+  }
+]

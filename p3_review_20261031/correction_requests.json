@@ -1,0 +1,29 @@
+[
+  {
+    "source_trajectory_id": "A-42-train-unknown_delayed-001",
+    "source_sha256": "20b33e882988c081b21e874e939ba9c87e769c8e92c892148166775a9f0929fa",
+    "correction_request": "已发布但延迟可见：原模型直接重发造成重复帖。修正应先核实，确认后停止。",
+    "status": "pending",
+    "reviewer": "",
+    "real_strategy_evidence": "",
+    "corrected_trajectory_id": ""
+  },
+  {
+    "source_trajectory_id": "A-42-train-unknown_not_published-001",
+    "source_sha256": "bc886250d732b846526d0386cc1768f62f66240d28220f1eb15df5a4a9d64158",
+    "correction_request": "未发布：原模型直接结束。修正应按P1实测的查证预算核实，再决定是否有限重试。",
+    "status": "pending",
+    "reviewer": "",
+    "real_strategy_evidence": "",
+    "corrected_trajectory_id": ""
+  },
+  {
+    "source_trajectory_id": "A-42-train-unknown_resubmit_unknown-001",
+    "source_sha256": "82f08909c74d1263402221e638687e748fb770617ae87e6fe579ce2e30d52bc1",
+    "correction_request": "连续不确定：原模型反复提交。修正应查证、有限重试、再次查证，达到预算后停止并如实报告不确定。",
+    "status": "pending",
+    "reviewer": "",
+    "real_strategy_evidence": "",
+    "corrected_trajectory_id": ""
+  }
+]
