@@ -23,6 +23,7 @@ import html as html_mod
 import json
 import re
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -112,8 +113,18 @@ def do_level(tp, client, kw: str) -> dict[str, Any]:
     }
 
 
-def do_list(tp, client, kw: str, limit: int) -> dict[str, Any]:
-    resp = client._request("GET", tp.BASE + MOBILE_URL, params={"kw": kw})
+def do_list(tp, client, kw: str, limit: int, *, nocache: bool = False) -> dict[str, Any]:
+    """读吧页帖子列表。
+
+    `nocache=True` 时给请求加上时间戳与 `no-cache` 头，绕开 CDN / 中间缓存 ——
+    刚发的帖子有时在缓存副本里看不到，回查就会出现「明明发出去了却查不到」。
+    """
+    params: dict[str, Any] = {"kw": kw}
+    extra: dict[str, Any] = {}
+    if nocache:
+        params["_t"] = str(int(time.time() * 1000))
+        extra["headers"] = {"Cache-Control": "no-cache", "Pragma": "no-cache"}
+    resp = client._request("GET", tp.BASE + MOBILE_URL, params=params, **extra)
     page = resp.content.decode("utf-8", "ignore")
     if "百度安全验证" in page or "wappass" in str(resp.url):
         raise RuntimeError("风控拦截（百度安全验证），请停止本次实验")

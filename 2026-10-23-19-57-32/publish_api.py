@@ -18,10 +18,16 @@
     if r["status"] == "ok":
         print(r["post_id"], r["attempt_id"])
 
-    # 批量发（浏览器只启动一次，省掉每条约 5-8 秒的启动开销）
-    with Poster() as poster:
-        for item in items:
-            print(poster.publish("我的吧", item.title, item.content))
+    # 批量发：用 publish_many，别手写 publish_verified 循环
+    from publish_api import publish_many
+
+    publish_many("我的吧", get_candidates()[:5], interval=30)
+
+批量为什么必须 `max_retries=0`：某条发出去了却被判 `unknown`（吧页列表有延迟，
+新帖还没刷出来）时，`publish_verified` 会重发**同一条**。单发时这是合理的兜底，
+批量时看起来就是「发完一篇不往下走、又发第一遍」，而且多出来的每一条都是真帖子。
+`publish_many` 默认不重发，并改用「发帖前后 tid 差集」补 post_id ——
+按标题比对在同名帖已存在时会指到旧帖上。
 
 两个只读查询也能直接调（都不开浏览器）：
 
@@ -57,15 +63,19 @@
 
 查证与重发（默认开启，最多重发 3 次，**只有 unknown 才会重发**）：
 
-    发送 ──ok──► 结束
+    发送 ──ok──────► 刷新吧页 ──► 拿不到 post_id 就按刷新后的列表补 ──► 结束
       │
       ├─ rejected / error ──► 记录原因 ──► 结束（确定性结论，不重发）
       │
-      └─ unknown ──► 查证（立刻）
+      └─ unknown ──► 刷新吧页 ──► 查证（立刻）
                        ├─ 命中 ──► 改判 ok，结束
-                       └─ 未命中 ──► 等 3s 再查证
+                       └─ 未命中 ──► 等 3s，**刷新吧页**再查证
                                        ├─ 命中 ──► 改判 ok，结束
                                        └─ 未命中 ──► 记录查证结果 ──► 重发
+
+  为什么发完要刷新吧页：查证默认走 HTTP，帖子明明已经落地，吧页 HTML 却可能还是
+  旧的（缓存 / 列表延迟），于是 ok 被误判成 unknown，甚至触发重复发帖。
+  浏览器重新加载一次拿的是最新 DOM，能把这类假阴性压掉。见 `Poster.refresh_forum`。
 
   `payload` 永远是标准四状态 JSON（与模拟器观测同构，不掺审计字段）；
   每一轮的「发送结果 + 查证证据」放在 `result.rounds` 里，`detailed=True` 可取。
@@ -93,6 +103,7 @@ from dataclasses import dataclass, field, replace
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
@@ -123,8 +134,37 @@ MAX_RETRIES = 3
 """最多重发次数（不含首次发送）。只有 unknown 才会触发重发。"""
 VERIFY_DELAY = 3.0
 """unknown 后第二次查证前等待的秒数。"""
+
+SUBMIT_WAIT = 4.0
+"""点完「发布」后等 `add_pc` 响应事件的上限（秒）。
+
+`browser_poster.publish_one` 原本固定等 25 秒再兜底等 3 秒。实测这个事件抓不到：
+历史记录里每轮 `send_elapsed` 是 26.44–30.42 秒，正好等于 25+3 的固定等待，
+说明导航 + 填表 + 点按钮加起来只花 1–3 秒，剩下的全在空等。
+等不到就直接靠 UI 信号（弹层关闭 / toast / DOM 里的新帖链接）判定，所以把上限压到 4 秒。
+设为 0 或负数可关掉这个优化，恢复 25 秒原行为。
+"""
+
+FORUM_PAGE = "https://tieba.baidu.com/mo/q/m"
+"""移动吧页地址：服务端渲染，`li[data-tid]` 里就是帖子列表。
+
+和 `real_probe.do_list` 打的是同一个地址 —— 一个是 HTTP、一个是浏览器，
+这样「刷新网页」和「HTTP 回查」看到的是同一份数据，不会互相打架。
+"""
+
+REFRESH_SETTLE = 0.4
+"""`readyState=complete` 之后再多等一会儿，让吧页 DOM 稳定（滚动加载之类）。"""
+
 LEDGER_DIR = ROOT / "runs" / "publish"
 """逐次发送/查证记录的落盘目录。"""
+
+TABLE_NAME = "publish-log.md"
+"""与 JSON 记录同目录的汇总表格：每次运行追加一行，不重建。"""
+
+TABLE_COLUMNS = (
+    "#", "时间", "操作", "吧", "status", "reason",
+    "有 post_id", "第几次查到", "耗时", "原始文件",
+)
 
 _REASONS: dict[str, tuple[str, ...]] = {
     STATUS_UNKNOWN: UNKNOWN_REASONS,
@@ -152,6 +192,20 @@ def _new_attempt_id() -> str:
 def _norm_title(text: str) -> str:
     """标题比对用：去掉所有空白。吧页会把长标题折行、吞掉多余空格。"""
     return re.sub(r"\s+", "", text or "")
+
+
+def _match_post_id(posts: list[dict[str, Any]], target: str) -> str | None:
+    """在帖子列表里按归一化标题找 tid（`target` 必须先过 `_norm_title`）。
+
+    只按标题比对 —— 吧页列表不含正文。同名帖有多条时取页面上第一条，
+    所以调用方应先确认「这个标题本来不该存在」（快照差集 / 首次发送）。
+    """
+    for post in posts:
+        if _norm_title(str(post.get("title") or "")) == target:
+            post_id = str(post.get("post_id") or "").strip()
+            if post_id:
+                return post_id
+    return None
 
 
 def _raw_status(ok: bool, detail: str, *, crashed: bool = False) -> dict[str, Any]:
@@ -315,6 +369,8 @@ class Poster:
         recheck_interval: float = 1.5,
         verify_polls: int = 1,
         verify_interval: float = 1.5,
+        submit_wait: float = SUBMIT_WAIT,
+        refresh_after_publish: bool = True,
     ) -> None:
         defaults = _load_defaults()
         self.poster_dir = Path(poster_dir or defaults["poster_dir"])
@@ -324,12 +380,17 @@ class Poster:
         self.profile = profile or defaults["profile"]
         self.keep_open = keep_open
         self.title_limit = title_limit
+        self.submit_wait = submit_wait
         # 发帖脚本只给出 UI 信号、拿不到链接时，按标题回查吧页的次数与间隔
         self.recheck_polls = recheck_polls
         self.recheck_interval = recheck_interval
         # 重发流程里的查证：默认等够时间后只问一次吧页（3 秒是刻意留的可见延迟）
         self.verify_polls = verify_polls
         self.verify_interval = verify_interval
+        # publish 之后（ok / unknown）先让浏览器刷新一次吧页再回查，见 refresh_forum
+        self.refresh_after_publish = refresh_after_publish
+        self.refresh_count = 0
+        self._refresh_error: str | None = None
         self._bp: Any = None
         self._tp: Any = None
         self._edge: Any = None
@@ -380,6 +441,7 @@ class Poster:
         self.login_user = info.get("user")
         self.cookie = cookie
         self.cookie_count = count
+        self._cap_submit_wait()
         return self
 
     def close(self) -> None:
@@ -391,53 +453,150 @@ class Poster:
             finally:
                 self._edge = None
 
+    def _cap_submit_wait(self) -> None:
+        """把 `publish_one` 里「点完发布等 add_pc 事件」的固定 25 秒压到 `submit_wait`。
+
+        只在 Edge 实例上包一层 `wait_event`，不动 tieba-poster 的源码。
+        等不到事件时 `publish_one` 本来就会退到 UI 信号（弹层是否关闭 / toast /
+        DOM 里的新帖链接）——那条路径本来就存在，只是原先要白等 28 秒才走到。
+        """
+        edge = self._edge
+        if edge is None or self.submit_wait <= 0:
+            return
+        if getattr(edge, "_submit_wait_capped", False):
+            return
+        original = edge.wait_event
+        cap = max(0.5, float(self.submit_wait))
+
+        def capped(keyword: str, timeout: float = 25, method: str = "Network.responseReceived"):
+            return original(keyword, timeout=min(timeout, cap), method=method)
+
+        edge.wait_event = capped
+        edge._submit_wait_capped = True
+
     # ------------------------------------------------------------------ 回查
 
-    def _list_posts(self, kw: str, limit: int = 20) -> list[dict[str, Any]]:
-        """读吧页列表。走 HTTP client（复用 cookie/代理），不需要浏览器。"""
+    def refresh_forum(self, kw: str, limit: int = 30) -> list[dict[str, Any]] | None:
+        """让浏览器**重新加载**吧页，返回刷新后 DOM 里的帖子列表；失败返回 None。
+
+        存在的理由：查证走 HTTP 时，帖子里明明已经发出去了，吧页 HTML 却可能
+        还是旧的（CDN 缓存 / 列表延迟），于是 `ok` 被误判成 `unknown`。
+        浏览器重新加载一次拿的是渲染后的最新 DOM，能把这类假阴性压掉。
+
+        - 刷新的是 `/mo/q/m`（服务端渲染页），不是 PC 的 `/f?kw=`（SPA 空壳）；
+          地址带 `_t=时间戳` 打掉缓存。
+        - 只回传 `li[data-tid]` 的 outerHTML（约 4KB），不搬运整个页面。
+        - 任何异常都吞掉并记进 `self._refresh_error`：刷新失败只影响「看得更准」，
+          不该让一次发帖崩在查证上。调用方拿到 None 就退回 HTTP 查。
+        """
+        self._refresh_error = None
+        edge = self._edge
+        if edge is None:
+            self._refresh_error = "浏览器未打开"
+            return None
+        try:
+            from real.real_probe import parse_threads  # noqa: PLC0415 - 与探针共用一套解析
+
+            url = f"{FORUM_PAGE}?kw={quote(kw)}&_t={int(time.time() * 1000)}"
+            edge.goto(url, timeout=30)
+            if REFRESH_SETTLE > 0:
+                time.sleep(REFRESH_SETTLE)
+            html = edge.eval(
+                "Array.prototype.map.call("
+                "document.querySelectorAll('li[data-tid]'),"
+                "function(el){return el.outerHTML}).join('')"
+            ) or ""
+            posts = parse_threads(str(html), max(1, limit))
+        except Exception as exc:  # noqa: BLE001 - 刷新只是锦上添花
+            self._refresh_error = f"{type(exc).__name__}: {exc}"
+            return None
+        if not posts:
+            # 解析不出帖子说明页面不是预期结构（风控页 / 改版），别拿空列表当结论
+            self._refresh_error = "刷新后页面里没有 li[data-tid]（可能被风控或页面改版）"
+            return None
+        self.refresh_count += 1
+        return posts
+
+    def _list_posts(
+        self, kw: str, limit: int = 20, *, refresh: bool = False,
+    ) -> list[dict[str, Any]]:
+        """读吧页列表。默认走 HTTP client（复用 cookie/代理），不需要浏览器。
+
+        `refresh=True`：先浏览器刷新吧页读 DOM；拿不到再走 HTTP，
+        且 HTTP 这次也带时间戳打缓存（`nocache`）。两条路读的是同一个页面，
+        所以不会出现「刷新说没有、HTTP 说有」这种互相打脸的情况。
+        """
+        if refresh:
+            posts = self.refresh_forum(kw, max(limit, 30))
+            if posts:
+                return posts[:limit]
         if self._probe is None:
             from real.real_probe import build_client, do_list  # noqa: PLC0415
 
             tp, client = build_client(self.poster_dir, str(self.config_path))
             self._probe = (do_list, tp, client)
         do_list, tp, client = self._probe
-        return list(do_list(tp, client, kw, limit).get("posts") or [])
+        return list(do_list(tp, client, kw, limit, nocache=refresh).get("posts") or [])
 
-    def list_recent_posts(self, kw: str, limit: int = 20) -> list[dict[str, Any]]:
-        """读吧页最近帖子（只读，不启动浏览器）。
+    def list_recent_posts(self, kw: str, limit: int = 20, *, refresh: bool = False) -> list[dict[str, Any]]:
+        """读吧页最近帖子（默认只读 HTTP，不启动浏览器）。
 
         查证、发帖前查重用的都是这条路：抓 `/mo/q/m` 服务端渲染的吧页，
         只认带 `data-tid` 的 `<li>`，返回 `[{"post_id","title","pinned"}, ...]`。
         走 `requests`，不是浏览器 —— 所以比 `open()` 快得多（不需要 5 秒启动）。
+        `refresh=True` 时改用已打开的浏览器刷新吧页（需要先 `open()`），见 `refresh_forum`。
         """
         kw = (kw or "").strip()
         if not kw:
             raise ValueError("kw（吧名）不能为空")
         if limit <= 0:
             raise ValueError("limit 必须为正整数")
-        return self._list_posts(kw, limit)
+        return self._list_posts(kw, limit, refresh=refresh)
 
-    def _recheck_post_id(self, kw: str, title: str) -> str | None:
+    def _recheck_post_id(
+        self,
+        kw: str,
+        title: str,
+        *,
+        seed: list[dict[str, Any]] | None = None,
+        refresh: bool = False,
+    ) -> str | None:
         """发帖成功后拿不到 tid 时，按标题回查吧页把它补上。
 
         只能按标题比对 —— 吧页列表没有正文。标题足够独特时可靠；
         同一个标题发过两次就分不清，取页面里第一条命中的。
-        风控/网络异常直接放弃（不重试），别把账号推进冷却。
+
+        `seed` 是已经拿到的列表（比如刚刷新过的吧页），先用它比，
+        省掉一次重复请求；`refresh=True` 让第一次 HTTP 回查也打掉缓存。
+        HTTP 查不通（超时 / 风控）时再用浏览器试一次 —— 网络这条路挂了不代表帖子没发出去。
+        风控/网络两条路都不通就直接放弃（不重试），别把账号推进冷却。
         """
         target = _norm_title(title)
+        if seed:
+            hit = _match_post_id(seed, target)
+            if hit:
+                return hit
+
         polls = max(1, self.recheck_polls)
         last_error: Exception | None = None
         for index in range(polls):
+            posts: list[dict[str, Any]] | None = None
             try:
-                posts = self._list_posts(kw)
+                posts = self._list_posts(kw, refresh=refresh and index == 0)
             except Exception as exc:  # noqa: BLE001 - 回查失败不该让整次发帖崩掉
                 last_error = exc
+                if (refresh and index == 0) or self._edge is None:
+                    break
+                try:  # HTTP 挂了：换浏览器刷新这条路再问一次
+                    posts = self._list_posts(kw, refresh=True)
+                    last_error = None
+                except Exception:  # noqa: BLE001 - 两条路都不通，老实放弃
+                    break
+            if posts is None:
                 break
-            for post in posts:
-                if _norm_title(str(post.get("title", ""))) == target:
-                    post_id = str(post.get("post_id") or "").strip()
-                    if post_id:
-                        return post_id
+            hit = _match_post_id(posts, target)
+            if hit:
+                return hit
             if index + 1 < polls:
                 time.sleep(self.recheck_interval)
         self._recheck_error = f"{type(last_error).__name__}: {last_error}" if last_error else None
@@ -495,10 +654,36 @@ class Poster:
         raw = _raw_status(ok, detail, crashed=crashed)
         post_id_source = "script" if raw.get("post_id") else None
 
+        # 发完之后立刻刷新一次吧页，再拿「刷新后的列表」回查：
+        #   · ok 但没链接（只靠 UI 信号判成功）→ 需要列表才补得到 post_id
+        #   · unknown → 十有八九是帖子已经发出去了、吧页还是旧的
+        # 不刷新的话，帖子已经落地也可能查不到，最后白判一个 unknown 甚至重复发。
+        refreshed: list[dict[str, Any]] | None = None
+        refresh_tried = self.refresh_after_publish and raw["status"] in (STATUS_OK, STATUS_UNKNOWN)
+        if refresh_tried:
+            refreshed = self.refresh_forum(kw)
+            note = (
+                "已刷新吧页"
+                if refreshed is not None
+                else f"刷新吧页失败（{self._refresh_error or '未拿到列表'}），退回 HTTP 查证"
+            )
+            detail = f"{detail}｜{note}" if detail else note
+
         # ok 必须能对上一条帖子。脚本只凭 UI 信号判成功时会没有链接，这里补。
         if raw["status"] == STATUS_OK and not raw.get("post_id"):
             self._recheck_error = None
-            resolved = self._recheck_post_id(kw, sent_title) if recheck else None
+            # seed 用刚刷新到的列表；刷新没成，HTTP 回查也照样打缓存（refresh=True）。
+            # 刷新成功时不再刷第二次 —— 列表就在手上，多刷一次纯属浪费 1–2 秒。
+            resolved = (
+                self._recheck_post_id(
+                    kw,
+                    sent_title,
+                    seed=refreshed,
+                    refresh=refresh_tried and refreshed is None,
+                )
+                if recheck
+                else None
+            )
             if resolved:
                 raw = {"status": STATUS_OK, "post_id": resolved}
                 post_id_source = "recheck"
@@ -539,12 +724,18 @@ class Poster:
         delay: float = 0.0,
         polls: int | None = None,
         interval: float | None = None,
+        refresh: bool = False,
     ) -> dict[str, Any]:
         """查证「吧页里到底有没有这篇」，返回**证据**而不是布尔值。
 
         与 `_recheck_post_id` 的分工：那个只负责补 post_id，补不到就静默；
         这个要把「查了几次、看到几条、有没有报错」写进重发记录，所以返回字典。
         永不抛异常 —— 查证本身失败是有信息量的结果，不该让整次发帖崩掉。
+
+        `refresh=True` 让第一次查询改成「浏览器刷新吧页后读 DOM」，
+        用来排除「帖子在、吧页还是旧 HTML」的假阴性（详见 `refresh_forum`）。
+        任何一次 HTTP 查询抛异常时（超时 / 风控），还会自动用浏览器再试一次 ——
+        网络这条路挂了，不代表帖子没发出去。
         """
         started = time.monotonic()
         if delay > 0:
@@ -558,25 +749,41 @@ class Poster:
         used = 0
         matched: dict[str, Any] | None = None
         error: str | None = None
+        refreshed = False
 
         for index in range(times):
+            posts: list[dict[str, Any]] | None = None
+            want_refresh = refresh and index == 0
             try:
-                posts = self._list_posts(kw)
+                posts = self._list_posts(kw, refresh=want_refresh)
+                refreshed = refreshed or want_refresh
             except Exception as exc:  # noqa: BLE001 - 查证失败只记证据
                 error = f"{type(exc).__name__}: {exc}"
+                # HTTP 查不通（超时 / 风控）时别急着判「查不到」：
+                # 浏览器是另一条网络路径，还多一次机会。历史记录里就有
+                # 「接口返回成功 + HTTP 查证 20s×3 全超时 → 误判 unknown」这种案例。
+                if not want_refresh and self._edge is not None:
+                    try:
+                        posts = self._list_posts(kw, refresh=True)
+                        refreshed = True
+                        error = None
+                    except Exception as exc2:  # noqa: BLE001 - 两条路都不通才认输
+                        detail2 = f"{type(exc2).__name__}: {exc2}"
+                        if self._refresh_error:
+                            detail2 += f"（刷新错误：{self._refresh_error}）"
+                        error = f"{error}｜刷新吧页也失败：{detail2}"
+            if posts is None:
                 break
             used += 1
             listed = len(posts)
-            for post in posts:
-                if _norm_title(str(post.get("title", ""))) == target:
-                    post_id = str(post.get("post_id") or "").strip()
-                    if post_id:
-                        matched = {
-                            "post_id": post_id,
-                            "title": post.get("title"),
-                            "author": post.get("author"),
-                        }
-                        break
+            hit = _match_post_id(posts, target)
+            if hit:
+                matched = {
+                    "post_id": hit,
+                    "title": next(
+                        (p.get("title") for p in posts if str(p.get("post_id")) == hit), title
+                    ),
+                }
             if matched:
                 break
             if index + 1 < times:
@@ -589,6 +796,7 @@ class Poster:
             "polls_used": used,
             "listed": listed,
             "delay": delay,
+            "refresh": refreshed,
             "error": error,
             "elapsed": round(time.monotonic() - started, 2),
         }
@@ -611,6 +819,9 @@ class Poster:
         只有 `unknown` 才进入查证：查不到再等 `verify_delay` 秒查第二次，仍未命中才重发。
         查证命中即改判 ok（帖子确实在吧页上，只是脚本没拿到链接）。
 
+        每一轮发送后（`ok` / `unknown`）`Poster.publish` 已经刷新过一次吧页；
+        第二次查证前再刷新一次 —— 帖子延迟可见时，刷新比干等更接近人肉操作。
+
         最终 `payload` 仍是标准四状态 JSON；每一轮的发送与查证全部留在 `rounds` 里。
         重发次数用尽仍非 ok 时，`rounds` 就是完整的失败档案。
         """
@@ -623,6 +834,7 @@ class Poster:
             if is_retry and retry_interval > 0:
                 time.sleep(retry_interval)
 
+            refreshed_before = self.refresh_count
             current = self.publish(
                 kw, title, content, max_len=max_len, detailed=True, recheck=recheck
             )
@@ -637,6 +849,7 @@ class Poster:
                 "reason": current.reason,
                 "post_id": current.post_id,
                 "send_elapsed": current.elapsed,
+                "refreshed": self.refresh_count - refreshed_before,
                 "detail": current.detail,
                 "verifications": [],
                 "conclusion": "",
@@ -663,13 +876,15 @@ class Poster:
                 record["conclusion"] = f"查证命中 {first['post_id']}，改判 ok"
                 break
 
-            # 帖子可能正在延迟可见，等一会儿再查一次
-            second = self.verify_post(kw, current.title_sent, delay=verify_delay)
+            # 帖子可能正在延迟可见：等一会儿，并且这次**刷新吧页**再查
+            # （干等同样的旧 HTML 等于没查；刷新才可能看到刚落地的新帖）
+            second = self.verify_post(kw, current.title_sent, delay=verify_delay, refresh=True)
             record["verifications"].append(second)
             if second["found"]:
                 result = _promote_to_ok(current, str(second["post_id"]))
+                record["refresh_forced"] = bool(second.get("refresh"))
                 record["conclusion"] = (
-                    f"等待 {verify_delay:g}s 后查证命中 {second['post_id']}，改判 ok"
+                    f"等待 {verify_delay:g}s 后刷新吧页查证命中 {second['post_id']}，改判 ok"
                 )
                 break
 
@@ -697,14 +912,21 @@ def publish(
     max_retries: int = MAX_RETRIES,
     verify_delay: float = VERIFY_DELAY,
     ledger_dir: str | Path | None = None,
+    refresh_after_publish: bool = True,
 ) -> dict[str, Any] | PublishResult:
-    """起浏览器 → 发 → 查证 → 按需重发（最多 `max_retries` 次）→ 关浏览器。
+    """起浏览器 → 发 → 刷新吧页查证 → 按需重发（最多 `max_retries` 次）→ 关浏览器。
 
     返回最终那一轮的四状态 JSON；`detailed=True` 返回 `PublishResult`，
     用 `result.rounds` 取每一轮的发送与查证记录。`max_retries=0` 即退回单次发送。
     `ledger_dir` 给了就把逐次记录写成 JSON（默认不写，只在 CLI 里写）。
+    `refresh_after_publish=False` 关掉「发完刷新吧页再查」（回到纯 HTTP 查证）。
     """
-    poster = Poster(poster_dir=poster_dir, headless=headless, keep_open=keep_open)
+    poster = Poster(
+        poster_dir=poster_dir,
+        headless=headless,
+        keep_open=keep_open,
+        refresh_after_publish=refresh_after_publish,
+    )
     try:
         result = poster.publish_verified(
             kw,
@@ -720,6 +942,214 @@ def publish(
         return result if detailed else result.payload
     finally:
         poster.close()
+
+
+# ---------------------------------------------------------------- 批量发送
+
+
+def _batch_items(items: Any) -> list[tuple[str, str]]:
+    """把候选字典 / (标题, 正文) 二元组统一成 (title, content)。"""
+    out: list[tuple[str, str]] = []
+    for item in items:
+        if isinstance(item, dict):
+            title = str(item.get("title") or "").strip()
+            content = str(item.get("content") or "").strip()
+        else:
+            seq = list(item)
+            title = str(seq[0] if len(seq) > 0 else "").strip()
+            content = str(seq[1] if len(seq) > 1 else "").strip()
+        out.append((title, content))
+    return out
+
+
+def _snapshot(poster: Poster, kw: str, limit: int = 30) -> tuple[set[str], set[str]]:
+    """记下发帖前的吧页快照：已有 tid 与已有标题。
+
+    新帖进列表有延迟，只比标题会把「吧里本来就有的同名帖」当成刚发的；
+    记下 tid 集合才能只认真正新出现的那一条。
+    """
+    try:
+        posts = poster.list_recent_posts(kw, limit)
+    except Exception:  # noqa: BLE001 - 快照失败不该挡住发帖
+        return set(), set()
+    tids = {str(p.get("post_id") or "") for p in posts if p.get("post_id")}
+    titles = {_norm_title(str(p.get("title") or "")) for p in posts}
+    return tids, titles
+
+
+def _find_new_post(
+    poster: Poster,
+    kw: str,
+    before: set[str],
+    title: str,
+    limit: int = 30,
+    *,
+    refresh: bool = False,
+) -> str | None:
+    """发完之后找「比快照新出现、且标题对得上」的那条，返回 tid。
+
+    `refresh=True` 时先刷新吧页再读 —— 压短了等接口的时间，新帖往往还没进
+    HTTP 拿到的旧列表里，刷新一次比再等一轮更管用。
+    """
+    target = _norm_title(title)
+    try:
+        posts = poster.list_recent_posts(kw, limit, refresh=refresh)
+    except Exception:  # noqa: BLE001 - 补 tid 失败只影响能不能改判，不影响已发出的事实
+        return None
+    for post in posts:
+        tid = str(post.get("post_id") or "")
+        if not tid or tid in before:
+            continue
+        if _norm_title(str(post.get("title") or "")) == target:
+            return tid
+    return None
+
+
+def publish_many(
+    kw: str,
+    items: Any,
+    *,
+    interval: float = 30.0,
+    max_retries: int = 0,
+    skip_existing: bool = True,
+    verify_delay: float = 3.0,
+    max_len: int = CONTENT_LIMIT,
+    headless: bool | None = None,
+    poster_dir: str | Path | None = None,
+    ledger_dir: str | Path | None = None,
+    stop_on_error: bool = False,
+    submit_wait: float = SUBMIT_WAIT,
+    rescue_polls: int = 3,
+    rescue_interval: float = 5.0,
+    refresh_after_publish: bool = True,
+) -> dict[str, Any]:
+    """一条浏览器连发多条，**默认每条只发一次**。
+
+    为什么 `max_retries` 默认 0：批量场景下，一旦某条发出去却被判 `unknown`，
+    `publish_verified` 会重发**同一条**，看起来就是「发完一篇不往下走、又发第一遍」。
+    而判 `unknown` 的常见原因是吧页列表有延迟（新帖还没刷出来），
+    多发的每一条都是真帖子 —— 所以批量默认不重发，宁可留一条 `unknown` 待回查。
+
+    「发出去了却查不到」靠两层兜：每条发完 `publish` 内部刷新一次吧页；
+    仍非 ok 的条目再按 `rescue_interval` 刷新复查 `rescue_polls` 轮，
+    用「新出现的 tid」补 post_id 改判 ok。
+
+    补救 post_id 走「新出现的 tid」而不是标题比对：吧里本来就有同名帖时，
+    按标题取第一条会指到旧帖上去。
+
+    返回汇总：`{"kw","total","ok","failed","skipped","items":[...]}`，
+    每条的 `items[i]["ledger"]` 是它自己的 JSON 记录路径（表格也已追加一行）。
+    """
+    batch = _batch_items(items)
+    if not batch:
+        return {"kw": kw, "total": 0, "ok": 0, "failed": 0, "skipped": 0, "items": []}
+
+    records: list[dict[str, Any]] = []
+    ok_n = failed_n = skipped_n = 0
+
+    with Poster(
+        poster_dir=poster_dir,
+        headless=headless,
+        submit_wait=submit_wait,
+        refresh_after_publish=refresh_after_publish,
+    ) as poster:
+        known_tids, known_titles = _snapshot(poster, kw)
+
+        for index, (title, content) in enumerate(batch, 1):
+            tag = f"[{index}/{len(batch)}]"
+
+            if not title or not content:
+                records.append({"index": index, "title": title, "status": "error",
+                                "reason": "empty_argument", "post_id": None, "ledger": None})
+                failed_n += 1
+                print(f"{tag} 跳过：标题或正文为空", flush=True)
+                continue
+
+            if skip_existing and _norm_title(title) in known_titles:
+                records.append({"index": index, "title": title, "status": "skipped",
+                                "reason": "duplicate", "post_id": None, "ledger": None})
+                skipped_n += 1
+                print(f"{tag} 跳过：吧里已有同名帖「{title}」", flush=True)
+                continue
+
+            print(f"{tag} 发送：{title}", flush=True)
+            try:
+                result = poster.publish_verified(
+                    kw, title, content,
+                    max_len=max_len,
+                    max_retries=max_retries,
+                    verify_delay=verify_delay,
+                )
+            except Exception as exc:  # noqa: BLE001 - 单条失败不该中断整批
+                records.append({"index": index, "title": title, "status": "error",
+                                "reason": f"{type(exc).__name__}: {exc}",
+                                "post_id": None, "ledger": None})
+                failed_n += 1
+                print(f"{tag} 失败：{type(exc).__name__}: {exc}", flush=True)
+                if stop_on_error:
+                    break
+                continue
+
+            if result.status != STATUS_OK:
+                # 压短了等接口事件的时间，可能帖子刚落地还没进吧页列表。
+                # 只对没判 ok 的这条多等几轮，每轮先刷新吧页再找新出现的 tid。
+                rescued = None
+                for attempt in range(max(1, rescue_polls)):
+                    if attempt and rescue_interval > 0:
+                        time.sleep(rescue_interval)
+                    print(
+                        f"{tag} 刷新吧页复查（第 {attempt + 1}/{max(1, rescue_polls)} 次）",
+                        flush=True,
+                    )
+                    rescued = _find_new_post(
+                        poster, kw, known_tids, result.title_sent, refresh=True,
+                    )
+                    if rescued:
+                        break
+                if rescued:
+                    result = _promote_to_ok(result, rescued)
+                    print(f"{tag} 回查补到 post_id={rescued}，改判 ok", flush=True)
+                else:
+                    print(f"{tag} 刷新后仍未查到，保留 {result.status}", flush=True)
+
+            ledger = _write_ledger(
+                result,
+                content=content,
+                requested_title=title,
+                cookie=poster.cookie,
+                cookie_count=poster.cookie_count,
+                login_user=poster.login_user,
+                directory=ledger_dir,
+            )
+            if result.post_id:
+                known_tids.add(str(result.post_id))
+            known_titles.add(_norm_title(result.title_sent))
+
+            if result.status == STATUS_OK:
+                ok_n += 1
+            else:
+                failed_n += 1
+            records.append({
+                "index": index,
+                "title": title,
+                "status": result.status,
+                "reason": result.reason,
+                "post_id": result.post_id,
+                "ledger": str(ledger),
+            })
+            print(f"{tag} {result.status}　post_id={result.post_id or '-'}", flush=True)
+
+            if index < len(batch) and interval > 0:
+                time.sleep(interval)
+
+    return {
+        "kw": kw,
+        "total": len(batch),
+        "ok": ok_n,
+        "failed": failed_n,
+        "skipped": skipped_n,
+        "items": records,
+    }
 
 
 # ---------------------------------------------------------------- 只读查询
@@ -866,13 +1296,16 @@ def _format_rounds(rounds: list[dict[str, Any]]) -> str:
         if record.get("post_id"):
             head += f"  post_id={record['post_id']}"
         head += f"  发送耗时 {record['send_elapsed']}s"
+        if record.get("refreshed"):
+            head += f"  已刷新吧页 {record['refreshed']} 次"
         lines.append(head)
         for index, verify in enumerate(record.get("verifications") or [], 1):
             tag = "命中" if verify["found"] else "未命中"
             extra = f"  post_id={verify['post_id']}" if verify.get("post_id") else ""
             err = f"  错误={verify['error']}" if verify.get("error") else ""
+            how = "浏览器刷新后读列表" if verify.get("refresh") else "HTTP 读列表"
             lines.append(
-                f"      查证{index}：{tag}（查 {verify['polls_used']} 次，"
+                f"      查证{index}：{tag}（{how}，查 {verify['polls_used']} 次，"
                 f"看到 {verify['listed']} 条，等待 {verify['delay']:g}s，"
                 f"耗时 {verify['elapsed']}s）{extra}{err}"
             )
@@ -939,6 +1372,142 @@ def _cookie_keys(cookie: str | None) -> list[str]:
     return keys
 
 
+def _table_header() -> str:
+    head = "| " + " | ".join(TABLE_COLUMNS) + " |"
+    sep = "| " + " | ".join(["---"] * len(TABLE_COLUMNS)) + " |"
+    return f"{head}\n{sep}\n"
+
+
+def _cell(value: Any) -> str:
+    """单元格转义：竖线会截断整行；空值统一显示为「—」。"""
+    text = str(value if value is not None else "").replace("|", "\\|").replace("\n", " ")
+    return text.strip() or "—"
+
+
+def _short_time(created_at: str) -> str:
+    """ISO 时间 → 表里的 `MM-DD HH:MM`。"""
+    if len(created_at) >= 16 and created_at[10] in "T ":
+        return f"{created_at[5:10]} {created_at[11:16]}"
+    return created_at or "—"
+
+
+def _rel_to_root(path: Path) -> str:
+    """记录文件显示成 `runs/publish/...` 这种相对路径，便于在项目里直接找。"""
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except (ValueError, OSError):
+        return Path(path).as_posix()
+
+
+def _rounds_elapsed(payload: dict[str, Any]) -> str:
+    """发送 + 各次查证的耗时合计；一个数都没记（或全为 0）就说明当时没测。"""
+    total = 0.0
+    for rnd in payload.get("rounds") or []:
+        value = rnd.get("send_elapsed")
+        if isinstance(value, (int, float)):
+            total += float(value)
+        for check in rnd.get("verifications") or []:
+            elapsed = check.get("elapsed")
+            if isinstance(elapsed, (int, float)):
+                total += float(elapsed)
+    if total > 0:
+        return f"{total:.2f}s"
+    return "0.0s（未记）"
+
+
+def _found_round(payload: dict[str, Any]) -> str:
+    """post_id 是在第几次提交的回查里命中的；没靠回查命中就记「—」。"""
+    for rnd in payload.get("rounds") or []:
+        for check in rnd.get("verifications") or []:
+            if check.get("found"):
+                return f"第 {rnd.get('round', '?')} 次"
+    return "—"
+
+
+def _submit_note(payload: dict[str, Any]) -> str:
+    """只在不是首发成功时补一句，说明这条记录到底是第几次才成。"""
+    submits = int(payload.get("submit_count") or 1)
+    if submits <= 1:
+        return ""
+    if payload.get("succeeded"):
+        return f"（第 {submits} 次提交才成）"
+    return f"（共提交 {submits} 次）"
+
+
+def _table_row(payload: dict[str, Any], ledger_path: Path, index: int) -> str:
+    post_id = payload.get("post_id")
+    cells = [
+        _cell(index),
+        _cell(_short_time(str(payload.get("created_at") or ""))),
+        _cell("publish"),
+        _cell(payload.get("kw")),
+        _cell(payload.get("status")),
+        _cell(payload.get("reason")),
+        _cell(f"是 {post_id}" if post_id else "否"),
+        _cell(_found_round(payload)),
+        _cell(_rounds_elapsed(payload)),
+        f"`{_rel_to_root(ledger_path)}`{_submit_note(payload)}",
+    ]
+    return "| " + " | ".join(cells) + " |"
+
+
+def _count_table_rows(text: str) -> int:
+    total = 0
+    for line in text.splitlines():
+        if not line.startswith("|"):
+            continue
+        first = line.lstrip("|").split("|", 1)[0].strip()
+        if first.isdigit():
+            total += 1
+    return total
+
+
+def _backfill_rows(directory: Path, skip: set[str]) -> list[str]:
+    """表格第一次创建时，把该目录已有记录补进去，免得历史只留在 JSON 里。"""
+    found: list[tuple[str, Path, dict[str, Any]]] = []
+    for item in directory.glob("publish-*.json"):
+        if item.name in skip:
+            continue
+        try:
+            data = json.loads(item.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        found.append((str(data.get("created_at") or ""), item, data))
+    found.sort(key=lambda it: (it[0], it[1].name))
+    return [_table_row(data, item, i) + "\n" for i, (_, item, data) in enumerate(found, 1)]
+
+
+def _append_table_row(
+    payload: dict[str, Any], ledger_path: Path, table_path: Path,
+) -> Path:
+    """往汇总表尾部追加一行；文件不存在就先写表头并回填历史记录。"""
+    table = Path(table_path)
+    table.parent.mkdir(parents=True, exist_ok=True)
+    ledger_path = Path(ledger_path)
+
+    if not table.exists():
+        rows = _backfill_rows(ledger_path.parent, {ledger_path.name})
+        body = (
+            _table_header()
+            + "".join(rows)
+            + _table_row(payload, ledger_path, len(rows) + 1)
+            + "\n"
+        )
+        # newline="\n" 必须显式给：默认 newline=None 在 Windows 上会把 \n 转成 \r\n，
+        # 而下面追加用的是 newline="\n"，表头 CRLF、追加行 LF 就成了混行尾文件，
+        # 以后每次 diff 都会把表头判成改动。整份表格统一 LF。
+        table.write_text(body, encoding="utf-8", newline="\n")
+        return table
+
+    existing = table.read_text(encoding="utf-8")
+    index = _count_table_rows(existing) + 1
+    with table.open("a", encoding="utf-8", newline="\n") as fh:
+        if existing and not existing.endswith("\n"):
+            fh.write("\n")
+        fh.write(_table_row(payload, ledger_path, index) + "\n")
+    return table
+
+
 def _write_ledger(
     result: PublishResult,
     *,
@@ -953,6 +1522,8 @@ def _write_ledger(
 
     成功也写 —— 失败记录能复盘，成功记录能对账（尤其是 post_id 靠回查补上的那种）。
     文件里含有 cookie 原文，等同账号凭据，别随意外发。
+
+    同目录下还会追加一行到 `publish-log.md` 汇总表，只追加、不重建。
     """
     target = Path(directory or LEDGER_DIR)
     target.mkdir(parents=True, exist_ok=True)
@@ -992,6 +1563,8 @@ def _write_ledger(
         "final": result.payload,
     }
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    # 同时往汇总表追加一行；表格只追加不改写，历史行永远保留
+    _append_table_row(payload, path, target / TABLE_NAME)
     return path
 
 
@@ -1049,6 +1622,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--list-candidates", action="store_true", help="只列候选热梗，不发帖")
     ap.add_argument("--list-posts", metavar="KW", help="只读：列出该吧最近帖子，不发帖")
+    ap.add_argument(
+        "--batch", action="store_true",
+        help="批量：把候选按顺序连发（每条只发一次，自动跳过吧里已有的同名帖）",
+    )
+    ap.add_argument("--start", type=int, default=1, help="批量起点（候选序号，从 1 起）")
+    ap.add_argument("--count", type=int, default=0, help="批量条数（0 = 到结尾）")
+    ap.add_argument("--interval", type=float, default=30.0, help="批量间隔秒数")
     ap.add_argument("--headless", action="store_true", help="无界面模式")
     ap.add_argument("--keep-open", action="store_true", help="发完不关浏览器")
     ap.add_argument("--login", action="store_true", help="只检查登录态，不发帖")
@@ -1066,6 +1646,10 @@ def main(argv: list[str] | None = None) -> int:
         help=f"unknown 后第二次查证前等待秒数（默认 {VERIFY_DELAY:g}）",
     )
     ap.add_argument("--no-retry", action="store_true", help="只发一次，不查证也不重发")
+    ap.add_argument(
+        "--no-refresh", action="store_true",
+        help="发完不刷新吧页（默认会在 ok/unknown 后刷新一次再查证）",
+    )
     args = ap.parse_args(argv)
     if args.no_retry:
         args.max_retries = 0
@@ -1098,6 +1682,46 @@ def main(argv: list[str] | None = None) -> int:
             mark = "[置顶] " if post.get("pinned") else ""
             print(f"  {post['post_id']}  {mark}{post['title']}")
         return 0
+
+    if args.batch:
+        kw = args.kw or args.kw_pos
+        if not kw:
+            ap.error("批量发帖需要吧名：--kw agenttest")
+        try:
+            items = get_candidates(args.split)
+        except PosterError as exc:
+            ap.error(str(exc))
+        chunk = items[max(1, args.start) - 1:]
+        if args.count > 0:
+            chunk = chunk[: args.count]
+        if not chunk:
+            ap.error(f"没有可发的候选（start={args.start} count={args.count}）")
+        print(f"批量发送 {len(chunk)} 条到「{kw}」吧，间隔 {args.interval:g}s，"
+              f"每条只发一次（不重发）")
+        for index, item in enumerate(chunk, args.start):
+            print(f"  {index:>2} {item['title']}")
+        if not args.yes:
+            try:
+                answer = input("确认？输入 y 回车：").strip().lower()
+            except EOFError:
+                answer = "n"
+            if answer not in ("y", "yes"):
+                print("已取消")
+                return 1
+        try:
+            summary = publish_many(
+                kw, chunk, interval=args.interval, max_retries=0, skip_existing=True,
+                refresh_after_publish=not args.no_refresh,
+            )
+        except PosterError as exc:
+            print(f"环境未就绪：{exc}")
+            return 1
+        print(f"\n完成：成功 {summary['ok']} / 失败 {summary['failed']} / "
+              f"跳过 {summary['skipped']}（共 {summary['total']}）")
+        for row in summary["items"]:
+            print(f"  [{row['index']:>2}] {row['status']:<8} {str(row['post_id'] or '-'):<14}"
+                  f" {row['title']}")
+        return 0 if summary["failed"] == 0 else 2
 
     if args.split and args.candidate is None:
         ap.error("--split 只能配 --candidate 使用")
@@ -1156,7 +1780,11 @@ def main(argv: list[str] | None = None) -> int:
     if not kw and not args.login:
         ap.error("缺少吧名（--kw 或第一个位置参数）")
 
-    poster = Poster(headless=args.headless, keep_open=args.keep_open)
+    poster = Poster(
+        headless=args.headless,
+        keep_open=args.keep_open,
+        refresh_after_publish=not args.no_refresh,
+    )
     try:
         poster.open()
         print(f"已登录：{poster.login_user}（浏览器 {'headless' if poster.headless else '窗口'}）")
@@ -1201,6 +1829,7 @@ def main(argv: list[str] | None = None) -> int:
         _, outcome_text = _classify_outcome(result)
         print(f"\n结局：{outcome_text}")
         print(f"记录已保存（含 cookie 原文，勿外发）：{path}")
+        print(f"汇总表格已追加一行：{path.parent / TABLE_NAME}")
 
         if result.status == STATUS_OK:
             return 0

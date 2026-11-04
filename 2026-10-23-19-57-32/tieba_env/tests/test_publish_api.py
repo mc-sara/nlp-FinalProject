@@ -38,6 +38,45 @@ def make_poster(fake: FakePosterModule) -> Poster:
     return poster
 
 
+class FakeEdge:
+    """替身浏览器：只提供刷新吧页要用的 goto / eval。"""
+
+    def __init__(self, html: str | None = None, error: Exception | None = None) -> None:
+        self.html = html
+        self.error = error
+        self.gotos: list[str] = []
+
+    def goto(self, url: str, timeout: float = 30) -> None:  # noqa: ANN001
+        self.gotos.append(url)
+        if self.error is not None:
+            raise self.error
+
+    def eval(self, expr: str):  # noqa: ANN001, ANN201
+        return self.html
+
+
+def forum_li(tid: str, title: str) -> str:
+    """一段和移动吧页同结构的 li，喂给 parse_threads。"""
+    return f'<li class="tl_shadow" data-tid="{tid}"><div class="ti_title">{title}</div></li>'
+
+
+def make_poster_with_edge(
+    result: tuple[bool, str], html: str | None = None, posts: list[dict[str, Any]] | None = None
+) -> tuple[Poster, list[bool]]:
+    """构造一个带假浏览器、假 HTTP 的 Poster；返回 (poster, 每次 HTTP 的 nocache 取值)。"""
+    poster = Poster(poster_dir="ignored")
+    poster._bp = FakePosterModule(result)
+    poster._edge = FakeEdge(html)
+    calls: list[bool] = []
+
+    def fake_do_list(tp, client, kw, limit, nocache=False):  # noqa: ANN001, ANN202
+        calls.append(nocache)
+        return {"posts": posts or []}
+
+    poster._probe = (fake_do_list, None, None)
+    return poster, calls
+
+
 def run_once(result: tuple[bool, str]) -> dict[str, Any]:
     return make_poster(FakePosterModule(result)).publish("我的吧", "标题", "正文")  # type: ignore[return-value]
 
@@ -111,7 +150,7 @@ class TestPayloadShapes(unittest.TestCase):
         """脚本只给 UI 信号时（拿不到链接），按标题回查把 post_id 补上。"""
         fake = FakePosterModule((True, "发帖弹层已关闭，判断为发送成功（拿不到帖子链接）"))
         poster = make_poster(fake)
-        poster._recheck_post_id = lambda kw, title: "555"  # type: ignore[method-assign]
+        poster._recheck_post_id = lambda kw, title, **kw2: "555"  # type: ignore[method-assign]
 
         payload = poster.publish("吧", "标题", "正文")
 
@@ -123,7 +162,7 @@ class TestPayloadShapes(unittest.TestCase):
         """回查也找不到 → 不认成功。空的 post_id 会让下游对账错位。"""
         fake = FakePosterModule((True, "发帖弹层已关闭，判断为发送成功（拿不到帖子链接）"))
         poster = make_poster(fake)
-        poster._recheck_post_id = lambda kw, title: None  # type: ignore[method-assign]
+        poster._recheck_post_id = lambda kw, title, **kw2: None  # type: ignore[method-assign]
 
         payload = poster.publish("吧", "标题", "正文")
 
@@ -135,7 +174,7 @@ class TestPayloadShapes(unittest.TestCase):
     def test_recheck_can_be_disabled(self):
         fake = FakePosterModule((True, "发帖弹层已关闭，判断为发送成功（拿不到帖子链接）"))
         poster = make_poster(fake)
-        poster._recheck_post_id = lambda kw, title: "should-not-be-called"  # type: ignore[method-assign]
+        poster._recheck_post_id = lambda kw, title, **kw2: "should-not-be-called"  # type: ignore[method-assign]
 
         payload = poster.publish("吧", "标题", "正文", recheck=False)
 
@@ -178,6 +217,65 @@ class TestPayloadShapes(unittest.TestCase):
         self.assertEqual(result.post_url, "https://tieba.baidu.com/p/777")
         self.assertEqual(result.json, dumps_observation(result.payload))
         self.assertTrue(result.json.startswith('{"status":"ok"'))
+
+
+class TestRefreshAfterPublish(unittest.TestCase):
+    """发完之后刷新吧页：帖子明明发出去了、吧页还是旧 HTML 时，别误判成 unknown。"""
+
+    OK_NO_LINK = "发帖弹层已关闭，判断为发送成功（拿不到帖子链接）"
+
+    def test_ok_without_tid_resolved_by_refreshed_page(self):
+        """刷新后的列表里有这篇 → 直接补到 post_id，不再多打一次 HTTP。"""
+        poster, calls = make_poster_with_edge(
+            (True, self.OK_NO_LINK), html=forum_li("666", "通勤一小时的人生")
+        )
+
+        result = poster.publish("吧", "通勤一小时的人生", "正文", detailed=True)
+
+        assert isinstance(result, PublishResult)
+        self.assertEqual(result.status, STATUS_OK)
+        self.assertEqual(result.post_id, "666")
+        self.assertEqual(calls, [], "刷新已拿到列表，不该再走 HTTP")
+        self.assertEqual(poster.refresh_count, 1)
+        self.assertIn("已刷新吧页", result.detail)
+        self.assertIn("kw=%E5%90%A7", poster._edge.gotos[0])  # 吧名做了 URL 编码
+
+    def test_refresh_failure_falls_back_to_http_with_nocache(self):
+        """刷新失败不能耽误查证：退回 HTTP，并且这次请求带防缓存。"""
+        poster, calls = make_poster_with_edge(
+            (True, self.OK_NO_LINK), html=None, posts=[{"post_id": "777", "title": "地铁早高峰"}]
+        )
+        poster._edge.error = RuntimeError("Page.navigate 超时")
+
+        result = poster.publish("吧", "地铁早高峰", "正文", detailed=True)
+
+        assert isinstance(result, PublishResult)
+        self.assertEqual(result.status, STATUS_OK)
+        self.assertEqual(result.post_id, "777")
+        self.assertEqual(calls, [True], "刷新失败后的第一次 HTTP 应带 nocache")
+        self.assertIn("刷新吧页失败", result.detail)
+
+    def test_rejected_does_not_refresh(self):
+        """rejected 是确定性结论，刷新纯属浪费。"""
+        poster, _ = make_poster_with_edge((False, "[10] 您发贴太快了"), html=forum_li("1", "旧帖"))
+
+        result = poster.publish("吧", "标题", "正文", detailed=True)
+
+        assert isinstance(result, PublishResult)
+        self.assertEqual(result.status, STATUS_REJECTED)
+        self.assertEqual(poster.refresh_count, 0)
+        self.assertEqual(poster._edge.gotos, [])
+
+    def test_switch_can_be_turned_off(self):
+        poster, calls = make_poster_with_edge((True, self.OK_NO_LINK), html=forum_li("1", "标题"))
+        poster.refresh_after_publish = False
+
+        result = poster.publish("吧", "标题", "正文", detailed=True)
+
+        assert isinstance(result, PublishResult)
+        self.assertEqual(poster.refresh_count, 0)
+        self.assertEqual(poster._edge.gotos, [])
+        self.assertEqual(calls, [False, False, False], "关掉刷新就只剩普通 HTTP 回查")
 
 
 class TestIsomorphicWithAdapter(unittest.TestCase):

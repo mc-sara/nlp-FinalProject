@@ -161,16 +161,31 @@ if r["status"] == "ok":
 `detailed=True` 时才返回对象，那时才用 `r.status` / `r.post_id` 这种属性写法。
 拼写是 `attempt_id`（不是 `attemp_id`）。
 
-浏览器只启动一次能发多条（每次启动约 5 秒）：
+浏览器只启动一次能发多条（每次启动约 5 秒）。**批量要用 `publish_many`，别手写
+`publish_verified` 循环**：
 
 ```python
-from publish_api import Poster
+from publish_api import publish_many, get_candidates
 
-with Poster() as poster:                 # 打开浏览器 + 注入 Cookie + 校验登录
-    for item in items:
-        r = poster.publish("我的吧", item.title, item.content)
-        print(r["status"], r.get("post_id"))
+summary = publish_many("我的吧", get_candidates()[:5], interval=30)
+print(summary["ok"], summary["failed"], summary["skipped"])
+for row in summary["items"]:
+    print(row["index"], row["status"], row["post_id"], row["title"])
 ```
+
+`publish_many` 的默认值是针对批量场景选的：
+
+| 行为 | 默认 | 原因 |
+|---|---|---|
+| `max_retries` | `0`（不重发） | 判 `unknown` 时会重发同一条 → 表现为"发完一篇又发第一遍"，而每一条都是真帖子 |
+| `skip_existing` | `True` | 吧里已有同名帖就跳过，避免被判 `duplicate` 或堆一堆同名帖 |
+| 补 `post_id` | 用 tid 差集 | 按标题比对在同名帖已存在时会匹配到旧帖，拿错 id |
+| `interval` | `30` 秒 | 同吧连发太快容易弹验证码 |
+| `submit_wait` | `4` 秒 | 点完发布后等接口事件的上限。原逻辑固定等 25+3 秒，实测这个事件抓不到（历史每轮 `send_elapsed` 都是 26–30 秒），压到 4 秒后靠 UI 信号判定，每条省约 21 秒 |
+| `rescue_polls` / `rescue_interval` | `3` / `5` 秒 | 只对没判 ok 的条目多等几轮再找新 tid，判 ok 的不额外花时间 |
+| `refresh_after_publish` | `True` | 每条的 `publish` 内部在 `ok`/`unknown` 后刷新一次吧页；仍非 ok 的条目在兜底复查时也刷新，避免"发出了但查不到" |
+
+每条仍然各落一个 JSON 记录，并在 `publish-log.md` 各加一行。
 
 命令行两种发布方式（`--yes` 跳过确认，`--login` 只体检）：
 
@@ -188,6 +203,10 @@ python publish_api.py --kw agenttest --candidate 1 --split real --yes
 python publish_api.py --login                            # 只体检
 python publish_api.py --list-posts agenttest             # 只读查吧页
 python publish_api.py --kw agenttest --candidate 2 --no-retry --yes  # 只发一次
+python publish_api.py --kw agenttest --candidate 2 --no-refresh --yes  # 发完不刷新吧页
+
+# 方式 3：批量发候选（从第 2 条起连发 3 条，间隔 45 秒，每条只发一次）
+python publish_api.py --kw agenttest --batch --start 2 --count 3 --interval 45 --yes
 ```
 
 `--candidate` 两种写法等价：纯数字按 **1 基序号**，其他按 `id`（忽略大小写，`C02` 也认）。
@@ -216,20 +235,33 @@ get_candidates("real")               # 只要发真帖那批
 
 ### 发完先查证，不确定才重发
 
-`publish()` 不是"发一次就完"，而是发送 → 查证 → 按需重发，最多重发 3 次，
+`publish()` 不是"发一次就完"，而是发送 → **刷新吧页** → 查证 → 按需重发，最多重发 3 次，
 **且只有 `unknown` 会重发**：
 
 ```
-发送 ──ok──► 结束
+发送 ──ok──────► 刷新吧页 ──► 拿不到 post_id 就按刷新后的列表补 ──► 结束
   │
   ├─ rejected / error ──► 记录原因 ──► 结束（确定性结论，不重发）
   │
-  └─ unknown ──► 查证（立刻）
+  └─ unknown ──► 刷新吧页 ──► 查证（立刻）
                    ├─ 命中 ──► 改判 ok，结束
-                   └─ 未命中 ──► 等 3s 再查证
+                   └─ 未命中 ──► 等 3s，刷新吧页再查证
                                    ├─ 命中 ──► 改判 ok，结束
                                    └─ 未命中 ──► 记录查证结果 ──► 重发
 ```
+
+**为什么发完要刷新吧页**（`Poster.refresh_forum`）：查证默认走 HTTP 抓 `/mo/q/m`，
+帖子明明已经落地、吧页 HTML 却可能还是旧的（缓存 / 列表延迟），于是 `ok` 被误判成
+`unknown`，甚至触发"重发同一条"。发完让浏览器重新加载一次吧页（地址带 `_t=时间戳`
+打掉缓存），拿到的是渲染后的最新 DOM，这类假阴性就压掉了。
+
+实测差异：同一时刻 HTTP 只看到 3 条、浏览器刷新看到 4 条 —— 多出来的正是刚发的那条。
+
+- 刷新失败不耽误查证：退回 HTTP，且这次请求带 `Cache-Control: no-cache`（`do_list(nocache=True)`）。
+- `rejected` / `error` 不刷新：确定性结论，刷了也没用。
+- 刷新后拿到的列表会直接当回查的起点（`seed`），刷新成功就不再额外打一次 HTTP。
+- 关掉：`Poster(refresh_after_publish=False)`、`publish(..., refresh_after_publish=False)`
+  或 CLI 的 `--no-refresh`。
 
 `rejected` / `error` 不重发，因为它们是**确定性结论**：服务端已经明确拒绝了
 （`duplicate` 再发一百次也还是重复）、或工具根本不可用（`login_expired`
@@ -238,8 +270,10 @@ get_candidates("real")               # 只要发真帖那批
 查证的调用链（两个文件，各管一段）：
 
 ```
+Poster.refresh_forum()        publish_api.py    浏览器重新加载 /mo/q/m，读 li[data-tid]
+  └─ parse_threads()          real/real_probe.py 与 HTTP 那条路共用同一套解析
 Poster.verify_post()          publish_api.py    查证逻辑：什么时候查、查不到怎么办
-  └─ Poster._list_posts()     publish_api.py    取一次吧页列表
+  └─ Poster._list_posts()     publish_api.py    取一次吧页列表（refresh 时先走上面那条）
        └─ do_list()           real/real_probe.py 抓 /mo/q/m 的 HTML 并解析
             └─ tieba_poster   （发帖脚本）      复用它的 requests client / cookie
 ```
@@ -260,7 +294,17 @@ CLI 跑完（成功也算）会在 `runs/publish/publish-<时间戳>-<随机>.js
 | `status` `reason` `post_id` `attempt_id` | 四状态结果 |
 | `outcome` `outcome_text` | 结局分类，见下表 |
 | `submit_count` `retry_count` `first_try` `succeeded` | 发了几次、重发几次、是否首次即成、是否成功 |
-| `rounds` | 每一轮的发送状态与查证证据 |
+| `rounds` | 每一轮的发送状态与查证证据（含 `refreshed`：这一轮发送后刷新了吧页几次；每次查证自己也带 `refresh` 标记） |
+
+同时，同一个目录下会往 `publish-log.md` 追加一行汇总表格，**只追加、不重建**，文件不存在时
+先写表头并把该目录已有的 `publish-*.json` 回填进去：
+
+| # | 时间 | 操作 | 吧 | status | reason | 有 post_id | 第几次查到 | 耗时 | 原始文件 |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 10-26 20:30 | publish | agenttest | ok | — | 是 11139485781 | — | 125.49s | `runs/publish/publish-20261026-203042-01c912.json`（第 4 次提交才成） |
+
+`第几次查到` 只在 post_id 靠回查命中时才写轮次（否则 `—`）；`耗时` 是发送 + 各次查证
+的合计，全为 0 时显示 `0.0s（未记）`；`原始文件` 后只有非首发成功才补一行后缀说明。
 
 `outcome` 七种取值：
 
