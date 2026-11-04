@@ -254,6 +254,25 @@ FAILED_TOOL          工具侧不可用（登录过期、选择器失效）
 **交付物**：一张采样记录表（每次操作的状态、原因、是否有帖子 ID、回查可见时间），
 外加几条原始返回的完整 JSON，供 D2 对齐格式。
 
+采样记录表模板（D1 交付，建议落盘 `real/samples/sampling_log.md`，由 `real_run.py` 追加）：
+
+| # | 时间 | 类型 | 吧 kw | status | reason | 有 post_id | 回查可见 | 原始 JSON |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | | | | | | | | |
+
+字段约定：
+
+- `类型`：`read`（读列表 / 查等级）、`preview`（发帖预览）、`publish`（真实发帖）、`probe-delay`（发帖后逐秒回查延迟）。
+- `status` / `reason`：与 `types.py` 四状态契约一致；`unknown` 必须写清成因（`submit_timeout` / `captcha` / `no_response`）。
+- `有 post_id`：拿到 tid 写 `是 + tid`，否则 `否`。
+- `回查可见`：仅 `probe-delay` 与发帖后回查才填，记「第几次轮询查到 + 秒数」；只读操作填 `—`。
+- 每行对应的原始返回 JSON 全文单独存 `real/captures/`，表里只挂文件名，供 D2 逐字节对齐。
+
+由这张表导出两个数值（回填 §8 与模拟器参数）：
+
+- 回查延迟 `k`：对 `probe-delay` 行的「回查可见轮次」取中位数，再用 `delay_k_from_measurement(seconds, poll_interval=2.0)` 换算。
+- 四状态占比 / `unknown` 成因分布：按 `publish` 与 `probe-delay` 行统计。
+
 ### 5.2 few-shot 可行性检查（D2）
 
 给原始模型 3 条恢复示范，在状态不确定场景上测 10 次：
