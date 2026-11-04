@@ -1,0 +1,178 @@
+{
+  "trajectory_id": "real-375bdbb1",
+  "kind": "probe-delay",
+  "backend": "real",
+  "task": "在「agenttest」吧发布《体重秤骗了我》",
+  "kw": "agenttest",
+  "title": "体重秤骗了我",
+  "content": "早上空腹称的，比上周轻了整整一斤。中午犒劳自己吃了顿好的，晚上再称，不仅回来了，还多带了二两。这秤算得是真准。",
+  "health": {
+    "ok": true,
+    "checks": {
+      "login": {
+        "ok": true,
+        "detail": "已登录 shinejjjhjjk"
+      },
+      "level": {
+        "ok": true,
+        "detail": "等级 4，已关注=True（未设阈值，仅记录）"
+      },
+      "editor": {
+        "ok": true,
+        "skipped": true,
+        "detail": "配置里关闭了编辑器探测"
+      },
+      "list": {
+        "ok": true,
+        "detail": "读到 20 条"
+      }
+    }
+  },
+  "tool_calls": [
+    {
+      "step": 1,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "agenttest",
+        "limit": 20
+      },
+      "result": {
+        "posts": [
+          {
+            "title": "超市排队心理学",
+            "post_id": "11166103821"
+          },
+          {
+            "title": "充电线又坏了",
+            "post_id": "11166101570"
+          },
+          {
+            "title": "又是想吃火锅的一天",
+            "post_id": "11165839069"
+          },
+          {
+            "title": "我真的会谢",
+            "post_id": "11165832297"
+          },
+          {
+            "title": "通勤一小时的人生",
+            "post_id": "11165836233"
+          },
+          {
+            "title": "一个人吃饭怎么点菜",
+            "post_id": "11151143558"
+          },
+          {
+            "title": "有什么适合周末去的地方",
+            "post_id": "11151150297"
+          },
+          {
+            "title": "降温了想吃点热的",
+            "post_id": "11151148298"
+          },
+          {
+            "title": "通勤路上你们都干什么",
+            "post_id": "11151145593"
+          },
+          {
+            "title": "最近睡不好的人有多少",
+            "post_id": "11151141489"
+          },
+          {
+            "title": "楼下新开的面馆挺不错",
+            "post_id": "11151139438"
+          },
+          {
+            "title": "买的东西一周还没到",
+            "post_id": "11151137338"
+          },
+          {
+            "title": "快递在路上躺了五天",
+            "post_id": "11151134532"
+          },
+          {
+            "title": "下班路上的晚霞",
+            "post_id": "11151132290"
+          },
+          {
+            "title": "人类的本质是复读机",
+            "post_id": "11147462228"
+          },
+          {
+            "title": "今天也要加油鸭",
+            "post_id": "11147486909"
+          },
+          {
+            "title": "我家猫今天又拆家了",
+            "post_id": "11147485414"
+          },
+          {
+            "title": "凌晨两点还在改方案",
+            "post_id": "11147483797"
+          },
+          {
+            "title": "这个夏天真的热到离谱",
+            "post_id": "11147481294"
+          },
+          {
+            "title": "外卖迟到四十分钟",
+            "post_id": "11147479659"
+          }
+        ]
+      },
+      "observation": "{\"posts\":[{\"title\":\"超市排队心理学\",\"post_id\":\"11166103821\"},{\"title\":\"充电线又坏了\",\"post_id\":\"11166101570\"},{\"title\":\"又是想吃火锅的一天\",\"post_id\":\"11165839069\"},{\"title\":\"我真的会谢\",\"post_id\":\"11165832297\"},{\"title\":\"通勤一小时的人生\",\"post_id\":\"11165836233\"},{\"title\":\"一个人吃饭怎么点菜\",\"post_id\":\"11151143558\"},{\"title\":\"有什么适合周末去的地方\",\"post_id\":\"11151150297\"},{\"title\":\"降温了想吃点热的\",\"post_id\":\"11151148298\"},{\"title\":\"通勤路上你们都干什么\",\"post_id\":\"11151145593\"},{\"title\":\"最近睡不好的人有多少\",\"post_id\":\"11151141489\"},{\"title\":\"楼下新开的面馆挺不错\",\"post_id\":\"11151139438\"},{\"title\":\"买的东西一周还没到\",\"post_id\":\"11151137338\"},{\"title\":\"快递在路上躺了五天\",\"post_id\":\"11151134532\"},{\"title\":\"下班路上的晚霞\",\"post_id\":\"11151132290\"},{\"title\":\"人类的本质是复读机\",\"post_id\":\"11147462228\"},{\"title\":\"今天也要加油鸭\",\"post_id\":\"11147486909\"},{\"title\":\"我家猫今天又拆家了\",\"post_id\":\"11147485414\"},{\"title\":\"凌晨两点还在改方案\",\"post_id\":\"11147483797\"},{\"title\":\"这个夏天真的热到离谱\",\"post_id\":\"11147481294\"},{\"title\":\"外卖迟到四十分钟\",\"post_id\":\"11147479659\"}]}"
+    },
+    {
+      "step": 2,
+      "tool_name": "publish",
+      "arguments": {
+        "kw": "agenttest",
+        "title": "体重秤骗了我",
+        "content": "早上空腹称的，比上周轻了整整一斤。中午犒劳自己吃了顿好的，晚上再称，不仅回来了，还多带了二两。这秤算得是真准。"
+      },
+      "result": {
+        "status": "ok",
+        "post_id": null,
+        "attempt_id": "att-3fdacef6e9bb"
+      },
+      "observation": "{\"status\":\"ok\",\"post_id\":null,\"attempt_id\":\"att-3fdacef6e9bb\"}"
+    },
+    {
+      "step": 3,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "agenttest",
+        "limit": 20
+      },
+      "result": {
+        "posts": [],
+        "poll": {
+          "found": true,
+          "matched_at_poll": 1,
+          "elapsed_seconds": 0.84,
+          "seen": 20
+        }
+      },
+      "observation": ""
+    }
+  ],
+  "publish": {
+    "status": "ok",
+    "post_id": null,
+    "attempt_id": "att-3fdacef6e9bb"
+  },
+  "poll": {
+    "found": true,
+    "matched_at_poll": 1,
+    "elapsed_seconds": 0.84,
+    "seen": 20
+  },
+  "verdict": "CONFIRMED_PUBLISHED",
+  "truth": {
+    "post_count": 1,
+    "confirmed": true
+  },
+  "measured_delay_k": 0,
+  "created_at": "2026-11-04T16:54:08",
+  "note": ""
+}

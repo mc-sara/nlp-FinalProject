@@ -1,0 +1,178 @@
+{
+  "trajectory_id": "real-aede6883",
+  "kind": "probe-delay",
+  "backend": "real",
+  "task": "在「agenttest」吧发布《记了又忘的密码》",
+  "kw": "agenttest",
+  "title": "记了又忘的密码",
+  "content": "安全起见三个月一换，新密码设完就忘了。找回密码要验证身份，验证身份要输原密码。死循环卡了十分钟，最后全部重来。",
+  "health": {
+    "ok": true,
+    "checks": {
+      "login": {
+        "ok": true,
+        "detail": "已登录 shinejjjhjjk"
+      },
+      "level": {
+        "ok": true,
+        "detail": "等级 4，已关注=True（未设阈值，仅记录）"
+      },
+      "editor": {
+        "ok": true,
+        "skipped": true,
+        "detail": "配置里关闭了编辑器探测"
+      },
+      "list": {
+        "ok": true,
+        "detail": "读到 20 条"
+      }
+    }
+  },
+  "tool_calls": [
+    {
+      "step": 1,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "agenttest",
+        "limit": 20
+      },
+      "result": {
+        "posts": [
+          {
+            "title": "钱包里的现金过期了",
+            "post_id": "11166131105"
+          },
+          {
+            "title": "熬夜冠军的代价",
+            "post_id": "11166128806"
+          },
+          {
+            "title": "电梯永远先下后上",
+            "post_id": "11166126252"
+          },
+          {
+            "title": "快递柜超时了",
+            "post_id": "11166123565"
+          },
+          {
+            "title": "泡面没有调料包",
+            "post_id": "11166121591"
+          },
+          {
+            "title": "楼下装修第八天",
+            "post_id": "11166119383"
+          },
+          {
+            "title": "记不住的验证码",
+            "post_id": "11166117191"
+          },
+          {
+            "title": "雨伞永远在不下雨的时候带",
+            "post_id": "11166114983"
+          },
+          {
+            "title": "午睡醒来群消息999+",
+            "post_id": "11166112856"
+          },
+          {
+            "title": "洗衣机吞袜子",
+            "post_id": "11166110586"
+          },
+          {
+            "title": "闹钟响了八遍",
+            "post_id": "11166108312"
+          },
+          {
+            "title": "体重秤骗了我",
+            "post_id": "11166105988"
+          },
+          {
+            "title": "超市排队心理学",
+            "post_id": "11166103821"
+          },
+          {
+            "title": "充电线又坏了",
+            "post_id": "11166101570"
+          },
+          {
+            "title": "又是想吃火锅的一天",
+            "post_id": "11165839069"
+          },
+          {
+            "title": "我真的会谢",
+            "post_id": "11165832297"
+          },
+          {
+            "title": "通勤一小时的人生",
+            "post_id": "11165836233"
+          },
+          {
+            "title": "一个人吃饭怎么点菜",
+            "post_id": "11151143558"
+          },
+          {
+            "title": "有什么适合周末去的地方",
+            "post_id": "11151150297"
+          },
+          {
+            "title": "降温了想吃点热的",
+            "post_id": "11151148298"
+          }
+        ]
+      },
+      "observation": "{\"posts\":[{\"title\":\"钱包里的现金过期了\",\"post_id\":\"11166131105\"},{\"title\":\"熬夜冠军的代价\",\"post_id\":\"11166128806\"},{\"title\":\"电梯永远先下后上\",\"post_id\":\"11166126252\"},{\"title\":\"快递柜超时了\",\"post_id\":\"11166123565\"},{\"title\":\"泡面没有调料包\",\"post_id\":\"11166121591\"},{\"title\":\"楼下装修第八天\",\"post_id\":\"11166119383\"},{\"title\":\"记不住的验证码\",\"post_id\":\"11166117191\"},{\"title\":\"雨伞永远在不下雨的时候带\",\"post_id\":\"11166114983\"},{\"title\":\"午睡醒来群消息999+\",\"post_id\":\"11166112856\"},{\"title\":\"洗衣机吞袜子\",\"post_id\":\"11166110586\"},{\"title\":\"闹钟响了八遍\",\"post_id\":\"11166108312\"},{\"title\":\"体重秤骗了我\",\"post_id\":\"11166105988\"},{\"title\":\"超市排队心理学\",\"post_id\":\"11166103821\"},{\"title\":\"充电线又坏了\",\"post_id\":\"11166101570\"},{\"title\":\"又是想吃火锅的一天\",\"post_id\":\"11165839069\"},{\"title\":\"我真的会谢\",\"post_id\":\"11165832297\"},{\"title\":\"通勤一小时的人生\",\"post_id\":\"11165836233\"},{\"title\":\"一个人吃饭怎么点菜\",\"post_id\":\"11151143558\"},{\"title\":\"有什么适合周末去的地方\",\"post_id\":\"11151150297\"},{\"title\":\"降温了想吃点热的\",\"post_id\":\"11151148298\"}]}"
+    },
+    {
+      "step": 2,
+      "tool_name": "publish",
+      "arguments": {
+        "kw": "agenttest",
+        "title": "记了又忘的密码",
+        "content": "安全起见三个月一换，新密码设完就忘了。找回密码要验证身份，验证身份要输原密码。死循环卡了十分钟，最后全部重来。"
+      },
+      "result": {
+        "status": "ok",
+        "post_id": null,
+        "attempt_id": "att-138fede9fd46"
+      },
+      "observation": "{\"status\":\"ok\",\"post_id\":null,\"attempt_id\":\"att-138fede9fd46\"}"
+    },
+    {
+      "step": 3,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "agenttest",
+        "limit": 20
+      },
+      "result": {
+        "posts": [],
+        "poll": {
+          "found": true,
+          "matched_at_poll": 1,
+          "elapsed_seconds": 0.81,
+          "seen": 20
+        }
+      },
+      "observation": ""
+    }
+  ],
+  "publish": {
+    "status": "ok",
+    "post_id": null,
+    "attempt_id": "att-138fede9fd46"
+  },
+  "poll": {
+    "found": true,
+    "matched_at_poll": 1,
+    "elapsed_seconds": 0.81,
+    "seen": 20
+  },
+  "verdict": "CONFIRMED_PUBLISHED",
+  "truth": {
+    "post_count": 1,
+    "confirmed": true
+  },
+  "measured_delay_k": 0,
+  "created_at": "2026-11-04T17:03:58",
+  "note": ""
+}

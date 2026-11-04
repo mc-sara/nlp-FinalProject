@@ -1,0 +1,35 @@
+{
+  "trajectory_id": "real-d96a46cf",
+  "kind": "probe-delay",
+  "backend": "real",
+  "task": "在「agenttest」吧发布《周末晒了一下午太阳》",
+  "kw": "agenttest",
+  "health": {
+    "ok": false,
+    "checks": {
+      "login": {
+        "ok": false,
+        "detail": "调用失败: ConfigError: 只读探针 login 失败: TiebaError: [-4] 获取 tbs：接口返回非 JSON（可能被风控或需验证码）："
+      },
+      "level": {
+        "ok": true,
+        "detail": "等级 4，已关注=True（未设阈值，仅记录）"
+      },
+      "editor": {
+        "ok": true,
+        "skipped": true,
+        "detail": "配置里关闭了编辑器探测"
+      },
+      "list": {
+        "ok": true,
+        "detail": "读到 20 条"
+      }
+    }
+  },
+  "tool_calls": [],
+  "verdict": "FAILED_TOOL",
+  "truth": {
+    "post_count": null,
+    "confirmed": false
+  }
+}

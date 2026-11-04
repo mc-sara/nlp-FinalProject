@@ -1,0 +1,178 @@
+{
+  "trajectory_id": "real-4cc56662",
+  "kind": "probe-delay",
+  "backend": "real",
+  "task": "在「agenttest」吧发布《楼下装修第八天》",
+  "kw": "agenttest",
+  "title": "楼下装修第八天",
+  "content": "电钻声跟闹钟一样准时，八点整开始。今天周末，我躺在床上盯着天花板，突然觉得这个点起床也不是不能接受。麻了。",
+  "health": {
+    "ok": true,
+    "checks": {
+      "login": {
+        "ok": true,
+        "detail": "已登录 shinejjjhjjk"
+      },
+      "level": {
+        "ok": true,
+        "detail": "等级 4，已关注=True（未设阈值，仅记录）"
+      },
+      "editor": {
+        "ok": true,
+        "skipped": true,
+        "detail": "配置里关闭了编辑器探测"
+      },
+      "list": {
+        "ok": true,
+        "detail": "读到 20 条"
+      }
+    }
+  },
+  "tool_calls": [
+    {
+      "step": 1,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "agenttest",
+        "limit": 20
+      },
+      "result": {
+        "posts": [
+          {
+            "title": "记不住的验证码",
+            "post_id": "11166117191"
+          },
+          {
+            "title": "雨伞永远在不下雨的时候带",
+            "post_id": "11166114983"
+          },
+          {
+            "title": "午睡醒来群消息999+",
+            "post_id": "11166112856"
+          },
+          {
+            "title": "洗衣机吞袜子",
+            "post_id": "11166110586"
+          },
+          {
+            "title": "闹钟响了八遍",
+            "post_id": "11166108312"
+          },
+          {
+            "title": "体重秤骗了我",
+            "post_id": "11166105988"
+          },
+          {
+            "title": "超市排队心理学",
+            "post_id": "11166103821"
+          },
+          {
+            "title": "充电线又坏了",
+            "post_id": "11166101570"
+          },
+          {
+            "title": "又是想吃火锅的一天",
+            "post_id": "11165839069"
+          },
+          {
+            "title": "我真的会谢",
+            "post_id": "11165832297"
+          },
+          {
+            "title": "通勤一小时的人生",
+            "post_id": "11165836233"
+          },
+          {
+            "title": "一个人吃饭怎么点菜",
+            "post_id": "11151143558"
+          },
+          {
+            "title": "有什么适合周末去的地方",
+            "post_id": "11151150297"
+          },
+          {
+            "title": "降温了想吃点热的",
+            "post_id": "11151148298"
+          },
+          {
+            "title": "通勤路上你们都干什么",
+            "post_id": "11151145593"
+          },
+          {
+            "title": "最近睡不好的人有多少",
+            "post_id": "11151141489"
+          },
+          {
+            "title": "楼下新开的面馆挺不错",
+            "post_id": "11151139438"
+          },
+          {
+            "title": "买的东西一周还没到",
+            "post_id": "11151137338"
+          },
+          {
+            "title": "快递在路上躺了五天",
+            "post_id": "11151134532"
+          },
+          {
+            "title": "下班路上的晚霞",
+            "post_id": "11151132290"
+          }
+        ]
+      },
+      "observation": "{\"posts\":[{\"title\":\"记不住的验证码\",\"post_id\":\"11166117191\"},{\"title\":\"雨伞永远在不下雨的时候带\",\"post_id\":\"11166114983\"},{\"title\":\"午睡醒来群消息999+\",\"post_id\":\"11166112856\"},{\"title\":\"洗衣机吞袜子\",\"post_id\":\"11166110586\"},{\"title\":\"闹钟响了八遍\",\"post_id\":\"11166108312\"},{\"title\":\"体重秤骗了我\",\"post_id\":\"11166105988\"},{\"title\":\"超市排队心理学\",\"post_id\":\"11166103821\"},{\"title\":\"充电线又坏了\",\"post_id\":\"11166101570\"},{\"title\":\"又是想吃火锅的一天\",\"post_id\":\"11165839069\"},{\"title\":\"我真的会谢\",\"post_id\":\"11165832297\"},{\"title\":\"通勤一小时的人生\",\"post_id\":\"11165836233\"},{\"title\":\"一个人吃饭怎么点菜\",\"post_id\":\"11151143558\"},{\"title\":\"有什么适合周末去的地方\",\"post_id\":\"11151150297\"},{\"title\":\"降温了想吃点热的\",\"post_id\":\"11151148298\"},{\"title\":\"通勤路上你们都干什么\",\"post_id\":\"11151145593\"},{\"title\":\"最近睡不好的人有多少\",\"post_id\":\"11151141489\"},{\"title\":\"楼下新开的面馆挺不错\",\"post_id\":\"11151139438\"},{\"title\":\"买的东西一周还没到\",\"post_id\":\"11151137338\"},{\"title\":\"快递在路上躺了五天\",\"post_id\":\"11151134532\"},{\"title\":\"下班路上的晚霞\",\"post_id\":\"11151132290\"}]}"
+    },
+    {
+      "step": 2,
+      "tool_name": "publish",
+      "arguments": {
+        "kw": "agenttest",
+        "title": "楼下装修第八天",
+        "content": "电钻声跟闹钟一样准时，八点整开始。今天周末，我躺在床上盯着天花板，突然觉得这个点起床也不是不能接受。麻了。"
+      },
+      "result": {
+        "status": "ok",
+        "post_id": null,
+        "attempt_id": "att-ee89f8729fd1"
+      },
+      "observation": "{\"status\":\"ok\",\"post_id\":null,\"attempt_id\":\"att-ee89f8729fd1\"}"
+    },
+    {
+      "step": 3,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "agenttest",
+        "limit": 20
+      },
+      "result": {
+        "posts": [],
+        "poll": {
+          "found": true,
+          "matched_at_poll": 1,
+          "elapsed_seconds": 0.83,
+          "seen": 20
+        }
+      },
+      "observation": ""
+    }
+  ],
+  "publish": {
+    "status": "ok",
+    "post_id": null,
+    "attempt_id": "att-ee89f8729fd1"
+  },
+  "poll": {
+    "found": true,
+    "matched_at_poll": 1,
+    "elapsed_seconds": 0.83,
+    "seen": 20
+  },
+  "verdict": "CONFIRMED_PUBLISHED",
+  "truth": {
+    "post_count": 1,
+    "confirmed": true
+  },
+  "measured_delay_k": 0,
+  "created_at": "2026-11-04T16:59:03",
+  "note": ""
+}

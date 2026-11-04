@@ -1,0 +1,178 @@
+{
+  "trajectory_id": "real-12eece23",
+  "kind": "probe-delay",
+  "backend": "real",
+  "task": "在「agenttest」吧发布《养宠物到底值不值》",
+  "kw": "agenttest",
+  "title": "养宠物到底值不值",
+  "content": "每天铲屎喂食确实烦，但下班回家它在门口等着，又觉得这些不算什么。纠结的人想知道，养了之后你们后悔过吗。",
+  "health": {
+    "ok": true,
+    "checks": {
+      "login": {
+        "ok": true,
+        "detail": "已登录 shinejjjhjjk"
+      },
+      "level": {
+        "ok": true,
+        "detail": "等级 4，已关注=True（未设阈值，仅记录）"
+      },
+      "editor": {
+        "ok": true,
+        "skipped": true,
+        "detail": "配置里关闭了编辑器探测"
+      },
+      "list": {
+        "ok": true,
+        "detail": "读到 20 条"
+      }
+    }
+  },
+  "tool_calls": [
+    {
+      "step": 1,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "agenttest",
+        "limit": 20
+      },
+      "result": {
+        "posts": [
+          {
+            "title": "朋友渐行渐远正常吗",
+            "post_id": "11166155870"
+          },
+          {
+            "title": "想学个东西但坚持不下来",
+            "post_id": "11166153965"
+          },
+          {
+            "title": "工资到账当天就没了",
+            "post_id": "11166151757"
+          },
+          {
+            "title": "独居久了是什么感觉",
+            "post_id": "11166149785"
+          },
+          {
+            "title": "游戏抽卡终于出货了",
+            "post_id": "11166147987"
+          },
+          {
+            "title": "周末晒了一下午太阳",
+            "post_id": "11166146058"
+          },
+          {
+            "title": "旧耳机复活了",
+            "post_id": "11166144147"
+          },
+          {
+            "title": "公交刚好停在面前",
+            "post_id": "11166141984"
+          },
+          {
+            "title": "做饭第一次没翻车",
+            "post_id": "11166139851"
+          },
+          {
+            "title": "好久不见的朋友突然发消息",
+            "post_id": "11166137639"
+          },
+          {
+            "title": "楼下的猫今天让我摸了",
+            "post_id": "11166135171"
+          },
+          {
+            "title": "记了又忘的密码",
+            "post_id": "11166133210"
+          },
+          {
+            "title": "钱包里的现金过期了",
+            "post_id": "11166131105"
+          },
+          {
+            "title": "熬夜冠军的代价",
+            "post_id": "11166128806"
+          },
+          {
+            "title": "电梯永远先下后上",
+            "post_id": "11166126252"
+          },
+          {
+            "title": "快递柜超时了",
+            "post_id": "11166123565"
+          },
+          {
+            "title": "泡面没有调料包",
+            "post_id": "11166121591"
+          },
+          {
+            "title": "楼下装修第八天",
+            "post_id": "11166119383"
+          },
+          {
+            "title": "记不住的验证码",
+            "post_id": "11166117191"
+          },
+          {
+            "title": "雨伞永远在不下雨的时候带",
+            "post_id": "11166114983"
+          }
+        ]
+      },
+      "observation": "{\"posts\":[{\"title\":\"朋友渐行渐远正常吗\",\"post_id\":\"11166155870\"},{\"title\":\"想学个东西但坚持不下来\",\"post_id\":\"11166153965\"},{\"title\":\"工资到账当天就没了\",\"post_id\":\"11166151757\"},{\"title\":\"独居久了是什么感觉\",\"post_id\":\"11166149785\"},{\"title\":\"游戏抽卡终于出货了\",\"post_id\":\"11166147987\"},{\"title\":\"周末晒了一下午太阳\",\"post_id\":\"11166146058\"},{\"title\":\"旧耳机复活了\",\"post_id\":\"11166144147\"},{\"title\":\"公交刚好停在面前\",\"post_id\":\"11166141984\"},{\"title\":\"做饭第一次没翻车\",\"post_id\":\"11166139851\"},{\"title\":\"好久不见的朋友突然发消息\",\"post_id\":\"11166137639\"},{\"title\":\"楼下的猫今天让我摸了\",\"post_id\":\"11166135171\"},{\"title\":\"记了又忘的密码\",\"post_id\":\"11166133210\"},{\"title\":\"钱包里的现金过期了\",\"post_id\":\"11166131105\"},{\"title\":\"熬夜冠军的代价\",\"post_id\":\"11166128806\"},{\"title\":\"电梯永远先下后上\",\"post_id\":\"11166126252\"},{\"title\":\"快递柜超时了\",\"post_id\":\"11166123565\"},{\"title\":\"泡面没有调料包\",\"post_id\":\"11166121591\"},{\"title\":\"楼下装修第八天\",\"post_id\":\"11166119383\"},{\"title\":\"记不住的验证码\",\"post_id\":\"11166117191\"},{\"title\":\"雨伞永远在不下雨的时候带\",\"post_id\":\"11166114983\"}]}"
+    },
+    {
+      "step": 2,
+      "tool_name": "publish",
+      "arguments": {
+        "kw": "agenttest",
+        "title": "养宠物到底值不值",
+        "content": "每天铲屎喂食确实烦，但下班回家它在门口等着，又觉得这些不算什么。纠结的人想知道，养了之后你们后悔过吗。"
+      },
+      "result": {
+        "status": "ok",
+        "post_id": null,
+        "attempt_id": "att-1f7e4e94e098"
+      },
+      "observation": "{\"status\":\"ok\",\"post_id\":null,\"attempt_id\":\"att-1f7e4e94e098\"}"
+    },
+    {
+      "step": 3,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "agenttest",
+        "limit": 20
+      },
+      "result": {
+        "posts": [],
+        "poll": {
+          "found": true,
+          "matched_at_poll": 1,
+          "elapsed_seconds": 0.84,
+          "seen": 20
+        }
+      },
+      "observation": ""
+    }
+  ],
+  "publish": {
+    "status": "ok",
+    "post_id": null,
+    "attempt_id": "att-1f7e4e94e098"
+  },
+  "poll": {
+    "found": true,
+    "matched_at_poll": 1,
+    "elapsed_seconds": 0.84,
+    "seen": 20
+  },
+  "verdict": "CONFIRMED_PUBLISHED",
+  "truth": {
+    "post_count": 1,
+    "confirmed": true
+  },
+  "measured_delay_k": 0,
+  "created_at": "2026-11-04T17:13:44",
+  "note": ""
+}
