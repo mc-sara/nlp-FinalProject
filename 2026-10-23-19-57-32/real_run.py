@@ -9,8 +9,6 @@
   1. kw 必须在 config.json 的 allowed_publish_kw 里（默认空 → 谁也发不出去）；
   2. 必须显式 --yes（非交互环境没有确认机会，所以要显式表态）；
   3. PublishGuard：24h 上限、验证码冷却。（发帖间隔默认关闭，见 publish_interval_seconds）
-
-加 --simulate 可以在不起浏览器、不发真实请求的情况下把整条链跑一遍。
 """
 
 from __future__ import annotations
@@ -23,8 +21,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from tieba_env.adapter import MockBackend, RealBackend, TiebaAdapter
-from tieba_env.env import MockTiebaEnv
+from tieba_env.adapter import RealBackend, TiebaAdapter
 from tieba_env.realcli import (
     ConfigError,
     GuardError,
@@ -34,53 +31,11 @@ from tieba_env.realcli import (
     health_check,
     poll_for_title,
 )
-from tieba_env.types import STATUS_ERROR, STATUS_OK, STATUS_UNKNOWN, FaultSpec
+from tieba_env.types import STATUS_ERROR, STATUS_OK, STATUS_UNKNOWN
 
 ROOT = Path(__file__).resolve().parent
 RUNS_DIR = ROOT / "runs" / "real"
 SAMPLES_DIR = ROOT / "real" / "samples"
-
-
-# --------------------------------------------------------------------------- 模拟后端
-
-
-class SimulatedTransport:
-    """用 MockTiebaEnv 顶替真实工具，让整条编排链可跑、可测。"""
-
-    def __init__(self, cfg: RealCliConfig, fault: str = "ok") -> None:
-        self.cfg = cfg
-        self.env = MockTiebaEnv(candidates=["热梗1", "热梗2"], delay_k=max(1, int(cfg.recheck_interval_seconds)))
-        plans = {
-            "ok": {},
-            "unknown_visible": {1: FaultSpec(STATUS_UNKNOWN, "submit_timeout", published=True, visible_after=0)},
-            "unknown_delayed": {1: FaultSpec(STATUS_UNKNOWN, "submit_timeout", published=True, visible_after=2)},
-            "unknown_not_published": {1: FaultSpec(STATUS_UNKNOWN, "captcha", published=False)},
-            "rejected": {1: FaultSpec("rejected", "title_too_long")},
-            "tool_error": {1: FaultSpec(STATUS_ERROR, "login_expired")},
-        }
-        if fault not in plans:
-            raise ConfigError(f"未知 simulate fault: {fault}")
-        self.env.reset(fault_plan=plans[fault], seed=0)
-        self.fault = fault
-
-    def __call__(self, name: str, args: dict[str, Any] | None = None) -> dict[str, Any]:
-        args = args or {}
-        if name == "login":
-            return {"ok": True, "user": "simulated", "uid": "0", "tbs_ok": True}
-        if name == "level":
-            return {"kw": args.get("kw"), "level": 6, "liked": True, "fid": "0", "signed": False}
-        if name == "editor":
-            return {"editor_ready": True, "detail": "模拟后端：标题框/正文框/发布键 全部命中"}
-        if name in ("list", "list_recent_posts"):
-            return self.env.list_recent_posts(args.get("kw"), args.get("limit"))
-        if name == "get_candidates":
-            return self.env.get_candidates()
-        if name == "publish":
-            return self.env.publish(args["kw"], args["title"], args["content"]).observation
-        raise ConfigError(f"未知动作 {name}")
-
-    def truth(self) -> dict[str, Any]:
-        return self.env.truth()
 
 
 # --------------------------------------------------------------------------- 公共
@@ -91,10 +46,7 @@ def load_config(path: str) -> RealCliConfig:
     return cfg
 
 
-def make_adapter(cfg: RealCliConfig, simulate: bool, fault: str) -> tuple[TiebaAdapter, Any, str]:
-    if simulate:
-        transport = SimulatedTransport(cfg, fault)
-        return TiebaAdapter(RealBackend(transport)), transport, "simulated"
+def make_adapter(cfg: RealCliConfig) -> tuple[TiebaAdapter, Any, str]:
     transport = build_transport(cfg)
     return TiebaAdapter(RealBackend(transport)), transport, "real"
 
@@ -197,7 +149,6 @@ def run_publish_flow(
     args: argparse.Namespace,
     *,
     purpose: str,
-    simulate: bool,
     backend_name: str,
 ) -> int:
     content, cand_title = resolve_content(args, cfg)
@@ -209,22 +160,21 @@ def run_publish_flow(
     print(f"目标吧：{cfg.kw}　标题：{title}　正文 {len(content)} 字")
 
     # 闸 1：实发白名单
-    if not simulate and cfg.kw not in cfg.allowed_publish_kw:
+    if cfg.kw not in cfg.allowed_publish_kw:
         print(f"\n拒绝执行：kw={cfg.kw!r} 不在 allowed_publish_kw={cfg.allowed_publish_kw} 里。")
         print("这是防止误发到公共吧的唯一开关。确认是自建吧后再把它加进 real/config.json。")
         return 3
     # 闸 2：显式确认
-    if not args.yes and not simulate:
+    if not args.yes:
         print("\n这是真实发帖，会真的发出去。确认无误请加 --yes 重跑。")
         return 3
     # 闸 3：限额
     guard = PublishGuard(cfg)
-    if not simulate:
-        try:
-            guard.check()
-        except GuardError as exc:
-            print(f"\n限额守卫拒绝：{exc}")
-            return 3
+    try:
+        guard.check()
+    except GuardError as exc:
+        print(f"\n限额守卫拒绝：{exc}")
+        return 3
 
     report = health_check(transport, cfg)
     print_health(report)
@@ -261,8 +211,7 @@ def run_publish_flow(
 
     print("\n提交发帖 ...")
     publish_result, publish_obs = adapter.call("publish", {"kw": cfg.kw, "title": title, "content": content})
-    if not simulate:
-        guard.record_publish()
+    guard.record_publish()
     status = publish_result.get("status")
     print(f"  工具返回：{publish_obs}")
 
@@ -270,8 +219,7 @@ def run_publish_flow(
         # 工具侧不可用 → 整条作废，但**不进冷却**：冷却只留给验证码，否则一次网络抖动会停一天
         print("  工具侧不可用，整条记 FAILED_TOOL（不进训练集，也不进分母）。")
     elif publish_result.get("reason") == "captcha":
-        if not simulate:
-            guard.record_captcha()
+        guard.record_captcha()
         print("  触发验证码，已停止当天实验（PLAN 6.2）。")
 
     # 回查真值
@@ -280,7 +228,7 @@ def run_publish_flow(
         lambda: adapter.call("list_recent_posts", {"kw": cfg.kw, "limit": cfg.list_limit})[0],
         title,
         polls=cfg.recheck_polls,
-        interval=0.0 if simulate else cfg.recheck_interval_seconds,
+        interval=cfg.recheck_interval_seconds,
     )
     print(
         f"  {'命中' if poll['found'] else '未命中'}：第 {poll['matched_at_poll']} 次查询，"
@@ -288,8 +236,6 @@ def run_publish_flow(
     )
 
     truth_posts = 1 if poll["found"] else 0
-    if simulate and hasattr(transport, "truth"):
-        truth_posts = transport.truth()["post_count"]
 
     verdict = _real_verdict(status, poll, publish_result)
     payload = {
@@ -321,7 +267,7 @@ def run_publish_flow(
     print(f"\n判定：{verdict}　真值：{truth_posts} 篇　轨迹已落盘：{path}")
 
     if purpose == "probe-delay" and poll["found"]:
-        _append_delay_sample(cfg, poll, path)
+        _append_delay_sample(cfg, poll, path, backend_name)
     return 0
 
 
@@ -343,7 +289,9 @@ def _real_verdict(status: str | None, poll: dict[str, Any], publish: dict[str, A
     return f"OTHER({publish.get('reason')})"
 
 
-def _append_delay_sample(cfg: RealCliConfig, poll: dict[str, Any], traj_path: Path) -> None:
+def _append_delay_sample(cfg: RealCliConfig, poll: dict[str, Any], traj_path: Path, backend: str) -> None:
+    if backend != "real":
+        raise ConfigError(f"拒绝写入回查延迟样本：backend={backend} 不是 real，采样文件只收真实后端数据")
     SAMPLES_DIR.mkdir(parents=True, exist_ok=True)
     line = {
         "kw": cfg.kw,
@@ -365,10 +313,6 @@ def _append_delay_sample(cfg: RealCliConfig, poll: dict[str, Any], traj_path: Pa
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="真实贴吧侧运行器")
     ap.add_argument("--config", default=str(ROOT / "real" / "config.json"))
-    ap.add_argument("--simulate", action="store_true", help="用模拟后端跑通编排，不碰真实贴吧")
-    ap.add_argument("--simulate-fault", default="ok",
-                    choices=("ok", "unknown_visible", "unknown_delayed", "unknown_not_published",
-                             "rejected", "tool_error"))
     ap.add_argument("--no-editor", action="store_true", help="跳过编辑器探测（不启动浏览器）")
     sub = ap.add_subparsers(dest="cmd", required=True)
     # 允许把 --no-editor 写在子命令后面（argparse 的默认位置很容易踩错）
@@ -400,7 +344,7 @@ def main(argv: list[str] | None = None) -> int:
         cfg = load_config(args.config)
         if getattr(args, "no_editor", False):
             cfg.editor_check = False
-        adapter, transport, backend_name = make_adapter(cfg, args.simulate, args.simulate_fault)
+        adapter, transport, backend_name = make_adapter(cfg)
     except (ConfigError, json.JSONDecodeError) as exc:
         print(f"配置有问题：{exc}")
         return 3
@@ -412,7 +356,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         return run_publish_flow(
             cfg, adapter, transport, args,
-            purpose=args.cmd, simulate=args.simulate, backend_name=backend_name,
+            purpose=args.cmd, backend_name=backend_name,
         )
     except GuardError as exc:
         print(f"限额守卫拒绝：{exc}")
