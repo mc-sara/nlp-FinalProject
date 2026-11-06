@@ -24,9 +24,9 @@
 
 节奏：间隔 ≥ 120 s，当天 ≤ 10 次；出验证码立刻停当天，`计入统计` 记「否」。
 
-## 记录表
+## 记录表1 - agenttest自建吧数据
 
-| # | 时间 | 类型 | 变体 | status | reason | post_id | 吧@t | 证据 | 计入统计 |
+| # | time | type | variant | status | reason | post_id | bar@t | evidence | counted |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 17:13:25 | health | — | ok | — | — | agenttest@1 | login,level,editor,list | 是 |
 | 2 | 17:13:38 | read | list | ok | — | — | agenttest@1 | list@t1 | 是 |
@@ -79,7 +79,28 @@
 | 49 | 17:15:22 | publish | normal | ok | — | — | agenttest@1 | list@t1 | 是 |
 | 50 | 17:16:26 | publish | normal | ok | — | — | agenttest@1 | list@t1 | 是 |
 
-## 怎么跑
+## 记录表2 - 公共吧数据（跑完后写在这里）
+| # | time | type | variant | status | reason | post_id | bar@t | evidence | counted |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | | | | | | | | | |
+
+## 列名解释
+
+- `#`：序号，从 1 递增；与 `runs/real/`、`real/captures/` 里同时间戳的文件对应（轨迹自动按时间命名，精确到秒就能对上）。
+- `time`：操作时间，`HH:MM:SS`。
+- `type`：`health`（健康检查）/ `read`（只读访问）/ `publish`（真实发帖）。
+- `variant`：同一 type 下的变体。read 填 `bar` / `detail` / `profile` / `level`；publish 填 `normal` / `dup` / `long-title` / `unknown`（非人为构造的 unknown 也记这里，成因写 `reason`）。`derive_params.py` 按 `type+variant` 分组，不再靠命令文本猜。
+- `status`：`ok` / `unknown` / `rejected` / `notfound` / `error`。
+  - `ok` = 工具返回成功；`unknown` = 工具不确定；`rejected` = 工具明确拒绝；`notfound` = 发帖调用成功但三轮吧页都没看到（真值未确认）；`error` = 工具侧不可用（未发出）。
+- `reason`：`unknown` 必填成因（`submit_timeout` / `captcha` / `no_response`）；`rejected` 填拒绝原因（`title_too_long` / `duplicate` / `deleted`）；`notfound` 填 `not_visible_after_3_polls`；其余填 `—`。
+- `post_id`：帖子 ID；拿不到填 `—`（`unknown` 常见，正好用来算“确认信号缺失率”）。
+- `bar@t`：首次在吧页看到该帖的时刻，单位秒（`0` = 发完立刻可见，`2` / `4` = 第 1 / 2 次轮询命中）；三轮都没看到填 `—`。read 行填 `—`。这一列替换原来的 `visible_at` + `elapsed(s)`。
+- `evidence`：另两个证据源的结果，紧凑写 `profile:Y/N` + `detail:200/404`，如 `profile:Y,detail:200`；没查填 `—`。这样一行就能看出“吧页看不到、主页看得到”的冲突。
+- `counted`：是否计入统计，`yes` / `no`（健康检查失败、工具报错、触发风控填 `no`）。
+
+单元格里的 `|` 写成 `\|`；表里不写 cookie / BDUSS / STOKEN。
+
+## 怎么跑 - 接下来是跑在公共吧环境里
 
 **0. 配置**：`real/config.json`（Mac 路径见 README）。
 
@@ -121,7 +142,7 @@ python real/samples/derive_params.py
 - 公共吧实验也记这一张表，`吧@t` 写实际吧名。
 - 没有 Command / JSON 列：命令在轨迹 `tool_calls`，原始返回在 capture。某次没生成 capture 就在 `证据` 写 `cap:缺失`，不回表加列。
 
-## 数据落盘
+## 数据存储位置
 
 | 数据 | 位置 | 用途 |
 | --- | --- | --- |
@@ -129,7 +150,15 @@ python real/samples/derive_params.py
 | 原始返回 | `real/captures/cap-<run_id>.jsonl`（一次运行一个文件，每次调用一行） | 同构性比对、补漏 |
 | 轨迹 | `runs/real/*.json` | few-shot、评测；含 health + 每次调用 + verdict |
 
-## 历史说明
+## 数据记录结构
+```
+runs/real/
+  20261106-151330-real-<id>.json
+real/captures/
+  20261106-151330-<id>.jsonl  
+  read-01.txt ... read-19.txt 
+real/samples/
+  sampling_log.md           
+  delay_samples.jsonl   
+```
 
-- 前 50 行是 2026-11-04 的快速采集：20 条只读 + 30 篇发帖，全部「第 1 轮可见」（k=0）。
-- 2026-11-04 的 30 篇连发验证了「账号能发、k=0 是常态」，也验证了必须限速：那次之后按 120 s 间隔重跑。
