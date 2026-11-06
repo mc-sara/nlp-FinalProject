@@ -118,6 +118,16 @@ python real/samples/derive_params.py
 - `吧@t`：`吧名@第几轮看到`（1 起）。k = 轮次 - 1；`—` 表示没看到或不是发帖行。
 - `证据`：`list@t2:p3`（第 2 轮列表第 3 位）/ `detail@t1:200` / `profile:yes` / `poster`。
 - `计入统计`：健康检查失败、工具报错填「否」；notfound 仍记「是」，只是不进 k。
+- 公共吧实验也记这一张表，`吧@t` 写实际吧名。
+- 没有 Command / JSON 列：命令在轨迹 `tool_calls`，原始返回在 capture。某次没生成 capture 就在 `证据` 写 `cap:缺失`，不回表加列。
+
+## 数据落盘
+
+| 数据 | 位置 | 用途 |
+| --- | --- | --- |
+| 本表 | `real/samples/sampling_log.md` | 汇总，供 `derive_params.py` 算参数 |
+| 原始返回 | `real/captures/cap-<run_id>.jsonl`（一次运行一个文件，每次调用一行） | 同构性比对、补漏 |
+| 轨迹 | `runs/real/*.json` | few-shot、评测；含 health + 每次调用 + verdict |
 
 ## 历史说明
 
