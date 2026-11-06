@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -57,7 +58,7 @@ def last_ok_candidate() -> dict | None:
         cells = [c.strip() for c in line.strip("|").split("|")]
         if len(cells) < 5 or cells[4] != "ok":
             continue
-        match = __import__("re").search(r"c\d+", line)
+        match = re.search(r"c\d+", line)
         if match:
             return {"id": match.group(0)}
     return None
