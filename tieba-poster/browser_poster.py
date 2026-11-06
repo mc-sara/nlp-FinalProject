@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""browser_poster.py —— 用真实浏览器（Edge + CDP）发帖
+"""browser_poster.py —— 用真实浏览器（Chrome/Edge + CDP）发帖
 
 为什么要走浏览器：
     新版贴吧发帖接口 /c/c/thread/add_pc 要求三样由前端 JS 实时生成的字段
@@ -69,22 +69,30 @@ def _pick(p: Path) -> Path:
     return alt if alt.exists() else p
 
 
-# =========================================================== Edge + CDP 底座
+# ============================================================ 浏览器 + CDP 底座
+# 优先用 Chrome，找不到再退回 Edge（脚本原本是给 Edge 写的，CDP 用法相同）。
 
-EDGE_CANDIDATES = [
+BROWSER_CANDIDATES = [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
     r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
 ]
 
+EDGE_CANDIDATES = BROWSER_CANDIDATES  # 旧名字保留，避免外部脚本引用时报错
+
 
 def find_edge() -> str:
-    for p in EDGE_CANDIDATES:
+    for p in BROWSER_CANDIDATES:
         if os.path.isfile(p):
             return p
-    got = shutil.which("msedge")
+    got = (shutil.which("google-chrome") or shutil.which("chrome")
+           or shutil.which("msedge"))
     if got:
         return got
-    raise SystemExit("找不到 Edge。请确认已安装 Microsoft Edge。")
+    raise SystemExit("找不到 Chrome/Edge。请确认已安装 Google Chrome 或 Microsoft Edge。")
 
 
 def free_port() -> int:
@@ -94,7 +102,7 @@ def free_port() -> int:
 
 
 class Edge:
-    """极简 CDP 客户端：启动 Edge → 连浏览器级 websocket → 操作一个页面。"""
+    """极简 CDP 客户端：启动浏览器 → 连浏览器级 websocket → 操作一个页面。"""
 
     def __init__(self, headless: bool = False, profile_dir: str | None = None,
                  timeout: float = 40.0):
@@ -624,7 +632,7 @@ def main() -> int:
         print("config.json 里没有 cookie，先跑：python setup_cookie.py")
         return 1
 
-    print("启动 Edge ...")
+    print("启动浏览器 ...")
     e = Edge(headless=args.headless, profile_dir=args.profile)
     code = 1
     try:

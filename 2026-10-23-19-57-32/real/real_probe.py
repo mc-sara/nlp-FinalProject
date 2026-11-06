@@ -29,6 +29,14 @@ from typing import Any
 
 DEFAULT_POSTER_DIR = Path("C:/Users/15547/WorkBuddy/2026-10-22-17-21-40/tieba-poster")
 MOBILE_URL = "/mo/q/m"
+DETAIL_URL = "/p/"
+PROFILE_URL = "/home/main"
+
+# 风控页特征：命中任一就停止本次实验（PLAN 6.2），不要靠猜。
+_RISK_MARKERS = ("百度安全验证", "wappass", "验证码", "访问过于频繁", "captcha")
+
+_DETAIL_MISSING = ("贴子不存在", "帖子不存在", "该主题已被删除", "已删除", "抱歉，您访问的贴子")
+_PAGE_TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.S | re.I)
 
 _TAG_RE = re.compile(r"<[^>]+>")
 _ICON_RE = re.compile(r'<span class="ti_title_icon[^"]*"[^>]*>.*?</span>', re.S)
@@ -41,6 +49,29 @@ def _clean(fragment: str) -> str:
     text = _TAG_RE.sub("", text)
     text = html_mod.unescape(text)
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _save_raw(raw_out: str | Path | None, name: str, body: str) -> str | None:
+    """把原始页面落盘，返回路径。不传目录就不写（默认零副作用）。"""
+    if not raw_out:
+        return None
+    directory = Path(raw_out)
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / f"{time.strftime('%Y%m%d-%H%M%S')}-{name}.html"
+    path.write_text(body, encoding="utf-8", errors="replace")
+    return str(path)
+
+
+def _check_risk(page: str, url: str = "") -> None:
+    joined = page + url
+    for marker in _RISK_MARKERS:
+        if marker in joined:
+            raise RuntimeError(f"风控拦截（{marker}），请停止本次实验")
+
+
+def _page_title(page: str) -> str:
+    match = _PAGE_TITLE_RE.search(page)
+    return _clean(match.group(1)) if match else ""
 
 
 def parse_threads(html: str, limit: int = 20) -> list[dict[str, Any]]:
@@ -113,11 +144,14 @@ def do_level(tp, client, kw: str) -> dict[str, Any]:
     }
 
 
-def do_list(tp, client, kw: str, limit: int, *, nocache: bool = False) -> dict[str, Any]:
+def do_list(
+    tp, client, kw: str, limit: int, *, nocache: bool = False, raw_out: str | Path | None = None
+) -> dict[str, Any]:
     """读吧页帖子列表。
 
     `nocache=True` 时给请求加上时间戳与 `no-cache` 头，绕开 CDN / 中间缓存 ——
     刚发的帖子有时在缓存副本里看不到，回查就会出现「明明发出去了却查不到」。
+    `raw_out` 给了目录就把原始 HTML 落盘，路径回填到 `raw_file`。
     """
     params: dict[str, Any] = {"kw": kw}
     extra: dict[str, Any] = {}
@@ -126,15 +160,57 @@ def do_list(tp, client, kw: str, limit: int, *, nocache: bool = False) -> dict[s
         extra["headers"] = {"Cache-Control": "no-cache", "Pragma": "no-cache"}
     resp = client._request("GET", tp.BASE + MOBILE_URL, params=params, **extra)
     page = resp.content.decode("utf-8", "ignore")
-    if "百度安全验证" in page or "wappass" in str(resp.url):
-        raise RuntimeError("风控拦截（百度安全验证），请停止本次实验")
-    return {"kw": kw, "posts": parse_threads(page, limit)}
+    _check_risk(page, str(resp.url))
+    return {
+        "kw": kw,
+        "posts": parse_threads(page, limit),
+        "raw_file": _save_raw(raw_out, "list", page),
+    }
+
+
+def do_detail(tp, client, post_id: str, raw_out: str | Path | None = None) -> dict[str, Any]:
+    """帖子详情页：判断「真的存在 / 已被删」，与吧页列表互相独立的一个证据源。"""
+    resp = client._request("GET", tp.BASE + DETAIL_URL + str(post_id))
+    page = resp.content.decode("utf-8", "ignore")
+    _check_risk(page, str(resp.url))
+    missing = any(marker in page for marker in _DETAIL_MISSING)
+    return {
+        "post_id": str(post_id),
+        "http_status": int(getattr(resp, "status_code", 0) or 0),
+        "exists": bool(getattr(resp, "status_code", 200) == 200 and not missing),
+        "deleted_hint": missing,
+        "title": _page_title(page),
+        "raw_file": _save_raw(raw_out, f"detail-{post_id}", page),
+    }
+
+
+def do_profile(
+    tp, client, uname: str = "", post_id: str = "", raw_out: str | Path | None = None
+) -> dict[str, Any]:
+    """个人主页：看帖子是否出现在自己的发帖记录里（吧页看不到时的第二证据源）。
+
+    不解析整页结构（页面改版频繁），只回答一个二值问题：pid 在不在这一页里。
+    """
+    params: dict[str, Any] = {}
+    if uname:
+        params["un"] = uname
+    resp = client._request("GET", tp.BASE + PROFILE_URL, params=params)
+    page = resp.content.decode("utf-8", "ignore")
+    _check_risk(page, str(resp.url))
+    return {
+        "uname": uname,
+        "http_status": int(getattr(resp, "status_code", 0) or 0),
+        "contains_post": bool(post_id) and str(post_id) in page,
+        "html_len": len(page),
+        "raw_file": _save_raw(raw_out, "profile", page),
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="只读探针：登录态 / 等级 / 吧页列表")
+    ap = argparse.ArgumentParser(description="只读探针：登录态 / 等级 / 吧页列表 / 详情 / 主页")
     ap.add_argument("--poster-dir", default=str(DEFAULT_POSTER_DIR))
     ap.add_argument("--config", default="config.json")
+    ap.add_argument("--raw-out", default="", help="把原始页面写到这个目录（默认不写）")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("login", help="校验 Cookie 登录态")
@@ -143,8 +219,14 @@ def main(argv: list[str] | None = None) -> int:
     sp_list = sub.add_parser("list", help="读吧页最新帖子列表")
     sp_list.add_argument("--kw", required=True)
     sp_list.add_argument("--limit", type=int, default=20)
+    sp_detail = sub.add_parser("detail", help="读帖子详情页，判断是否还在")
+    sp_detail.add_argument("--post-id", required=True)
+    sp_profile = sub.add_parser("profile", help="读个人主页，看帖子是否出现在发帖记录里")
+    sp_profile.add_argument("--uname", default="")
+    sp_profile.add_argument("--post-id", default="")
 
     args = ap.parse_args(argv)
+    raw_out = args.raw_out or None
 
     try:
         tp, client = build_client(Path(args.poster_dir), args.config)
@@ -152,8 +234,12 @@ def main(argv: list[str] | None = None) -> int:
             payload = do_login(tp, client)
         elif args.cmd == "level":
             payload = do_level(tp, client, args.kw)
+        elif args.cmd == "detail":
+            payload = do_detail(tp, client, args.post_id, raw_out=raw_out)
+        elif args.cmd == "profile":
+            payload = do_profile(tp, client, args.uname, args.post_id, raw_out=raw_out)
         else:
-            payload = do_list(tp, client, args.kw, args.limit)
+            payload = do_list(tp, client, args.kw, args.limit, raw_out=raw_out)
     except Exception as exc:  # noqa: BLE001 - 一律以 JSON 报错，便于上层解析
         code = getattr(exc, "code", None)
         payload = {"error": f"{type(exc).__name__}: {exc}"}

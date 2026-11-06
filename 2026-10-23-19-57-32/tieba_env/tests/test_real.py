@@ -372,5 +372,62 @@ class TestListShapeMatchesReal(unittest.TestCase):
         )
 
 
+class TestCapture(unittest.TestCase):
+    """captures 要能重放、要打码，否则既不能做同构性比对也不能进仓库。"""
+
+    def test_redact_hides_credentials(self):
+        from tieba_env.realcli import redact
+
+        raw = '{"cookie":"BDUSS=AAAA1111; STOKEN=bbbb", "tbs":"abc123", "title":"ok"}'
+        out = redact(raw)
+        self.assertNotIn("AAAA1111", out)
+        self.assertNotIn("abc123", out)
+        self.assertIn('"title":"ok"', out)
+
+    def test_capture_appends_one_line_per_call(self):
+        from tieba_env.realcli import CaptureLog
+
+        with tempfile.TemporaryDirectory() as tmp:
+            log = CaptureLog(Path(tmp), "run-1", clock=lambda: datetime(2026, 11, 6, 12, 0, tzinfo=timezone.utc))
+            log.add(tool="list", request={"kw": "agenttest"}, parsed={"posts": []},
+                    evidence="list", returncode=0, elapsed_ms=12.3)
+            log.add(tool="detail", request={"post_id": "1"}, parsed={"exist": True})
+            lines = log.path.read_text(encoding="utf-8").splitlines()
+            self.assertEqual(len(lines), 2)
+            first = json.loads(lines[0])
+            self.assertEqual(first["tool"], "list")
+            self.assertEqual(first["step"], 1)
+            self.assertEqual(first["run_id"], "run-1")
+            self.assertEqual(json.loads(lines[1])["step"], 2)
+            self.assertTrue(str(log.raw_dir).endswith("raw/run-1"))
+
+
+class TestPollPosition(unittest.TestCase):
+    def test_position_points_at_matching_title(self):
+        posts = [{"title": "a"}, {"title": "b"}, {"title": "c"}]
+        result = poll_for_title(lambda: {"posts": posts}, "b", polls=3, interval=0, sleep=lambda _: None)
+        self.assertTrue(result["found"])
+        self.assertEqual(result["position"], 2)
+        self.assertEqual(result["matched_at_poll"], 1)
+
+
+class TestHealthAccount(unittest.TestCase):
+    def test_account_carries_uname_and_kw(self):
+        cfg = RealCliConfig.from_dict(dict(BASE_CONFIG, kw="agenttest"))
+
+        def transport(name, args):
+            if name == "login":
+                return {"ok": True, "tbs_ok": True, "user": "射手sarasong"}
+            if name == "level":
+                return {"level": 1, "liked": True}
+            if name == "editor":
+                return {"editor_ready": True, "detail": "OK"}
+            return {"posts": [{"title": "x"}]}
+
+        report = health_check(transport, cfg)
+        self.assertTrue(report["ok"])
+        self.assertEqual(report["account"], {"uname": "射手sarasong", "kw": "agenttest"})
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -17,15 +17,15 @@ tieba_env/
   policies.py   参考策略 / 只查一次 / 直接重发（自检与基线对照用）
   realcli.py    ★ 真实侧：CLI 映射、输出解析、健康检查、回查轮询、发帖限额守卫
   data/candidates.json  20 条热梗（10 train / 5 test / 5 real）
-  tests/        test_simulator.py（39）+ test_real.py（35）+ test_publish_api.py（20），共 94 个
+  tests/        test_simulator.py（40）+ test_real.py（39）+ test_publish_api.py（24），共 103 个
 
 real/                 ★ 真实贴吧相关，与模拟器完全隔离
   config.json         真实侧配置（脚本路径、吧名、实发白名单、日限额）
-  real_probe.py       只读探针：登录态 / 吧内等级 / 吧页帖子列表
+  real_probe.py       只读探针：登录态 / 吧内等级 / 吧页列表 / 详情 / 个人主页
   forum_list.py       同上（早期单独版本，保留备用）
-  captures/           D1 抓到的真实原始输出，供同构性比对
+  captures/           D1 抓到的原始返回：cap-<run_id>.jsonl + raw/<run_id>/*.html（凭据打码）
   outbox/             每次实发落盘的帖子文件（审计用）
-  samples/            delay_samples.jsonl —— 回查延迟实测样本
+  samples/            sampling_log.md（10 列记录表）+ d1_post.py / record_row.py / derive_params.py
 
 real_run.py           真实侧运行器：health / verify / publish / probe-delay
 publish_api.py        内联发帖接口：publish(kw, title, content)，参数直达脚本

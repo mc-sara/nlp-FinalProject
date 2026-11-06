@@ -56,8 +56,9 @@ P3 的分类规则无法冻结。
 
 - `rejected` 的 reason 还有 `content_invalid`、`rate_limited` 两种。
 - `ok` 在"已提交但拿不到帖子 ID"时可能返回 `post_id: null`（现有工具的 `withhold_post_id` 开关）。
-- 标题超长：模拟器按 40 字判 `rejected(title_too_long)`，真实工具在 31 字处**截断后照发**。
-  两侧语义不同，§7.2 的逐字节同构在当前实现下不可能通过。
+- 标题超长：模拟器现在按 40 字判 `rejected(title_too_long)`，真实工具在 31 字处**截断后照发**。
+  已定案按 31 字冻结（`realcli.py:56` `title_limit=31`）；模拟器的 40 字拒绝要改成 31 字截断，
+  否则 §7.2 的逐字节同构在当前实现下不可能通过。
 
 **不提供按请求 ID 查状态的接口**。真实工具没有这个能力，提供了会让模拟环境训出的策略
 在真实侧直接失效。状态查证的唯一手段就是重读吧页列表。
@@ -239,39 +240,48 @@ FAILED_TOOL          工具侧不可用（登录过期、选择器失效）
 
 ### 5.1 真实采样（D1）
 
-模拟器的参数如果靠估计，结论不可信。D1 用真实工具采样，回答三个问题：
+D1 只回答四个问题，答完就把模拟器参数冻结：
 
-1. `publish` 的四种状态各占多少？`unknown` 的成因分布是什么（超时 / 验证码 / 无响应）？
-2. 回查延迟的真实量级——发帖成功后，第几秒、第几次轮询才能在吧页看到该帖？
-3. 人工最优策略是什么？查一次够不够，要不要等待后再查？
+1. 回查延迟 `k`：发帖后第几次轮询（2 秒一次）能在吧页看到？
+2. 状态分布：`ok` / `unknown` / `rejected` / `notfound` 各占多少？`unknown` 的成因分布？
+3. 标题超长：真实侧是**拒绝**还是**截断**？——已定案：31 字截断（客户端），D1 只做 dry-run 确认。
+4. 重复发帖：真实侧是**拒绝**还是**放行**？（决定模拟器硬规则）
 
-采样方式：
-- 约 20 次只读操作（读吧页列表、查吧内等级、发帖预览），在公共吧进行，不产生内容。
-- 约 10 次真实发帖，**在自建吧进行**。这一步只为触发工具的各种返回状态并实测回查延迟，
-  不需要用户反馈，用自建吧可以把风控风险降到最低。
-- 回查延迟的测法：发一篇帖，之后每秒查询一次吧页，记录第几次能看到。重复多次取中位数。
+采样：约 20 次只读 + 约 10 次发帖，**都在自建吧 agenttest 做**。发帖必须覆盖：健康检查 1 次、
+故意重复 1 次、标题 40 字 dry-run 1 次（不发帖、不占发帖次数）、`unknown` 3 次（超时 / 验证码 / 无响应各 1 次）。
+每次发帖后固定查 3 次，间隔 2 秒。
 
-**交付物**：一张采样记录表（每次操作的状态、原因、是否有帖子 ID、回查可见时间），
-外加几条原始返回的完整 JSON，供 D2 对齐格式。
+采样记录表（`real/samples/sampling_log.md`，脚本逐行追加；原始返回同时在 `real/captures/`）：
 
-采样记录表模板（D1 交付，建议落盘 `real/samples/sampling_log.md`，由 `real_run.py` 追加）：
+| # | 时间 | 类型 | 变体 | status | reason | post_id | 吧@t | 证据 | 计入统计 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | | health | — | | | | agenttest@1 | | 是 |
+| 2 | | read | list | | | | agenttest@1 | list@t1 | 是 |
+| 3 | | publish | normal | | | | agenttest@2 | list@t2:p3 | 是 |
 
-| # | 时间 | 类型 | 吧 kw | status | reason | 有 post_id | 回查可见 | 原始 JSON |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | | | | | | | | |
+- `变体`：read 用 `list` / `detail` / `profile`；publish 用 `normal` / `dup-risk` / `title-edge`。
+- `吧@t`：`吧名@第几轮看到`（1 起）。发帖行 k = 轮次 − 1；`—` = 3 轮都没看到（notfound）。
+- `证据`：`list@t2:p3`（第 2 轮列表第 3 位）、`detail@t1:200`、`profile:yes`；用来暴露「吧页看不到、主页看得到」的冲突。
+- 原始返回落 `real/captures/cap-<run_id>.jsonl` + `raw/<run_id>/*.html`，BDUSS/STOKEN/tbs 打码；轨迹在 `runs/real/*.json`。
 
-字段约定：
+导出（交付物）：
 
-- `类型`：`read`（读列表 / 查等级）、`preview`（发帖预览）、`publish`（真实发帖）、`probe-delay`（发帖后逐秒回查延迟）。
-- `status` / `reason`：与 `types.py` 四状态契约一致；`unknown` 必须写清成因（`submit_timeout` / `captcha` / `no_response`）。
-- `有 post_id`：拿到 tid 写 `是 + tid`，否则 `否`。
-- `回查可见`：仅 `probe-delay` 与发帖后回查才填，记「第几次轮询查到 + 秒数」；只读操作填 `—`。
-- 每行对应的原始返回 JSON 全文单独存 `real/captures/`，表里只挂文件名，供 D2 逐字节对齐。
+```
+python real/samples/derive_params.py     # 表 → artifacts/params_d1.json
+```
 
-由这张表导出两个数值（回填 §8 与模拟器参数）：
+```json
+{"k": 3, "status_weights": {"ok": 0.60, "unknown": 0.25, "rejected": 0.15}, "n_notfound": 1,
+ "unknown_causes": {"submit_timeout": 0.5, "captcha": 0.3, "no_response": 0.2},
+ "title_rule": "client_truncate_31", "duplicate_rule": "reject"}
+```
 
-- 回查延迟 `k`：对 `probe-delay` 行的「回查可见轮次」取中位数，再用 `delay_k_from_measurement(seconds, poll_interval=2.0)` 换算。
-- 四状态占比 / `unknown` 成因分布：按 `publish` 与 `probe-delay` 行统计。
+**P2 怎么用（四步）**：
+
+1. 跑采样脚本，表自动追加，captures 存原始 JSON；
+2. 跑 `derive_params.py` 生成 `params_d1.json`，提交到仓库；
+3. 改模拟器三处：`scenarios.py` 的 delay、`env.py` 的标题/重复规则、场景配比按 `status_weights`；
+4. 用 captures 跑 `check_isomorphy.py` 验收，通过后勾掉 §8 的 k、标题、重复三项。
 
 ### 5.2 few-shot 可行性检查（D2）
 
@@ -412,10 +422,11 @@ def trajectory_to_sharegpt(traj: dict, system_prompt: str) -> dict:
 - ☑ 自建吧吧名：agenttest（2026-10-26 起使用）。
 - ☐ 该账号等级是否满足发帖门槛（部分吧要求 4 级以上）。
 - ☐ D6 的目标公共吧选择，以及发帖内容的准备方式。
-- ☐ 回查延迟 k 的取值——等 D1 实测结果。
-- ☐ 标题超长的两侧语义二选一：模拟器改成截断（31 字），还是真实侧改成拒绝（40 字）？
-  定案后再冻结 2.1 的契约，否则 §7.2 的同构性验证无法通过。
-- ☐ `rejected` 是否纳入 `content_invalid` / `rate_limited`；`ok` 是否允许 `post_id: null`。
+- ☐ 回查延迟 k 的取值——由 D1 采样裁决（§5.1）；3 次轮询窗口内 k>3 与被吞不可区分，报告要注明。
+- ☑ 标题超长：真实侧客户端在 31 字就截断（`realcli.py:56` `title_limit=31`），40 字发不出去，
+  模拟器按 31 字截断冻结；D1 的 40 字行只做 dry-run 确认，不写记录表、不占发帖次数。
+- ☑ `notfound` 不进 `status_weights` 分母，只记数量——它可能是被吞，也可能 k>3，不构成一种状态。
+- ☐ `rejected` 是否纳入 `content_invalid` / `rate_limited`；`ok` 是否允许 `post_id: null`（由 D1 采样裁决）。
 - ☐ `publish_interval_seconds` 的取值与放行条件（现状为 0，与 6.3 冲突）。
 - ☐ 模拟器训练/测试用的吧名（"测试" / "实验二"）与真实侧 agenttest 不一致，是否统一。
 - ☐ 20 条训练数据是否够；不够时是扩大采样还是改用拒绝采样。

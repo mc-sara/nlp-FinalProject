@@ -177,6 +177,73 @@ def _parse_json_line(stdout: str) -> dict[str, Any]:
     raise ConfigError(f"输出里找不到 JSON: {stdout.strip()[:200]}")
 
 
+# --------------------------------------------------------------------------- 捕获层
+
+# 落在下面的凭据一律打码；captures 会进仓库，泄露过一次不能再有第二次。
+_SECRET_RE = re.compile(
+    r'(?i)("?(?:bduss|stoken|ptoken|baiduid|tbs|cookie)"?\s*[:=]\s*"?)([^"\s,&}]{1,})'
+)
+
+
+def redact(text: str) -> str:
+    """把 BDUSS / STOKEN / tbs / cookie 的值替换成 ***。幂等，可重复调用。"""
+    return _SECRET_RE.sub(lambda m: m.group(1) + "***", text)
+
+
+@dataclass
+class CaptureLog:
+    """一次运行一个 jsonl：每次工具调用一行，原文落 raw/<run_id>/。
+
+    只记"请求 + 响应 + 解析结果"，不做任何判定；判定仍在 real_run 里。
+    """
+
+    directory: Path
+    run_id: str
+    clock: Callable[[], datetime] = field(default=lambda: datetime.now().astimezone())
+    seq: int = 0
+
+    def __post_init__(self) -> None:
+        self.directory = Path(self.directory)
+        self.directory.mkdir(parents=True, exist_ok=True)
+
+    @property
+    def path(self) -> Path:
+        return self.directory / f"cap-{self.run_id}.jsonl"
+
+    @property
+    def raw_dir(self) -> Path:
+        return self.directory / "raw" / self.run_id
+
+    def add(
+        self,
+        *,
+        tool: str,
+        request: Any,
+        parsed: Any = None,
+        evidence: str | None = None,
+        returncode: int | None = None,
+        elapsed_ms: float | None = None,
+        raw_file: str | None = None,
+        extra: dict[str, Any] | None = None,
+    ) -> None:
+        self.seq += 1
+        line = {
+            "run_id": self.run_id,
+            "step": self.seq,
+            "ts": self.clock().isoformat(timespec="milliseconds"),
+            "tool": tool,
+            "evidence": evidence,
+            "request": request,
+            "returncode": returncode,
+            "elapsed_ms": elapsed_ms,
+            "parsed": parsed,
+            "raw_file": raw_file,
+            "extra": extra or {},
+        }
+        with self.path.open("a", encoding="utf-8") as handle:
+            handle.write(redact(json.dumps(line, ensure_ascii=False)) + "\n")
+
+
 @dataclass
 class RealTransport:
     """一个 transport 同时服务 adapter 的三个工具和健康检查的四项。"""
@@ -186,6 +253,7 @@ class RealTransport:
     clock: Callable[[], datetime] = field(default=lambda: datetime.now().astimezone())
     timeout: float = 300.0
     log: list[dict[str, Any]] = field(default_factory=list)
+    capture: CaptureLog | None = None
 
     def __call__(self, name: str, args: dict[str, Any] | None = None) -> dict[str, Any]:
         args = args or {}
@@ -198,6 +266,13 @@ class RealTransport:
             return self._probe("login", [])
         if name == "level":
             return self._probe("level", ["--kw", str(args.get("kw") or self.cfg.kw)])
+        if name == "detail":
+            return self._probe("detail", ["--post-id", str(args["post_id"])],
+                               evidence="detail")
+        if name == "profile":
+            return self._probe("profile", ["--uname", str(args.get("uname") or ""),
+                                           "--post-id", str(args.get("post_id") or "")],
+                               evidence="profile")
         if name == "editor":
             return self._editor(str(args.get("kw") or self.cfg.kw))
         if name == "publish":
@@ -223,15 +298,26 @@ class RealTransport:
         self.log.append({"argv": argv, "returncode": proc.returncode, "ts": self.clock().isoformat()})
         return proc
 
-    def _probe(self, cmd: str, extra: list[str]) -> dict[str, Any]:
+    def _probe(self, cmd: str, extra: list[str], *, evidence: str | None = None) -> dict[str, Any]:
         argv = [
             self.cfg.python, self.cfg.probe_script,
             "--poster-dir", self.cfg.poster_dir,
             "--config", self.cfg.tieba_config,
-            cmd, *extra,
         ]
+        if self.capture is not None:
+            argv += ["--raw-out", str(self.capture.raw_dir)]
+        argv += [cmd, *extra]
+
+        started = time.monotonic()
         proc = self._exec(argv)
+        elapsed_ms = round((time.monotonic() - started) * 1000, 1)
         payload = _parse_json_line(proc.stdout or "")
+        if self.capture is not None:
+            self.capture.add(
+                tool=cmd, request=extra, parsed=payload, evidence=evidence or cmd,
+                returncode=proc.returncode, elapsed_ms=elapsed_ms,
+                raw_file=payload.get("raw_file"),
+            )
         if payload.get("error"):
             raise ConfigError(f"只读探针 {cmd} 失败: {payload['error']}")
         return payload
@@ -239,13 +325,62 @@ class RealTransport:
     def _editor(self, kw: str) -> dict[str, Any]:
         argv = [self.cfg.python, self.cfg.poster_script, "--config", self.cfg.tieba_config,
                 "probe", "--kw", kw]
+        started = time.monotonic()
         proc = self._exec(argv)
+        elapsed_ms = round((time.monotonic() - started) * 1000, 1)
         text = (proc.stdout or "") + (proc.stderr or "")
         found = {key: f"{key} : 已找到" in text for key in ("标题框", "正文框", "发布键")}
-        return {
+        result = {
             "editor_ready": all(found.values()),
             "detail": ", ".join(f"{k}={'OK' if v else '缺失'}" for k, v in found.items()),
         }
+        if self.capture is not None:
+            self.capture.add(
+                tool="editor", request={"kw": kw}, parsed=result, evidence="editor",
+                returncode=proc.returncode, elapsed_ms=elapsed_ms,
+            )
+        return result
+
+    def _write_post_file(self, kw: str, title: str, content: str) -> Path:
+        outbox = Path(self.cfg.outbox_dir)
+        if not outbox.is_absolute():
+            outbox = Path(__file__).resolve().parent.parent / outbox
+        outbox.mkdir(parents=True, exist_ok=True)
+        stamp = self.clock().strftime("%Y%m%d-%H%M%S-%f")
+        path = outbox / f"post-{stamp}.md"
+        if len(title) > self.cfg.title_limit:
+            title = title[: self.cfg.title_limit]
+        path.write_text(f"---\nkw: {kw}\ntitle: {title}\n---\n\n{content}\n", encoding="utf-8")
+        return path
+
+    def _publish(self, args: dict[str, Any]) -> dict[str, Any]:
+        kw = str(args["kw"])
+        title = str(args["title"])
+        content = str(args["content"])
+        post_file = self._write_post_file(kw, title, content)
+
+        argv = [self.cfg.python, self.cfg.poster_script, "--config", self.cfg.tieba_config]
+        if self.cfg.headless:
+            argv.append("--headless")
+        argv += ["post", str(post_file), "--yes"]
+
+        started = time.monotonic()
+        proc = self._exec(argv)
+        elapsed_ms = round((time.monotonic() - started) * 1000, 1)
+        payload, note = parse_poster_output(proc.stdout or "", proc.returncode)
+        payload["_note"] = note
+        payload["_post_file"] = str(post_file)
+        if self.capture is not None:
+            self.capture.add(
+                tool="publish",
+                request={"kw": kw, "title": title, "title_len": len(title),
+                         "content_len": len(content)},
+                parsed={"status": payload.get("status"), "reason": payload.get("reason"),
+                        "post_id": payload.get("post_id"), "note": note},
+                evidence="publish", returncode=proc.returncode, elapsed_ms=elapsed_ms,
+                extra={"stdout": (proc.stdout or "")[-2000:]},
+            )
+        return payload
 
     def _write_post_file(self, kw: str, title: str, content: str) -> Path:
         outbox = Path(self.cfg.outbox_dir)
@@ -350,6 +485,7 @@ def health_check(transport: Callable[..., dict[str, Any]], cfg: RealCliConfig) -
     "取数据"与"判合格"分开：前者会抛异常（网络/登录），后者是纯函数，便于单测。
     """
     checks: dict[str, Any] = {}
+    payloads: dict[str, Any] = {}
     for name in REQUIRED_HEALTH_CHECKS:
         if name == "editor" and not cfg.editor_check:
             checks[name] = {"ok": True, "skipped": True, "detail": "配置里关闭了编辑器探测"}
@@ -359,9 +495,18 @@ def health_check(transport: Callable[..., dict[str, Any]], cfg: RealCliConfig) -
         except Exception as exc:  # noqa: BLE001 - 取数失败本身就是一项失败
             checks[name] = _bad(f"调用失败: {type(exc).__name__}: {exc}")
             continue
+        payloads[name] = payload
         checks[name] = _EVALUATORS[name](payload, cfg)
 
-    return {"ok": all(item["ok"] for item in checks.values()), "checks": checks}
+    return {
+        "ok": all(item["ok"] for item in checks.values()),
+        "checks": checks,
+        # 记录行里的 bar@t 要「谁、在哪吧」，顺手从已有的两项检查里取，不额外请求。
+        "account": {
+            "uname": payloads.get("login", {}).get("user") or "",
+            "kw": cfg.kw,
+        },
+    }
 
 
 # --------------------------------------------------------------------------- 回查轮询
@@ -389,18 +534,21 @@ def poll_for_title(
     last_posts: list[dict[str, Any]] = []
     for index in range(1, max(1, polls) + 1):
         last_posts = list_fn().get("posts") or []
-        if any(_norm(post.get("title")) == target for post in last_posts):
-            return {
-                "found": True,
-                "matched_at_poll": index,
-                "elapsed_seconds": round(time.monotonic() - started, 2),
-                "seen": len(last_posts),
-            }
+        for position, post in enumerate(last_posts, start=1):
+            if _norm(post.get("title")) == target:
+                return {
+                    "found": True,
+                    "matched_at_poll": index,
+                    "position": position,
+                    "elapsed_seconds": round(time.monotonic() - started, 2),
+                    "seen": len(last_posts),
+                }
         if index < polls:
             sleep(interval)
     return {
         "found": False,
         "matched_at_poll": None,
+        "position": None,
         "elapsed_seconds": round(time.monotonic() - started, 2),
         "seen": len(last_posts),
     }
