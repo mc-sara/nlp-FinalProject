@@ -1,0 +1,12 @@
+.venv/
+artifacts/
+backup_torch29_*/
+__pycache__/
+*.pyc
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.zip
+*.tar.gz
+*.before_audio_fix

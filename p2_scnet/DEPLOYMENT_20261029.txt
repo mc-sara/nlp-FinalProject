@@ -1,0 +1,214 @@
+P2 项目交接与跨服务器部署说明
+日期：2026-10-29
+适用文件：P2_SCNet_code_20261029_144901.tar.gz、P2_environment_reference.txt
+
+一、先了解这份交付
+
+这是当前项目源码与环境参考，供组员在各自服务器继续部署、排查与开发；不是已训练模型，也不是可以直接产出正式实验结果的成品。
+
+已完成：Qwen/Qwen3.5-9B 下载、加载、Hugging Face 后端推理；LLaMA-Factory 基础安装；P1 模拟器接入；100 条首轮轨迹采集与排查。
+未完成：采集逻辑修复、合格训练数据整理、few-shot 可行性检查、B/C LoRA 微调、正式 A/B/C 评测。训练脚本已存在，但 GPU 训练链路尚未验证。
+
+原环境：Linux / Python 3.11 / PyTorch 2.7.1+das.opt1.dtk2604，K500SM_AI 单卡64GB，DTK26.04。不能据此保证其他平台、其他显存容量一定可训练。
+实际推理后端是 Hugging Face，不是计划中的 vLLM。环境清单中虽然出现 vLLM，它并非本流程必用组件。
+
+二、收到的文件分别怎么用
+
+1. P2_SCNet_code_20261029_144901.tar.gz
+   当前源码与脚本，解压后得到 P2_SCNet/。包含 vendor/p1 模拟器源码、vendor/LlamaFactory 固定版本源码及本地补丁。
+   不含模型权重、.venv、artifacts、缓存、首轮轨迹和 LoRA adapter。
+   包内候选内容文件在 vendor/p1 下，但它们不是经过复核的 SFT 训练数据。
+
+2. P2_environment_reference.txt
+   原环境 pip freeze 快照，用于比对版本，不是通用 requirements.txt。
+   不要执行 pip install -r P2_environment_reference.txt。
+   原因：有 DTK 专用包（+das…）、大量镜像自带无关包，以及原服务器的 editable 绝对路径。
+   新环境应安装当地硬件对应的 PyTorch，再安装本项目应用依赖。
+
+3. A_train_42.jsonl（如果另外附送）
+   首轮调试轨迹，包含模型输出、工具记录和真值；用来排查当前问题，不是可直接训练的正式数据。
+   此文件不包含在上述代码压缩包中。
+
+三、必须纠正的旧说明
+
+包内 README.md / versions.json / startup_template.txt 部分内容仍指向旧环境：
+- PyTorch 2.9.0 已弃用，实际跑通的是 2.7.1。
+- “仅 CPU 测试、尚未在 SCNet 执行”已过时：推理采集已执行，但微调未执行。
+- 源码已包含音频库延迟导入补丁，不能宣称与上游提交逐字节一致。
+- qwen3_5_nothink 是当前模板名，不代表已经确认关闭思考；首轮实际出现非空 <think>。
+- 包内 MANIFEST.sha256 是旧清单；核对发现 install_environment.py、run_scnet.sh、mm_plugin.py 与旧清单不符，是已修改文件。不要拿它当当前包的完整性证明。
+
+本次收到文件的 SHA256：
+P2_SCNet_code_20261029_144901.tar.gz
+3b4d21d17b72a6cc7ad6fd427fec1c6a63f4886bf46d065de543e181710d91d3
+P2_environment_reference.txt
+abf49f14510837eed42fb0010d328ec568fe044968ebd9b87de7a63c31cde309
+
+四、解压与目录选择
+
+建议放在空间充足、可持久保存的磁盘。以下命令在 Linux Terminal 执行，不是 Python 单元格；把 /your/workspace 改成自己的实际目录。
+
+cd /your/workspace
+tar -xzf P2_SCNet_code_20261029_144901.tar.gz
+cd P2_SCNet
+
+确认当前目录下有 p2.py、run_scnet.sh、install_environment.py、vendor/。
+不要解压覆盖正在跑实验的同名目录；不同版本分别存放。
+
+五、环境安装：按硬件选择一条路线
+
+路线 A：同类 DTK 平台，有平台预装 PyTorch 的镜像
+
+选择当地平台适配的 Python3.11 / PyTorch2.7.1 / DTK 镜像。先确认设备可用：
+
+python3 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
+
+返回 True 后运行：
+
+bash run_scnet.sh setup
+
+脚本使用 --system-site-packages 创建 .venv，借用镜像自带 DTK PyTorch，并在虚拟环境安装应用依赖。不要用普通 CUDA wheel 覆盖 DTK PyTorch。
+当前安装器保护 torch/torchvision/torchaudio/triton 等已安装组件；若依赖解析要求替换它们会停止。不要直接删除保护逻辑，应先解决平台组件版本。
+
+路线 B：NVIDIA GPU + Linux/CUDA
+
+这一迁移路线未在接收方硬件实测。先按平台驱动与 GPU 架构选择 PyTorch 官方支持的 CUDA wheel，不能安装环境清单里的 DTK 版本。建议新建不继承系统包的环境，减少 vLLM 等镜像自带包的冲突。
+
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+
+以下仅是官方 PyTorch 2.7.1 的 CUDA12.6 安装示例；只有目标驱动和硬件支持该构建时使用：
+
+python -m pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu126
+
+如需 CUDA12.8，选择官方对应的 cu128 构建；不要只根据 nvidia-smi 顶部显示的 CUDA 数字机械选择。不同 GPU 架构支持范围应由当地平台说明和官方构建信息确认。
+官方版本对应表：https://pytorch.org/get-started/previous-versions/
+
+python -c "import torch; assert torch.cuda.is_available(); print(torch.__version__, torch.cuda.get_device_name(0))"
+
+确认成功后，可试用包内安装器安装应用依赖：
+
+bash run_scnet.sh setup
+
+因为 .venv 已存在，启动脚本会使用已建立的独立环境，不再创建继承系统包的新环境。安装器虽然名称和提示面向 SCNet，但主要操作是保护已有平台包并安装应用依赖；它不是 CUDA 驱动安装器。若报 Refusing dependency replacement，先检查缺少或不兼容的 CUDA/PyTorch 组件，不要强行绕过。
+
+若希望完全手工安装应用依赖，可在这个虚拟环境中运行 python install_environment.py；不要直接用普通 pip install -e vendor/LlamaFactory 让解析器随意替换加速组件。当前安装器已经包含 hatchling、editables，以及安装后用新进程验证导入的修复。
+
+其他硬件（如 Ascend/NPU、其他国产加速卡）
+
+本包没有完成这些后端的适配。torch.cuda 检查、依赖保护、BF16、算子及训练框架需按平台适配，不应把 CUDA/DTK 命令直接照搬。CPU 可用于部分代码测试，不是本次9B实验的已验证运行方案。
+
+六、环境与路径中需要修改/确认的项目
+
+1. 项目目录
+   把旧说明中的 /public/home/arutoria/project/P2_SCNet 换成自己的目录。
+   run_scnet.sh 本身会切换到脚本所在目录，通常不用改源码里的工作路径。
+   环境清单中的 -e /public/home/... 不能照搬；安装器会安装当前目录的 vendor/LlamaFactory。
+
+2. 模型、缓存目录
+   可不修改，默认都放在项目 artifacts 中。若需放到大容量磁盘，在每次运行的同一终端设置：
+
+export MODEL_DIR="/your/storage/models/Qwen3.5-9B"
+export HF_HOME="/your/storage/cache/huggingface"
+export MODELSCOPE_CACHE="/your/storage/cache/modelscope"
+export PIP_CACHE_DIR="/your/storage/cache/pip"
+
+   必须替换示例路径，保证可写。关闭 Terminal 后变量不会自动保留，可写入自己的启动脚本。
+   使用已有权重时 MODEL_DIR 指向含 config.json、tokenizer、所有 safetensors 分片和索引的完整目录，不是单个权重文件。
+
+3. Python 与平台组件
+   使用 Python3.11。保留当地硬件匹配的 torch/torchvision/torchaudio/triton。
+   不选择 torch2.9.x：当前打包的 LLaMA-Factory 对包含 Conv3D 的该模型存在显式阻止检查。
+   NumPy1.26.4 是当前安装器固定值，用于处理原 DTK 环境的 NumPy2 ABI 问题。跨平台若必须更改，要同步验证 torch 和其他二进制依赖。
+
+4. pip 源
+   安装器继承机器 pip 配置。原机用清华源，接收方不必相同；源缺包时按网络条件选择可用源。不要把 PyTorch 专用 wheel 源当作所有应用包的唯一源。
+
+5. 训练精度与显存
+   p2.py 的 train_config 固定 bf16=True、cutoff_len=8192、batch=1、梯度累积8、LoRA rank8/alpha16、lr=5e-5；run_scnet.sh 固定训练100步。
+   QwenPolicy 默认 bfloat16、上下文8192、每次输出最多512 token。
+   若硬件不支持 BF16或显存不足，需要同时检查推理和训练配置；只改生成的 YAML 不会改变 Python 推理配置。缩短长度可能改变任务表现，必须记录并在 A/B/C 中保持一致。
+   不保证24GB或其他小显存能原样执行。切换量化、多卡、FlashAttention 属于额外适配，不是当前包已验证功能。
+
+6. 输出路径
+   默认写 artifacts/runs、artifacts/data、artifacts/adapters/B 或 C。
+   代码拒绝覆盖已有轨迹、数据集或adapter目录。再次实验使用新文件名或独立实验目录，保留原始结果。
+   不要跨机器复制 setup.complete 后跳过安装。它只表示旧环境完成过安装，不证明新环境可用。
+
+七、安装后检查与模型下载
+
+setup 最后应显示 Environment setup complete。然后执行：
+
+source .venv/bin/activate
+python -c "import torch,numpy; from llamafactory.data.template import TEMPLATES; assert 'qwen3_5_nothink' in TEMPLATES; print(torch.__version__,numpy.__version__,torch.cuda.is_available())"
+python test_p2.py
+
+这些检查不等同于模型推理或训练已通过。
+
+下载原始模型：
+
+bash run_scnet.sh download
+
+默认从 ModelScope 下载 Qwen/Qwen3.5-9B，不需要从交付者电脑中转权重。
+模型权重约19GB量级，另需缓存、日志、检查点空间。具体文件体积以实际下载为准。
+默认 revision 为 master；严格复现需小组确认具体 revision，在首次下载前设置 MODEL_REVISION。当前交付没有提供已核实的精确模型 revision，不能声称不同时间下载的 master 一定相同。
+下载器检查 config 与分片文件存在后生成 p2-download.complete；这不是每个权重文件的内容哈希验证。
+若已有完整模型但没有该标记，启动脚本仍会调用下载器，通常会检查或补齐文件。离线环境可在激活 .venv 后直接调用 p2.py 并传 --model，不能仅伪造完成标记来掩盖不完整权重。
+
+八、当前只建议小规模部署诊断，暂不直接启动正式训练
+
+当前采集代码存在已知实验设计问题。若需要确认新服务器能否执行模型，可先跑每类1条，共5条，独立保存：
+
+source .venv/bin/activate
+export MODEL_DIR="${MODEL_DIR:-$PWD/artifacts/models/Qwen3.5-9B}"
+python p2.py collect --model "$MODEL_DIR" --group A --split train --per-family 1 --seed 42 --out artifacts/runs/deploy_check.jsonl
+
+这是部署诊断，不是正式基线；FAILED_MODEL 标签需要结合下面的已知问题解释。不要把诊断结果混进正式训练数据。
+
+九、当前版本已知问题与训练前置条件
+
+首轮100条：20条正常成功、80条标为FAILED_MODEL。审计发现：
+- 所有轨迹首次标题55字，超过40字上限。
+- 模拟器在站点规则拒绝前就增加 publish 次数，因此故障注入的第一次位置被消耗。
+- 60条故障场景从未触发 unknown，却被分类器当作模型失败。
+- 另外20条遇到了 unknown，但后续直接重发或结束，没有回查。
+- 任务文字、候选列表完全相同，样本重复严重。
+- 模板名为 nothink，但实际仍出现非空思考段。
+
+这些问题尚未在本交付包修复。应先协调 P1/P2/P3 修正并冻结故障触发规则、候选差异、思考模式及无效样本分类；先各类2条验证，再批量采集。既不能把原80条全部当作恢复失败，也不能直接改标签包装为成功恢复。
+
+正式流程（修复及数据复核后再运行）：
+collect → P3复核训练轨迹 → fewshot → P3复核10条诊断 → prepare → train-B → train-C → evaluate。
+
+对应命令入口：
+bash run_scnet.sh collect
+bash run_scnet.sh fewshot
+bash run_scnet.sh prepare
+bash run_scnet.sh train-B
+bash run_scnet.sh train-C
+bash run_scnet.sh evaluate
+
+以上是流程说明，不是现在需要全部依次执行的清单。
+fewshot 需至少3条复核后的恢复示范；训练入口要求10条诊断已复核，成功3–8条时才按原PLAN继续。少于3条或超过8条需先排查/调整实验。
+B只用正常成功轨迹，C用同一批正常成功+恢复轨迹；两组均从同一基座开始，不让C接着B训练。A不加adapter。测试集、工具、提示、解码、步数上限应一致。
+
+十、源码模块定位与交付结果
+
+p2.py：模型策略、采集、审核清单、ShareGPT数据转换、训练配置。
+fewshot.py / assess_fewshot.py：可行性检查及其决策门槛。
+audit_tokens.py：按模型模板检查训练长度。
+run_scnet.sh：各阶段启动入口。
+install_environment.py：依赖安装、平台包保护、版本记录。
+download_model.py：ModelScope下载及文件存在检查。
+vendor/p1/tieba_env/env.py：模拟器与故障触发逻辑。
+vendor/p1/tieba_env/scenarios.py：场景、候选与划分。
+vendor/p1/tieba_env/validator.py：当前初步分类器。
+vendor/LlamaFactory/.../data/mm_plugin.py：已将torchaudio改为实际读音频时才导入。
+
+每个新平台验证后，请记录GPU型号/显存、系统、Python/PyTorch版本、模型revision、源码修改、安装记录和运行日志。说明“部署成功”“采集成功”“训练成功”时分别给证据，不把导入成功当成训练验证通过。
+
+参考：PyTorch官方历史版本安装表（本说明核对日期2026-10-29）
+https://pytorch.org/get-started/previous-versions/
+
+本说明基于实际交付压缩包、环境清单和首轮运行记录编写；未在新的 NVIDIA 或其他接收方服务器执行部署。原始交付文件未被本说明修改。

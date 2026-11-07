@@ -1,0 +1,12 @@
+{
+  "backup_date": "2026-10-29",
+  "source_archive": "P2_SCNet_code_20261029_144901.tar.gz",
+  "p1_commit": "16a0c3508e1fdb173eee9cc8f9f7160166d82c09",
+  "llamafactory_upstream_commit": "c683e59edd8f893abc5e1403184a1d0644817d2a",
+  "local_patches": [
+    "Lazy torchaudio import in mm_plugin.py"
+  ],
+  "tested_image": "PyTorch 2.7.1 / Python 3.11 / Ubuntu22.04 / DTK26.04",
+  "model": "Qwen/Qwen3.5-9B",
+  "status": "Inference and 100 diagnostic episodes completed; data issues unresolved; no LoRA training completed"
+}
