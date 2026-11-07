@@ -31,3 +31,11 @@
 {"kw": "agenttest", "backend": "real", "poll_interval_seconds": 2.0, "matched_at_poll": 1, "elapsed_seconds": 0.77, "measured_delay_k": 0, "trajectory": "20261104-171433-real-474e4b88.json", "at": "2026-11-04T17:14:33"}
 {"kw": "agenttest", "backend": "real", "poll_interval_seconds": 2.0, "matched_at_poll": 1, "elapsed_seconds": 0.86, "measured_delay_k": 0, "trajectory": "20261104-171522-real-b7cd740d.json", "at": "2026-11-04T17:15:22"}
 {"kw": "agenttest", "backend": "real", "poll_interval_seconds": 2.0, "matched_at_poll": 1, "elapsed_seconds": 0.94, "measured_delay_k": 0, "trajectory": "20261104-171626-real-a7e4121e.json", "at": "2026-11-04T17:16:26"}
+{"kw": "生活", "poll_interval_seconds": 2.0, "matched_at_poll": 1, "elapsed_seconds": 1.74, "measured_delay_k": 0, "trajectory": "20261106-200943-real-b1761014.json", "at": "2026-11-06T20:09:43+08:00"}
+{"kw": "生活", "poll_interval_seconds": 2.0, "matched_at_poll": 1, "elapsed_seconds": 1.59, "measured_delay_k": 0, "trajectory": "20261106-201231-real-b7fd94d4.json", "at": "2026-11-06T20:12:31+08:00"}
+{"kw": "生活", "poll_interval_seconds": 2.0, "matched_at_poll": 1, "elapsed_seconds": 1.65, "measured_delay_k": 0, "trajectory": "20261106-201516-real-bf68e089.json", "at": "2026-11-06T20:15:16+08:00"}
+{"kw": "生活", "poll_interval_seconds": 2.0, "matched_at_poll": 1, "elapsed_seconds": 0.93, "measured_delay_k": 0, "trajectory": "20261107-093706-real-092224be.json", "at": "2026-11-07T09:37:06+08:00"}
+{"kw": "生活", "poll_interval_seconds": 2.0, "matched_at_poll": 1, "elapsed_seconds": 0.95, "measured_delay_k": 0, "trajectory": "20261107-093936-real-5e04854d.json", "at": "2026-11-07T09:39:36+08:00"}
+{"kw": "生活", "poll_interval_seconds": 2.0, "matched_at_poll": 2, "elapsed_seconds": 3.89, "measured_delay_k": 1, "trajectory": "20261107-094208-real-94c59fe4.json", "at": "2026-11-07T09:42:08+08:00"}
+{"kw": "生活", "poll_interval_seconds": 2.0, "matched_at_poll": 1, "elapsed_seconds": 0.93, "measured_delay_k": 0, "trajectory": "20261107-094438-real-46ad60f0.json", "at": "2026-11-07T09:44:38+08:00"}
+{"kw": "生活", "poll_interval_seconds": 2.0, "matched_at_poll": 1, "elapsed_seconds": 0.9, "measured_delay_k": 0, "trajectory": "20261107-095523-real-32076334.json", "at": "2026-11-07T09:55:23+08:00"}
