@@ -1,0 +1,88 @@
+{
+  "trajectory_id": "real-32076334",
+  "kind": "d1",
+  "backend": "real",
+  "task": "在「生活」吧发布《楼下早餐店换老板了》",
+  "kw": "生活",
+  "title": "楼下早餐店换老板了",
+  "content": "吃了三年的那家包子铺今天换人了，豆浆从两块涨到三块，包子还是那个价，但皮厚了一圈。老老板说是回老家带孙子去了。站在门口突然有点不知道该吃啥。",
+  "candidate_id": "c01",
+  "candidate_index": 1,
+  "run_tag": "63f5c556",
+  "health": {
+    "ok": true,
+    "checks": {
+      "login": {
+        "ok": true,
+        "detail": "已登录 shinejjjhjjk"
+      },
+      "level": {
+        "ok": true,
+        "detail": "等级 4，已关注=True（未设阈值，仅记录）"
+      },
+      "editor": {
+        "ok": true,
+        "detail": "标题框=OK, 正文框=OK, 发布键=OK"
+      },
+      "list": {
+        "ok": true,
+        "detail": "读到 20 条"
+      }
+    },
+    "account": {
+      "uname": "shinejjjhjjk",
+      "kw": "生活"
+    }
+  },
+  "tool_calls": [
+    {
+      "step": 1,
+      "tool_name": "publish",
+      "arguments": {
+        "kw": "生活",
+        "title": "楼下早餐店换老板了",
+        "content": "吃了三年的那家包子铺今天换人了，豆浆从两块涨到三块，包子还是那个价，但皮厚了一圈。老老板说是回老家带孙子去了。站在门口突然有点不知道该吃啥。"
+      },
+      "result": {
+        "status": "unknown",
+        "reason": "no_response",
+        "post_id": null
+      }
+    },
+    {
+      "step": 2,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "生活",
+        "limit": 20
+      },
+      "result": {
+        "post_count": 20
+      }
+    }
+  ],
+  "publish": {
+    "status": "ok",
+    "reason": "recheck_confirmed",
+    "status_raw": "unknown",
+    "reason_raw": "no_response",
+    "post_id": "11174249819",
+    "attempts": 1
+  },
+  "poll": {
+    "found": true,
+    "matched_at_poll": 1,
+    "position": 1,
+    "post_id": "11174249819",
+    "elapsed_seconds": 0.9,
+    "seen": 20
+  },
+  "verdict": "RECOVERED_CONFIRMED",
+  "truth": {
+    "post_count": 1,
+    "confirmed": true
+  },
+  "measured_delay_k": 0,
+  "created_at": "2026-11-07T09:55:23+08:00",
+  "note": "[None] 未知错误"
+}

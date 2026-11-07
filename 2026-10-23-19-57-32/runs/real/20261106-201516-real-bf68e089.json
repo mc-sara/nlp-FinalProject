@@ -1,0 +1,88 @@
+{
+  "trajectory_id": "real-bf68e089",
+  "kind": "d1",
+  "backend": "real",
+  "task": "在「生活」吧发布《开会两小时说了个啥》",
+  "kw": "生活",
+  "title": "开会两小时说了个啥",
+  "content": "周会从两点开到四点，中间有人接电话，有人出去倒水。散会的时候大家互相看了一眼，谁也没说清楚下一步要干啥。回到工位，发现会议纪要已经发群里了。",
+  "candidate_id": "c11",
+  "candidate_index": 11,
+  "run_tag": "f999130f",
+  "health": {
+    "ok": true,
+    "checks": {
+      "login": {
+        "ok": true,
+        "detail": "已登录 shinejjjhjjk"
+      },
+      "level": {
+        "ok": true,
+        "detail": "等级 3，已关注=True（未设阈值，仅记录）"
+      },
+      "editor": {
+        "ok": true,
+        "detail": "标题框=OK, 正文框=OK, 发布键=OK"
+      },
+      "list": {
+        "ok": true,
+        "detail": "读到 20 条"
+      }
+    },
+    "account": {
+      "uname": "shinejjjhjjk",
+      "kw": "生活"
+    }
+  },
+  "tool_calls": [
+    {
+      "step": 1,
+      "tool_name": "publish",
+      "arguments": {
+        "kw": "生活",
+        "title": "开会两小时说了个啥",
+        "content": "周会从两点开到四点，中间有人接电话，有人出去倒水。散会的时候大家互相看了一眼，谁也没说清楚下一步要干啥。回到工位，发现会议纪要已经发群里了。"
+      },
+      "result": {
+        "status": "unknown",
+        "reason": "no_response",
+        "post_id": null
+      }
+    },
+    {
+      "step": 2,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "生活",
+        "limit": 20
+      },
+      "result": {
+        "post_count": 20
+      }
+    }
+  ],
+  "publish": {
+    "status": "ok",
+    "reason": "recheck_confirmed",
+    "post_id": "11172769848",
+    "attempts": 1,
+    "status_raw": "unknown",
+    "reason_raw": "no_response"
+  },
+  "poll": {
+    "found": true,
+    "matched_at_poll": 1,
+    "position": 1,
+    "elapsed_seconds": 1.65,
+    "seen": 20,
+    "post_id": "11172769848"
+  },
+  "verdict": "RECOVERED_CONFIRMED",
+  "truth": {
+    "post_count": 1,
+    "confirmed": true
+  },
+  "measured_delay_k": 0,
+  "created_at": "2026-11-06T20:15:16+08:00",
+  "note": "[None] 未知错误"
+}

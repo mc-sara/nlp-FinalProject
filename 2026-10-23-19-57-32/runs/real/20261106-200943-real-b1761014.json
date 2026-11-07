@@ -1,0 +1,88 @@
+{
+  "trajectory_id": "real-b1761014",
+  "kind": "d1",
+  "backend": "real",
+  "task": "在「生活」吧发布《周末想去看电影又不知道看啥》",
+  "kw": "生活",
+  "title": "周末想去看电影又不知道看啥",
+  "content": "打开购票软件翻了二十分钟，评分高的都看过了，没看过的又提不起兴趣。最后关掉软件，在沙发上看了半部老片，看到一半睡着了。",
+  "candidate_id": "c09",
+  "candidate_index": 9,
+  "run_tag": "f999130f",
+  "health": {
+    "ok": true,
+    "checks": {
+      "login": {
+        "ok": true,
+        "detail": "已登录 shinejjjhjjk"
+      },
+      "level": {
+        "ok": true,
+        "detail": "等级 3，已关注=True（未设阈值，仅记录）"
+      },
+      "editor": {
+        "ok": true,
+        "detail": "标题框=OK, 正文框=OK, 发布键=OK"
+      },
+      "list": {
+        "ok": true,
+        "detail": "读到 20 条"
+      }
+    },
+    "account": {
+      "uname": "shinejjjhjjk",
+      "kw": "生活"
+    }
+  },
+  "tool_calls": [
+    {
+      "step": 1,
+      "tool_name": "publish",
+      "arguments": {
+        "kw": "生活",
+        "title": "周末想去看电影又不知道看啥",
+        "content": "打开购票软件翻了二十分钟，评分高的都看过了，没看过的又提不起兴趣。最后关掉软件，在沙发上看了半部老片，看到一半睡着了。"
+      },
+      "result": {
+        "status": "unknown",
+        "reason": "no_response",
+        "post_id": null
+      }
+    },
+    {
+      "step": 2,
+      "tool_name": "list_recent_posts",
+      "arguments": {
+        "kw": "生活",
+        "limit": 20
+      },
+      "result": {
+        "post_count": 20
+      }
+    }
+  ],
+  "publish": {
+    "status": "ok",
+    "reason": "recheck_confirmed",
+    "post_id": "11172759769",
+    "attempts": 1,
+    "status_raw": "unknown",
+    "reason_raw": "no_response"
+  },
+  "poll": {
+    "found": true,
+    "matched_at_poll": 1,
+    "position": 1,
+    "elapsed_seconds": 1.74,
+    "seen": 20,
+    "post_id": "11172759769"
+  },
+  "verdict": "RECOVERED_CONFIRMED",
+  "truth": {
+    "post_count": 1,
+    "confirmed": true
+  },
+  "measured_delay_k": 0,
+  "created_at": "2026-11-06T20:09:43+08:00",
+  "note": "[None] 未知错误"
+}

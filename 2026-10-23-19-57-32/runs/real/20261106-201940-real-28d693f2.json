@@ -1,0 +1,74 @@
+{
+  "trajectory_id": "real-28d693f2",
+  "kind": "d1",
+  "backend": "real",
+  "task": "在「生活」吧发布《楼下的猫好像认识我了》",
+  "kw": "生活",
+  "title": "楼下的猫好像认识我了",
+  "content": "喂了它两次火腿肠，现在每天下班它都在单元门口蹲着。今天没带吃的，它跟了我一段路，看我两手空空就走了。感觉被一只猫拿捏了。",
+  "candidate_id": "c12",
+  "candidate_index": 12,
+  "run_tag": "f999130f",
+  "health": {
+    "ok": true,
+    "checks": {
+      "login": {
+        "ok": true,
+        "detail": "已登录 shinejjjhjjk"
+      },
+      "level": {
+        "ok": true,
+        "detail": "等级 3，已关注=True（未设阈值，仅记录）"
+      },
+      "editor": {
+        "ok": true,
+        "detail": "标题框=OK, 正文框=OK, 发布键=OK"
+      },
+      "list": {
+        "ok": true,
+        "detail": "读到 20 条"
+      }
+    },
+    "account": {
+      "uname": "shinejjjhjjk",
+      "kw": "生活"
+    }
+  },
+  "tool_calls": [
+    {
+      "step": 1,
+      "tool_name": "publish",
+      "arguments": {
+        "kw": "生活",
+        "title": "楼下的猫好像认识我了",
+        "content": "喂了它两次火腿肠，现在每天下班它都在单元门口蹲着。今天没带吃的，它跟了我一段路，看我两手空空就走了。感觉被一只猫拿捏了。"
+      },
+      "result": {
+        "status": "error",
+        "reason": "editor_not_opened",
+        "post_id": null
+      }
+    }
+  ],
+  "publish": {
+    "status": "error",
+    "reason": "editor_not_opened",
+    "post_id": null,
+    "attempts": 2
+  },
+  "poll": {
+    "found": false,
+    "matched_at_poll": null,
+    "position": null,
+    "seen": null,
+    "elapsed_seconds": null
+  },
+  "verdict": "FAILED_TOOL",
+  "truth": {
+    "post_count": 0,
+    "confirmed": false
+  },
+  "measured_delay_k": null,
+  "created_at": "2026-11-06T20:19:40+08:00",
+  "note": "编辑器没弹出来"
+}
