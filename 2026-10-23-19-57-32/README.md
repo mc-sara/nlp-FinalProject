@@ -110,8 +110,9 @@ demo 当前输出（test 集，每族 5 条，回查延迟上界 k=3）：
 3. **默认不拦截重复帖。** 真实贴吧对同内容重复帖常常静默成功。若默认拦截，主指标
    "重复帖产生率"永远是 0，实验失去意义。需要时 `duplicate_guard=True`。
 
-4. **站内硬规则在 env 里真实生效。** 标题超 40 字、吧内等级不足会返回
-   `rejected`，而不是靠故障计划伪造——这类拒绝是真实站点行为，模型应当学会应对。
+4. **站内硬规则在 env 里真实生效。** 吧内等级不足（以及开启 `duplicate_guard` 时的重复帖）
+   会返回 `rejected`，而不是靠故障计划伪造——这类拒绝是真实站点行为，模型应当学会应对。
+   标题超长按真实客户端口径处理：31 字截断后照发，**不再**记 `rejected(title_too_long)`。
 
 5. **场景只产任务与故障计划，不产示范。** 生成器不含任何修复动作，符合
    "测试集不提供任何修复示范"。
@@ -137,7 +138,7 @@ demo 当前输出（test 集，每族 5 条，回查延迟上界 k=3）：
 | 返回格式 | JSON 四状态 | **人类可读文本**：`成功（9.2s）https://tieba.baidu.com/p/1112...` / `未成功（10.1s）：无法确认：...` |
 | 列表查询 | `env.list_recent_posts` | **原本没有这个命令** → 补了 `real/real_probe.py list`，抓服务端渲染的 `/mo/q/m` |
 | 列表字段 | title + content | 只有 **title**（无正文）→ 状态查证只能按标题比对 |
-| 标题上限 | 40 字，**超了记 `rejected`** | 31 字，**超了静默截断后照发** |
+| 标题上限 | 31 字，**超了静默截断后照发**（已与真实对齐） | 31 字，**超了静默截断后照发** |
 | 候选热梗 | env 内存 | 无此接口，直接读 `data/candidates.json` |
 
 `browser_poster.py` 的 stdout 里没有 JSON，所以四状态靠 `realcli.parse_poster_output` 解析；解析不出来的文案一律记 `unknown`——不知道就是不知道，不许猜。
@@ -537,7 +538,7 @@ python real_run.py verify --title "你刚发的标题"   # 只读复查
 | 回查延迟 k | `scenarios.py: SPLIT_CONFIG`、`MockTiebaEnv(delay_k=2)` | train 1–2 次，test 2–3 次 | `real_run.py probe-delay` 跑几次取中位数，再换算成 k |
 | 四状态占比 | `FaultRates` 默认全 0 | 未注入概率 | 20 次只读 + 10 次自建吧实发的分布 |
 | `unknown` 成因分布 | `UNKNOWN_REASONS` 等概率 | 占位 | timeout / captcha / no_response 各自比例 |
-| 标题长度上限 | `realcli.title_limit=31` / mock `title_limit=40` | 真实侧 31 字是**截断后照发**，mock 侧 40 字是**记 rejected** | 语义不同（见「已知边界」）；候选标题控制在 31 字内即可绕开 |
+| 标题长度上限 | 两侧均 `title_limit=31` | **已冻结**：31 字截断后照发（PLAN 2.1/8），mock 与真实同口径 | 无需再填；候选标题仍建议 ≤31 字以免被截断影响查重比对 |
 | 列表返回字段 | `list_includes_post_id=False` | 真实列表只有 title（无正文） | 已确认；mock 保持 title+content 供模型查重 |
 | 真实输出映射 | `realcli.parse_poster_output` | 按源码文案 + 格式样例写，9/9 同构 | 用 D1 抓到的真实原文补 captures 后重跑 `check_isomorphy.py` |
 | 最大工具调用次数 | `Scenario.step_limit=16` | 需 ≥ 2(k+1)+6 | PLAN 第 8 节待决事项 |
@@ -561,7 +562,8 @@ class Policy(Protocol):
 - 不模拟贴吧界面、推荐算法、审核机制、真实用户评论（2.2 明确排除）。
 - `list_recent_posts` 的 `limit` 目前只做截断，不模拟翻页。
 - 语义重复判断、参数错误修复、主动放弃发布属二期，未实现。
-- 超长标题已统一：`TiebaAdapter` 在提交前截到 31 字（与真实客户端一致），mock 不再按 40 字拒绝。
+- 超长标题已统一：`TiebaAdapter` 在提交前截到 31 字（与真实客户端一致），`MockTiebaEnv` 默认
+  `title_limit=31` 且同样截断后照发，不再按 40 字拒绝（`mock` 不再产生 `title_too_long`）。
   硬规则拒绝（重复/等级）也不再算一次"有效提交"，验证器的重试预算按有效提交计。
 - 真实侧的真实限制见上一节末尾「真实侧的已知限制」。
 

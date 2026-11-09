@@ -1,0 +1,902 @@
+[
+ {
+  "trajectory_id": "traj-0b857ddc4b81",
+  "sha256": "fc80d0a4d6b4adee2f8c87175146e4ef500d06da0da79bf294373a88045b581e",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-565596e9ab40",
+  "sha256": "2a12ef8d046a72f16f63cd138dcea1549b3dd7a6199bc1ad10ad33756a7bbf8e",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-18862e92ebff",
+  "sha256": "bffb4451107476e370b619ed969d8243dc7cabc7cef7fd350cc71dafb3a1fc60",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-50e2ea03e761",
+  "sha256": "6ae2088212acfd0720dbda3340b341766ae772e04aa4be3ef77eafbb526ac5ca",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-1dce4e49c08c",
+  "sha256": "a3aafcfcf4671e75740e4395d706e642bd247ca031afd450a6730f6b661a1127",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-70cfa8abcb86",
+  "sha256": "9e413134e980686090344b046fee2bf62ca1b8cea4db922844dbb2a4e7d08861",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-1d0bca38dd8c",
+  "sha256": "ce70e36bae4db304a35661b13dc3b6bb4146d31682aeb7e69cc83fa63b9f882c",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-63855ed4c947",
+  "sha256": "fd4226b66facb9e4fe8b7f7b84b322698abc0314fa549984c545e6196948bdc0",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-a0cfcda3fb66",
+  "sha256": "eda43ddd49c7e4b28126fcc2af640306cf2c3cc6ca56e432d2b4b471dcfb6df4",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-fbe94f3cf831",
+  "sha256": "4ff2aa493fd6c21cad923e4966a1b0a8aff22bb45d4fd86e2694d4e1f219b885",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-f13f63780d0b",
+  "sha256": "f1ff841858ae35235a0b59520d8981a79190817f06dbfc229e431b3ed7705c70",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-961a3c5939c1",
+  "sha256": "4dbe3b5e2c3c8e8f364779bc37e1c540d9623aa6315f1e802256bba445e256a8",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-0343fa4f0e20",
+  "sha256": "f1c70805b61211a3cb9ce1a9edf8d01bc351dba2669a96e4e711548e60c2d4c6",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-9f82fe920640",
+  "sha256": "9772c8edf6195ca5c0d7b0784c66822bcf282afb8d357a434b9f3b433882a4e2",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-37c0f17c8efd",
+  "sha256": "5de4578528134947370b7f1f4b6ca07da5944113059147388e877b5b088a57ee",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-0193c0dd13d8",
+  "sha256": "9b39e77101f3e634daec00e5e062388b1362569dcb930da2733bda9e8972a6ce",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-ba8cb02e6445",
+  "sha256": "b24759a8c50d501b30ad032cb6fd8418308b95abeb7e4f36a0a8ddda1bbf2389",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-ba67d784f131",
+  "sha256": "2faa520674daf77cb486fdbe1c1bfa1409c0c16915666b095ec8f1d6bdc2b299",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-8f75030107d3",
+  "sha256": "c8697aef06706831722223160fb90f785665922ddbf66cbe60357485a85ed51c",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-ae901d974b16",
+  "sha256": "184357cfe33493dd37721edfd9199a3569d3b9d85a2f71b7fb05c793d24c35b8",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-b46d62a8a6bb",
+  "sha256": "70e8660a9cbd0123591c8837b45fe1823ee3cbb388c08a8006c01be93329f2fb",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-bebb1c251ebc",
+  "sha256": "88eb09e9ff5e581cf2894e1dcc4a8abf3b4eb7c994c28ed3b791a1116d6c7daa",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-c94b39f1989a",
+  "sha256": "752d1f8f35a2d4d8ec33ffba3986ea100ff21fcb83cdf8a26848535adbdac8a2",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-642f21e36b8e",
+  "sha256": "f2b3578ce29e0f422569d7a9e550529b21833348984e4c45e2b86ad2f92f8c61",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-22176b1dede0",
+  "sha256": "690e564a07f46c782891cae9bc6fa4958fef587e48c43cc650f3be72443de979",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-a129a00395c5",
+  "sha256": "0395af57a7dfbd4099b813ae01053c82c0163b8f3662838127f82481184b11ca",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-eb21e3e42ba3",
+  "sha256": "8ae66aec44d95a61cec2d55912d45909c4e6518546610d295885d73417bc20b6",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-4f2ad4551421",
+  "sha256": "ea3ed01569923f2a1c8b45cde26a47e9b41f953e567d4d0d2aa38253ffb591ec",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-cddd00e6e2fe",
+  "sha256": "e97550d82f1be50f2f8c6df4b2321eefed85074dccc44ee8bd2ece4d20884f37",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-8a85723787fb",
+  "sha256": "c47907f76ef01935de559cd1b7cdb70f6f523f83eb5bc144f80e8b5e6b8230cc",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-5b9e4114afff",
+  "sha256": "ff0c5869244271a4b489297cbe1d07b66e7d131b75035d8ae1615afc5522de8d",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-f81ebd98403d",
+  "sha256": "fb8c67131d21e4904748936303dbbababa61e3db986fcd99ac81c35a7b7093b5",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-bc3666d2e174",
+  "sha256": "8c632b603b820850557571d97f86ae36118198089ed7d2e5aa6cbf4fdca8d10a",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-3d2be76ca88b",
+  "sha256": "025bf7aaefa1a961ea9ccb4f17c1258aa841b2c4d5629a321db63ba3c4f59b98",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-d304537d4e95",
+  "sha256": "c3be364db6d657c3b427c07bce1936ea19b5827e3eb8f19169941d1216793cad",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-1652e9bfaa4b",
+  "sha256": "ab7e178dc3fd7998d72d93475376e47a1c54f6923b6ed8cd6e9e182b1d54f7ae",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-53170e706b2b",
+  "sha256": "565e2736fe04f6bd9574b82b979b8300d2d50e07e8367714210e894aa048b655",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-a9853da265ce",
+  "sha256": "1af6cb778540185a4f226d4f9567a8ff807e1ad26558f258f4050e5d16406f43",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-5aa838ebd16d",
+  "sha256": "edebc4bef72c69b4b32856d490a281bbb39441ad659514a17931ad3ef43a7de9",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-e0f6b5a23727",
+  "sha256": "d0f1dcf43ff91b9b99ddd7f57d3cc7f7a9b779f2c633bc297396dc5b4d574296",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-b1080a597ad7",
+  "sha256": "f4a3df8109c5c24a45ac11a9319805a7e3683be1bf54c7f1bea11e5cba29b1ed",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-13584b399db4",
+  "sha256": "bcb6c17b82c0f21f88a68f64ecc310d9875446a2d3fa7bda8d7cde72e580f508",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-60032232908f",
+  "sha256": "a3eaff4e171a98d4e6a4d8b0b3b7944f3def3628798ed90efe4c11ad7283119a",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-a5c90279d4c2",
+  "sha256": "c87da9c5a03b71141d7ac9af2c3a28c9041454c46dfba458b19a22b77fa577af",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-37809416f838",
+  "sha256": "038e51511f0eab1e3d030d31bc25c3474eba291cbdabb2875e185dfc29b067fc",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-024a609794ed",
+  "sha256": "11976d15496dde9fcd3799f59ce16a61d7f3f25b4dad58694837276cad221f8e",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-6ed381fe4729",
+  "sha256": "27452e41e5ed5ccb8341de0643c665c306025ccc91d6dd58a6e17087ef790c11",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-330d58755b88",
+  "sha256": "511e4dc0f79f07c5315213bb076abffc11c75413fc559fdc705f79954e44a7ff",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-647d20312604",
+  "sha256": "a45e0d4d596a76684aeb3800e782f477b9e0938ec6a2c3dcb35c4ce09818da80",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-63ac1f696a95",
+  "sha256": "f343be7905c9f1335b18daead05cbb981fa1d7a0830b249e62c81a339306a46e",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-c5d562e62858",
+  "sha256": "616a7b3a22ece4f725950a1f5be7848be633c180b56dd91a7da2a3789eef9bb0",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-af006bfbbe6f",
+  "sha256": "a66f5bd74f11763ea227193e014ebd5f133d016f8d52fa8f9c376193a83297d4",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-a5a1af48609e",
+  "sha256": "4771014a31c0dc06083a8a1e716d3ad107b430c435b900b8f9d9cb686ea05ea8",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-fd2bb70686d2",
+  "sha256": "eb839f6b32d0df219383e138798b6812be039edd10e77b38301fb00643a4ce5f",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-a62d171fb1ca",
+  "sha256": "223b0b1aad564fc615a6e4475e7b5496f3b4fb51a6b3a8dc1ac88c278fa22394",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-d4ecf03ca011",
+  "sha256": "3817064a5c8588b51a31b0ba3cd735aec15fefdb07adc76061bd38a5d2e73f8b",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-9a5c7500e92e",
+  "sha256": "acd05738d9482786bcd54c8a6302106f385466ec9b4555972958a40ca0903f1f",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-17ff884f0304",
+  "sha256": "58857902cf7e537e3648ca782b12e4a8d5b9f04e885a4597a31f021724c7a6f1",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-5160cb092981",
+  "sha256": "9339b34a5d463bff7db288c6ce719ecbc90eee3a90b2efaa73d3b232f2cf9b8e",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-0f4803a892da",
+  "sha256": "73ecf58cdfc7ec848fad3581a05bf8798d1ccb7449f6df3a9ed073c4a7a31d21",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-58ab76cbd33c",
+  "sha256": "c655b7b9a0db4500e9d9398a27904fcd9cad54ca1ce583a14afa2acd9dbdbc77",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-627b385fc144",
+  "sha256": "1884fc0402a4ad95d77942c7b7ed7bf65351dd984c3c9557d9131cbe0a6a0077",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-0f710f49c157",
+  "sha256": "08c6461d0f368f738695608f0e112cfa4127e47b3e3f62dc2943e1e210cf5f9b",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-191ee3ddf206",
+  "sha256": "51d5eb2122a771d3f5a87b87febaedc046ec12b50acabddfe6ad4f484b770c9d",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-030905507375",
+  "sha256": "eb8ba28c27f83aecdfc446cdc57c7db2de5e1cae71727392f074b33a2943c698",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-3381f163673e",
+  "sha256": "4de3d352dbd2e129b79b4cfaa8519cb03d21fd1f31306c05b593b90b9c103327",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-34c8b478acd6",
+  "sha256": "42322fe848ee20503d0bfffe9b4d9bbbd607af1163a06d7f4772bf9f0102d620",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-af0ceceee48e",
+  "sha256": "68e7456a0edb8bc4cb6743417634ea6f8514cff72e5ef02b98e901ef24b8493e",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-ce4c5c7f55ba",
+  "sha256": "573c46f18c9c0232c462bb41575c5946ecb58ebb6f8619ae36570df90d86d4c0",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-0b1239e503c1",
+  "sha256": "2c562595d064514839d3cfbd68be54a5c1f1f79dbd94d8778541748d9b987278",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-68214a8f7b8a",
+  "sha256": "d6d802c2030e21f492f5fc643e85ba3d6bb3cf0b19f137e5d6306aa966120fac",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-c0692456800b",
+  "sha256": "460817a2117aaec0de21376314059900c6c22e52bcbc59fd5c334ebe07b7fb19",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-d4290a684d6d",
+  "sha256": "95f9ca801db12134a018760534c376a69db771bee213b3a920f3c745a68baad8",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-8c4a09c28d7d",
+  "sha256": "5eadfba84ad59a931fa45adf37e894a734d480a458eb85fc7825867e4ba666e9",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-68b6fedcd375",
+  "sha256": "13b666f0e26c9f84b7996d649ad10a7f785b99191ddc107111e0dc26bba3ddbb",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-d576e06d1cf9",
+  "sha256": "a6c728cf3ac2ce15ef03aa0668cd48f1886d24a66532e55a7f4ef70a50abde76",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-f31d4c3ded4b",
+  "sha256": "405457ea1200680324d6ac9fb35df3cca94c2f9702c635778395f47e139c9088",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-92ba28f20a76",
+  "sha256": "3824fc2a5d5c0082720daf17b1929d28f8b9f148aa43e2368b0a408fc7db328b",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-45751d095c5a",
+  "sha256": "8e46efa7b276a4d8d3aea986c01e868dadc68117202b46a632c4a1e33ba4fc07",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-0612dcc81db0",
+  "sha256": "acd1541aa476389625309f6322e4fc9c843025bea9e149e7a01727af8f87b88e",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-eebf060c4146",
+  "sha256": "035ab16deb5c66f1caf115e9cc97cfdd335bd37a6237144704f928da407f1558",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-da1afc5c265d",
+  "sha256": "c68091e6ac5a171d570e5ca13780b2dfeac558f6aecb029dd868914fa7146163",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-d4c7bd3de0ac",
+  "sha256": "ffcf97d77216df0ce6fc979dfb713dd34290d7a277e59f87a1827e323b0b994a",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-f2be3115f9fe",
+  "sha256": "5b4b328baaede2f14313488ef489200430b738633044a2e55afdd0ef08cf5e0f",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-3eae0630f7e9",
+  "sha256": "14efa7e93085a53ad5cccd84eb2d3b6a2c53552452903977773daec8ba773f42",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-18339cd4698c",
+  "sha256": "25749efb6147846ab208954e69109f0f7dffd142830b9dc9e0f749d849bf5756",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-584576db4a2f",
+  "sha256": "73e3b3f7d2d9102c7752c76daef19596dd0e7e49c684be66dc190d3c5654dc3b",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-c86607977c8a",
+  "sha256": "b52814431bbf9c6fc0df3525cf662bd768655b06a1731837e2f33d3b9148258b",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-88ea00ef1474",
+  "sha256": "e8db6a13484015c9f616c31c14495e7cb0bc8f815163130fd1e96fde97e76db5",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-34f4fd777177",
+  "sha256": "ce0e23da61f334523c3c3f7111b32cd1d2995f319d33711d22277f4c87587a23",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-fa5820a0f457",
+  "sha256": "637d749a37d63c8a0bd229a2b8cc5b7614e6e86b713d69e67d4b744b9276deec",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-df00d3fe3bf6",
+  "sha256": "23c87b5db172a5fc991c317fb11e08421bd1f911b35726894f08b317bdc3eb62",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-c9dc692990a6",
+  "sha256": "51f90759da5f28ac5e2d83ca01db12076eff493ba8cc79138c747d02c37f58dc",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-65d38dd3e463",
+  "sha256": "40d5f1aeee861e02b6a836d5b96055d053a9e12f8ed045df5c28ab7867da4597",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-359a648b3843",
+  "sha256": "a42c30ce6ff12e7ae7a2861764e930513666cc79ca449b53d0e6ba3854eabd00",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-3f02ac7e3dd4",
+  "sha256": "076ea5b1290ae8de1554ef9cacfdae8e49130b54b6a79995fc744786c73bacf1",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-a623bdc8cd1f",
+  "sha256": "9d107684161cfb9a660c04bddbc493203336b52f410ff6cda4e1b283fcda5bd6",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-102b1bf807af",
+  "sha256": "83769c391d7276d9271487a2252525cf227b5ae720155e354535be79562afba8",
+  "p1_label": "SUCCESS_NORMAL",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_NORMAL",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-69559a11f5c0",
+  "sha256": "b4498ccc0776ea3272da533332cb0c4db8eb45806ee8a2aed14370a2a40e36ba",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ },
+ {
+  "trajectory_id": "traj-bc4071f89f57",
+  "sha256": "722c56f07474a4a6ee7f36d59fec7713285875a0ac5f28ccf0561ec3ab37fd40",
+  "p1_label": "SUCCESS_RECOVERED",
+  "approved": true,
+  "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+  "label": "SUCCESS_RECOVERED",
+  "notes": "label 由环境真值 classify 得出，非模型自述"
+ }
+]

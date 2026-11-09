@@ -321,10 +321,10 @@ class TestForumListParser(unittest.TestCase):
 
 class TestReasonContract(unittest.TestCase):
     def test_mock_only_emits_documented_reasons(self):
-        env = MockTiebaEnv(candidates=["a"], title_limit=5)
+        # 标题超长已按冻结口径改为截断，mock 不再产生 title_too_long（PLAN 2.1/8）
+        env = MockTiebaEnv(candidates=["a"])
         env.reset()
         reasons = set()
-        reasons.add(env.publish("测试", "标题超长了吧", "a").reason)
         env.account_level = 1
         reasons.add(env.publish("测试", "短", "a").reason)
         env.duplicate_guard = True

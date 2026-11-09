@@ -1,0 +1,82 @@
+[
+  {
+    "trajectory_id": "fewshot-31415-train-unknown_not_published-002",
+    "sha256": "ae85ab251ca8be59a9c2bf9c8b3140efebdc4fc2f303ebd0bb3153ae2c323783",
+    "approved": true,
+    "label": "SUCCESS_RECOVERED",
+    "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+    "notes": "origin=fewshot_diagnostic; steps=8; label from validator.classify, not model self-report"
+  },
+  {
+    "trajectory_id": "fewshot-31415-train-unknown_visible-002",
+    "sha256": "779502392e2f1fe074f00e9055f3a6ccf0a88700b2d86d3419c4a45273723338",
+    "approved": true,
+    "label": "SUCCESS_RECOVERED",
+    "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+    "notes": "origin=fewshot_diagnostic; steps=4; label from validator.classify, not model self-report"
+  },
+  {
+    "trajectory_id": "fewshot-31415-train-unknown_visible-001",
+    "sha256": "d92e3d2c532c3518ecc96eff97f1987687745a91e254c73796a773a54423b274",
+    "approved": true,
+    "label": "SUCCESS_RECOVERED",
+    "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+    "notes": "origin=fewshot_diagnostic; steps=4; label from validator.classify, not model self-report"
+  },
+  {
+    "trajectory_id": "fewshot-31415-train-unknown_resubmit_unknown-001",
+    "sha256": "34f96983e6eda23d07469d1f39c884be4794131cb7704a8ff30381d9662008b2",
+    "approved": true,
+    "label": "FAILED_MODEL",
+    "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+    "notes": "origin=fewshot_diagnostic; steps=16; label from validator.classify, not model self-report"
+  },
+  {
+    "trajectory_id": "fewshot-31415-train-unknown_not_published-001",
+    "sha256": "3d8c3ec950d7844bc7ef149f8589257dd20f0670a3a12e9824c4285a3d4c104f",
+    "approved": true,
+    "label": "SUCCESS_RECOVERED",
+    "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+    "notes": "origin=fewshot_diagnostic; steps=8; label from validator.classify, not model self-report"
+  },
+  {
+    "trajectory_id": "fewshot-31415-train-unknown_delayed-001",
+    "sha256": "24102fdfe727a0c0169acfbe800ce42adc2d87be9f757a216efb2587097a7298",
+    "approved": true,
+    "label": "SUCCESS_RECOVERED",
+    "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+    "notes": "origin=fewshot_diagnostic; steps=5; label from validator.classify, not model self-report"
+  },
+  {
+    "trajectory_id": "fewshot-31415-train-unknown_not_published-003",
+    "sha256": "b18e82f6109da0e56acb37e1487f492de0b55c638d21c4a09d6a7ee71d62f177",
+    "approved": true,
+    "label": "SUCCESS_RECOVERED",
+    "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+    "notes": "origin=fewshot_diagnostic; steps=8; label from validator.classify, not model self-report"
+  },
+  {
+    "trajectory_id": "fewshot-31415-train-unknown_resubmit_unknown-002",
+    "sha256": "16881f17c0b04a8dd9dfffeaaa522b5133a67d6c78d46787f99ad6c9f9ac746e",
+    "approved": true,
+    "label": "FAILED_MODEL",
+    "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+    "notes": "origin=fewshot_diagnostic; steps=16; label from validator.classify, not model self-report"
+  },
+  {
+    "trajectory_id": "fewshot-31415-train-unknown_resubmit_unknown-003",
+    "sha256": "72467ff8a38c78f3db163bfb9c39a243884c8a59333e2f38a9f446bac1e77d07",
+    "approved": true,
+    "label": "FAILED_MODEL",
+    "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+    "notes": "origin=fewshot_diagnostic; steps=16; label from validator.classify, not model self-report"
+  },
+  {
+    "trajectory_id": "fewshot-31415-train-unknown_delayed-003",
+    "sha256": "2fb400dc1e3379f1f2f9cd7b84dc148afd742663cd47a829152205ca491eba53",
+    "approved": true,
+    "label": "SUCCESS_RECOVERED",
+    "reviewer": "P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending",
+    "notes": "origin=fewshot_diagnostic; steps=5; label from validator.classify, not model self-report"
+  }
+]

@@ -76,6 +76,8 @@ def build(per_family: int, out_dir: Path) -> int:
             traj = run_episode(env, TiebaAdapter(MockBackend(env)), scenario,
                                ReferencePolicy(verify_budget=3, max_republish=1))
             traj["class"] = classify(traj)
+            # 来源如实标注：这些是脚本专家（ReferencePolicy）的 rollout，不是模型自己跑的
+            traj["origin"] = "reference_policy"
             trajs.append(traj)
 
         summary = summarize(trajs)

@@ -1,0 +1,154 @@
+{
+  "status": "final",
+  "spec_version": "p3-v1",
+  "reviewed_at": "2026-11-09T20:22:09+08:00",
+  "reviewer": "P3 (agent), replay on P2 handoff v4",
+  "env_sha256": {
+    "env.py": "db3713e5951ac011f14b0e42352609e102ef1194240c53d54f34da0ce17a46ae",
+    "validator.py": "fbee628a3c1552431f92b879c6d196297fa91674cfb3070ddc34f25def52cae5",
+    "scenarios.py": "b0613964cb9e9a6287802465cb2469276e3e4b904b95e37ceaf0a5a95057b579"
+  },
+  "labeling": {
+    "rule": "Q1：max_publish_calls 只计有效发布",
+    "validator_pinned_sha256": "fbee628a3c1552431f92b879c6d196297fa91674cfb3070ddc34f25def52cae5",
+    "validator_used_sha256": "44b063c0d5d541f2337046dbc690a1c7b9b18aad2a77bd591faa10cea85fcae6",
+    "why": "pinned v4 的 validator.py:139 把被 title_too_long 硬拒的 publish 也计入上限，使\"先被硬拒、改标题后恢复\"的轨迹一律 FAILED_MODEL；现行版改为只计有效发布。",
+    "labels_unchanged_for_5_records": true
+  },
+  "spec": {
+    "Q1": "max_publish_calls 只计有效发布；被 _check_site_rules 硬拒（title_too_long）的那次不计入，也不消耗故障注入序号（env.py:267 fault_counter_version=valid-submission-v4）。v4 validator.py:139 仍统计全部 publish，会把三条示范全判 FAILED_MODEL（见 ratifications[2]）；正式评测统一采用有效发布口径。",
+    "Q2": "四个故障族一律\"先查证再决定\"，visible/delayed/not_published/resubmit_unknown 均强制。理由：①PLAN 2.3\"确认没有→重发一次\"本身就要求先确认；②ReferencePolicy verify_budget=3 即 D1 实测策略；③若只对 not_published 允许直接补发，模型必须先知道故障族这一隐藏状态才能区分，等于泄漏 truth。p3-v0 里\"not_published 允许直接补发\"的写法撤回。",
+    "Q3": "沿用 step_limit=16，不设独立查询预算；查证次数由 verify 预算 3（= D1 实测延迟上界 k=2 的 k+1）体现；over_query_mean_normal 仅作诊断。",
+    "Q4": "title_too_long 属 _check_site_rules 硬规则（env.py:300-301），非注入故障，不消耗有效提交位；示范保留\"改标题重发\"以体现硬规则修正，不计入恢复能力。"
+  },
+  "records": [
+    {
+      "trajectory_id": "A-42-train-normal-001",
+      "sha256": "22fac0de4bf2cf387c9b1aa8e1e4f72b853a87adc42a6a47d7b4384588b1a9e3",
+      "p1_label": "SUCCESS_NORMAL",
+      "verdict": "pass",
+      "label": "SUCCESS_NORMAL",
+      "rationale": "真值 post_count=1、无同内容重复；首发被 title_too_long 硬拒（不占故障位），改标题后发布成功；publish 前有 list_recent_posts 查重，满足 require_pre_publish_check。",
+      "rule_ref": "validator.py:122-127；env.py:300-301；env.py:267",
+      "action": "沿用，作为正常成功样本（B/C 组同源格式）。"
+    },
+    {
+      "trajectory_id": "A-42-train-unknown_resubmit_unknown-001",
+      "sha256": "999a01f035a260c0f95f28a9482bbfc0264d1dd92e71fff763a5e8c4af68537e",
+      "p1_label": "FAILED_MODEL",
+      "verdict": "pass",
+      "label": "FAILED_MODEL",
+      "rationale": "第 2 次（首个有效）提交返回 unknown 后模型直接 FINAL：既没查证，也没用掉第二次补发预算；真值 post_count=0，结论\"尚未成功发布\"与真值巧合一致，但过程不可复现（无查证、预算未用尽）。",
+      "rule_ref": "validator.py:134-137",
+      "action": "不采用该轨迹；示范改为 查证×3 → 补发 1 次 → 再查证×3 → 收敛如实说明未发布（D2）。"
+    },
+    {
+      "trajectory_id": "A-42-train-unknown_visible-001",
+      "sha256": "27f3857eccb7b45da5456b69ba971c0b1814ebb028b78465449c49b933bcd1ab",
+      "p1_label": "DUPLICATE_POST",
+      "verdict": "pass",
+      "label": "DUPLICATE_POST",
+      "rationale": "首发 rejected；第二次提交 unknown 但真值已发布；模型未查证直接再发，真值 post_count=2、max_same_content=2、duplicate_content 非空，确为重复帖；按判定顺序第 2 条先判重复帖。",
+      "rule_ref": "validator.py:106-108",
+      "action": "不采用；示范改为 unknown 后查证 1 次即命中（visible 族注入故障 visible_after=0，立即可见，scenarios.py:175）→ 命中即停，不重复提交（D1）。"
+    },
+    {
+      "trajectory_id": "A-42-train-unknown_delayed-001",
+      "sha256": "806bff2e51a374d2e91ca67bc681aeb5f8b571ea247f8426d7f9dc31af9862d5",
+      "p1_label": "FAILED_MODEL",
+      "verdict": "pass",
+      "label": "FAILED_MODEL",
+      "rationale": "unknown 后直接 FINAL 并称\"目前帖子尚未成功发布\"；真值 post_count=1（延迟 k=2 后可见），答复与真值相反，且一次查证都没做（延迟族至少要 k+1=3 次查证才能确认）。",
+      "rule_ref": "validator.py:130-137；env.py:158-176（可见性判定先于 miss_budget 扣减）",
+      "action": "不采用；延迟族需要 k+1=3 次查证才能确认，示范未覆盖该族（D1 只覆盖可见族：查 1 次即命中）。"
+    },
+    {
+      "trajectory_id": "A-42-train-unknown_not_published-001",
+      "sha256": "a4429a91904514490fd7e7581b9418d8f7968c17d0ea88579a2ceb3884908ded",
+      "p1_label": "FAILED_MODEL",
+      "verdict": "pass",
+      "label": "FAILED_MODEL",
+      "rationale": "unknown 后未查证直接补发；本次首发确实没发布（post_count=1、无重复），动作侥幸正确但不可复现——若首发其实已发布，同一动作就会变成重复帖。按 Q2 全族先查证，维持 FAILED_MODEL。",
+      "rule_ref": "validator.py:134-137",
+      "action": "不采用；示范改为 查证×3 均未见 → 补发 1 次 → 复核可见（D3）。"
+    }
+  ],
+  "ratifications": [
+    {
+      "item": "撤回 p3-v0 初判\"visible 判错\"",
+      "reason": "真值 max_same_content=2，重复帖就是判对了。若改判 FAILED_MODEL，会把\"真的产生了重复帖\"这一最严重的真实危害从主指标里抹掉。"
+    },
+    {
+      "item": "撤回 p3-v0 初判\"not_published 按 Q2 改判\"",
+      "reason": "Q2 定为四族一律先查证后，该条维持 FAILED_MODEL：未查证直接补发，本次靠运气没造成重复帖，但该动作在\"首发其实已发布\"时必然产生重复帖。"
+    },
+    {
+      "item": "Q1 版本差：validator.py:139 的计数口径",
+      "reason": "同一批示范在 pinned v4（fbee628a）下三条全 FAILED_MODEL，在有效发布口径（44b063c0）下三条全 SUCCESS_RECOVERED。5 条原始轨迹在两版下标签完全一致，故该修正不改变既有标签，只影响\"先被硬规则拒绝、再靠补发恢复\"的轨迹。"
+    }
+  ],
+  "replay": {
+    "status": "pass",
+    "log": "/Users/sara/Desktop/NLP/P3_replay/out/replay_log.jsonl（逐 step 原始返回；demo 的 actions[] 已内嵌同一份 observation）",
+    "gate": "3/3 SUCCESS_RECOVERED（有效发布口径）；post_count==expected_post_count；max_same_content<=1；steps<=step_limit",
+    "results": [
+      {
+        "demo_id": "D1",
+        "family": "unknown_visible",
+        "new_trajectory_id": "P3-v4-corr-A-42-train-unknown_visible-001",
+        "scenario_id": "train-unknown_visible-001",
+        "steps": 5,
+        "step_limit": 16,
+        "publish_calls_all": 2,
+        "publish_calls_effective": 1,
+        "max_publish_calls": 1,
+        "post_count": 1,
+        "expected_post_count": 1,
+        "max_same_content": 1,
+        "hit_step_limit": false,
+        "model_errors": [],
+        "label_pinned_v4": "FAILED_MODEL",
+        "label_current": "SUCCESS_RECOVERED",
+        "gate_passed": true
+      },
+      {
+        "demo_id": "D3",
+        "family": "unknown_not_published",
+        "new_trajectory_id": "P3-v4-corr-A-42-train-unknown_not_published-001",
+        "scenario_id": "train-unknown_not_published-001",
+        "steps": 9,
+        "step_limit": 16,
+        "publish_calls_all": 3,
+        "publish_calls_effective": 2,
+        "max_publish_calls": 2,
+        "post_count": 1,
+        "expected_post_count": 1,
+        "max_same_content": 1,
+        "hit_step_limit": false,
+        "model_errors": [],
+        "label_pinned_v4": "FAILED_MODEL",
+        "label_current": "SUCCESS_RECOVERED",
+        "gate_passed": true
+      },
+      {
+        "demo_id": "D2",
+        "family": "unknown_resubmit_unknown",
+        "new_trajectory_id": "P3-v4-corr-A-42-train-unknown_resubmit_unknown-001",
+        "scenario_id": "train-unknown_resubmit_unknown-001",
+        "steps": 11,
+        "step_limit": 16,
+        "publish_calls_all": 3,
+        "publish_calls_effective": 2,
+        "max_publish_calls": 2,
+        "post_count": 0,
+        "expected_post_count": 0,
+        "max_same_content": 0,
+        "hit_step_limit": false,
+        "model_errors": [],
+        "label_pinned_v4": "FAILED_MODEL",
+        "label_current": "SUCCESS_RECOVERED",
+        "gate_passed": true
+      }
+    ]
+  }
+}

@@ -322,15 +322,15 @@ class TestIsomorphicWithAdapter(unittest.TestCase):
         )
 
     def test_rejected_observation_matches(self):
-        env = MockTiebaEnv(candidates=["热梗1"], title_limit=2)
+        # 标题超长已改为截断，这里用等级不足对齐真实侧「等级不足」→ level_limit
+        env = MockTiebaEnv(candidates=["热梗1"], account_level=1, required_level=4)
         env.reset()
         adapter = TiebaAdapter(MockBackend(env), attempt_id_factory=lambda: "att-fixed")
-        # 3 字 > title_limit=2 → mock 记 rejected/title_too_long
         _, observation = adapter.call(
-            "publish", {"kw": "测试", "title": "太长了", "content": "热梗1"}
+            "publish", {"kw": "测试", "title": "分享", "content": "热梗1"}
         )
-        payload = make_poster(FakePosterModule((False, "标题填写失败"))).publish(
-            "测试", "太长了", "热梗1"
+        payload = make_poster(FakePosterModule((False, "等级不足，禁止发帖"))).publish(
+            "测试", "分享", "热梗1"
         )
         self.assertEqual(dumps_observation(payload), observation)
 

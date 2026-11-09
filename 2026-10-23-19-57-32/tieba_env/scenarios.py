@@ -39,15 +39,17 @@ FAMILIES: tuple[str, ...] = (
 TITLE_LIMIT = 31          # 与真实客户端一致：超过 31 字由客户端截断
 
 # 两个 split 的差异都集中在这里，改参数只改这一处
+# 吧名口径已冻结：模拟与真实统一用 agenttest（PLAN 8）。train/test 用同一个吧名，
+# 隔离靠 candidates.json 的 split 字段（候选池不重叠）与 scenario_id，不靠吧名。
 SPLIT_CONFIG: dict[str, dict[str, Any]] = {
     "train": {
-        "kw": "测试",
+        "kw": "agenttest",
         "delay_choices": (0, 1),          # D1 实测 k=0 为主，偶尔 1
         "unknown_reasons": ("submit_timeout", "captcha", "no_response"),
         "per_family": 10,
     },
     "test": {
-        "kw": "实验二",
+        "kw": "agenttest",
         "delay_choices": (1, 1),          # test 固定 k=1，防背 train 的 k=0
         "unknown_reasons": ("submit_timeout", "no_response", "captcha"),
         "per_family": 5,

@@ -1,0 +1,909 @@
+[transformers] warmup_ratio is deprecated and will be removed in v5.2. Use `warmup_steps` instead.
+[INFO|2026-11-09 20:13:29] llamafactory.hparams.parser:678 >> Process rank: 0, world size: 1, device: cuda:0, distributed training: False, compute dtype: torch.bfloat16
+[INFO|configuration_utils.py:778] 2026-11-09 20:13:29,563 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/config.json
+[INFO|configuration_utils.py:856] 2026-11-09 20:13:29,635 >> Model config Qwen3_5Config {
+  "architectures": [
+    "Qwen3_5ForConditionalGeneration"
+  ],
+  "image_token_id": 248056,
+  "model_type": "qwen3_5",
+  "text_config": {
+    "attention_bias": false,
+    "attention_dropout": 0.0,
+    "attn_output_gate": true,
+    "bos_token_id": null,
+    "dtype": "bfloat16",
+    "eos_token_id": 248044,
+    "full_attention_interval": 4,
+    "head_dim": 256,
+    "hidden_act": "silu",
+    "hidden_size": 4096,
+    "initializer_range": 0.02,
+    "intermediate_size": 12288,
+    "layer_types": [
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention"
+    ],
+    "linear_conv_kernel_dim": 4,
+    "linear_key_head_dim": 128,
+    "linear_num_key_heads": 16,
+    "linear_num_value_heads": 32,
+    "linear_value_head_dim": 128,
+    "mamba_ssm_dtype": "float32",
+    "max_position_embeddings": 262144,
+    "mlp_only_layers": [],
+    "model_type": "qwen3_5_text",
+    "mtp_num_hidden_layers": 1,
+    "mtp_use_dedicated_embeddings": false,
+    "num_attention_heads": 16,
+    "num_hidden_layers": 32,
+    "num_key_value_heads": 4,
+    "pad_token_id": null,
+    "partial_rotary_factor": 0.25,
+    "rms_norm_eps": 1e-06,
+    "rope_parameters": {
+      "mrope_interleaved": true,
+      "mrope_section": [
+        11,
+        11,
+        10
+      ],
+      "partial_rotary_factor": 0.25,
+      "rope_theta": 10000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "use_cache": true,
+    "vocab_size": 248320
+  },
+  "tie_word_embeddings": false,
+  "transformers_version": "5.8.0",
+  "video_token_id": 248057,
+  "vision_config": {
+    "deepstack_visual_indexes": [],
+    "depth": 27,
+    "hidden_act": "gelu_pytorch_tanh",
+    "hidden_size": 1152,
+    "in_channels": 3,
+    "initializer_range": 0.02,
+    "intermediate_size": 4304,
+    "model_type": "qwen3_5_vision",
+    "num_heads": 16,
+    "num_position_embeddings": 2304,
+    "out_hidden_size": 4096,
+    "patch_size": 16,
+    "spatial_merge_size": 2,
+    "temporal_patch_size": 2
+  },
+  "vision_end_token_id": 248054,
+  "vision_start_token_id": 248053
+}
+
+[INFO|image_processing_base.py:342] 2026-11-09 20:13:30,915 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/preprocessor_config.json
+[INFO|processing_utils.py:1122] 2026-11-09 20:13:30,982 >> loading configuration file None
+[INFO|image_processing_base.py:342] 2026-11-09 20:13:30,983 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/preprocessor_config.json
+[WARNING|logging.py:340] 2026-11-09 20:13:30,983 >> The `use_fast` parameter is deprecated and will be removed in a future version. Use `backend="torchvision"` instead of `use_fast=True`, or `backend="pil"` instead of `use_fast=False`.
+[INFO|image_processing_base.py:342] 2026-11-09 20:13:31,063 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/preprocessor_config.json
+[INFO|image_processing_base.py:385] 2026-11-09 20:13:31,064 >> Image processor Qwen2VLImageProcessor {
+  "do_convert_rgb": true,
+  "do_normalize": true,
+  "do_rescale": true,
+  "do_resize": true,
+  "image_mean": [
+    0.5,
+    0.5,
+    0.5
+  ],
+  "image_processor_type": "Qwen2VLImageProcessor",
+  "image_std": [
+    0.5,
+    0.5,
+    0.5
+  ],
+  "merge_size": 2,
+  "patch_size": 16,
+  "resample": 3,
+  "rescale_factor": 0.00392156862745098,
+  "size": {
+    "longest_edge": 16777216,
+    "shortest_edge": 65536
+  },
+  "temporal_patch_size": 2
+}
+
+[INFO|configuration_utils.py:778] 2026-11-09 20:13:31,064 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/config.json
+[INFO|configuration_utils.py:856] 2026-11-09 20:13:31,079 >> Model config Qwen3_5Config {
+  "architectures": [
+    "Qwen3_5ForConditionalGeneration"
+  ],
+  "image_token_id": 248056,
+  "model_type": "qwen3_5",
+  "text_config": {
+    "attention_bias": false,
+    "attention_dropout": 0.0,
+    "attn_output_gate": true,
+    "bos_token_id": null,
+    "dtype": "bfloat16",
+    "eos_token_id": 248044,
+    "full_attention_interval": 4,
+    "head_dim": 256,
+    "hidden_act": "silu",
+    "hidden_size": 4096,
+    "initializer_range": 0.02,
+    "intermediate_size": 12288,
+    "layer_types": [
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention"
+    ],
+    "linear_conv_kernel_dim": 4,
+    "linear_key_head_dim": 128,
+    "linear_num_key_heads": 16,
+    "linear_num_value_heads": 32,
+    "linear_value_head_dim": 128,
+    "mamba_ssm_dtype": "float32",
+    "max_position_embeddings": 262144,
+    "mlp_only_layers": [],
+    "model_type": "qwen3_5_text",
+    "mtp_num_hidden_layers": 1,
+    "mtp_use_dedicated_embeddings": false,
+    "num_attention_heads": 16,
+    "num_hidden_layers": 32,
+    "num_key_value_heads": 4,
+    "pad_token_id": null,
+    "partial_rotary_factor": 0.25,
+    "rms_norm_eps": 1e-06,
+    "rope_parameters": {
+      "mrope_interleaved": true,
+      "mrope_section": [
+        11,
+        11,
+        10
+      ],
+      "partial_rotary_factor": 0.25,
+      "rope_theta": 10000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "use_cache": true,
+    "vocab_size": 248320
+  },
+  "tie_word_embeddings": false,
+  "transformers_version": "5.8.0",
+  "video_token_id": 248057,
+  "vision_config": {
+    "deepstack_visual_indexes": [],
+    "depth": 27,
+    "hidden_act": "gelu_pytorch_tanh",
+    "hidden_size": 1152,
+    "in_channels": 3,
+    "initializer_range": 0.02,
+    "intermediate_size": 4304,
+    "model_type": "qwen3_5_vision",
+    "num_heads": 16,
+    "num_position_embeddings": 2304,
+    "out_hidden_size": 4096,
+    "patch_size": 16,
+    "spatial_merge_size": 2,
+    "temporal_patch_size": 2
+  },
+  "vision_end_token_id": 248054,
+  "vision_start_token_id": 248053
+}
+
+[INFO|video_processing_utils.py:684] 2026-11-09 20:13:31,938 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/video_preprocessor_config.json
+[INFO|video_processing_utils.py:684] 2026-11-09 20:13:31,956 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/video_preprocessor_config.json
+[INFO|video_processing_utils.py:727] 2026-11-09 20:13:31,956 >> Video processor Qwen3VLVideoProcessor {
+  "do_convert_rgb": true,
+  "do_normalize": true,
+  "do_rescale": true,
+  "do_resize": true,
+  "do_sample_frames": true,
+  "fps": 2,
+  "image_mean": [
+    0.5,
+    0.5,
+    0.5
+  ],
+  "image_std": [
+    0.5,
+    0.5,
+    0.5
+  ],
+  "max_frames": 768,
+  "merge_size": 2,
+  "min_frames": 4,
+  "patch_size": 16,
+  "resample": 3,
+  "rescale_factor": 0.00392156862745098,
+  "return_metadata": false,
+  "size": {
+    "longest_edge": 25165824,
+    "shortest_edge": 4096
+  },
+  "temporal_patch_size": 2,
+  "video_processor_type": "Qwen3VLVideoProcessor"
+}
+
+[INFO|processing_utils.py:1199] 2026-11-09 20:13:32,180 >> Processor Qwen3VLProcessor:
+- image_processor: Qwen2VLImageProcessor {
+  "do_convert_rgb": true,
+  "do_normalize": true,
+  "do_rescale": true,
+  "do_resize": true,
+  "image_mean": [
+    0.5,
+    0.5,
+    0.5
+  ],
+  "image_processor_type": "Qwen2VLImageProcessor",
+  "image_std": [
+    0.5,
+    0.5,
+    0.5
+  ],
+  "merge_size": 2,
+  "patch_size": 16,
+  "resample": 3,
+  "rescale_factor": 0.00392156862745098,
+  "size": {
+    "longest_edge": 16777216,
+    "shortest_edge": 65536
+  },
+  "temporal_patch_size": 2
+}
+
+- tokenizer: Qwen2Tokenizer(name_or_path='/public/home/scnsjwf2qh/models/Qwen3.5-9B', vocab_size=248044, model_max_length=262144, padding_side='right', truncation_side='right', special_tokens={'eos_token': '<|im_end|>', 'pad_token': '<|endoftext|>', 'audio_bos_token': '<|audio_start|>', 'audio_eos_token': '<|audio_end|>', 'audio_token': '<|audio_pad|>', 'image_token': '<|image_pad|>', 'video_token': '<|video_pad|>', 'vision_bos_token': '<|vision_start|>', 'vision_eos_token': '<|vision_end|>'}, added_tokens_decoder={
+	248044: AddedToken("<|endoftext|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248045: AddedToken("<|im_start|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248046: AddedToken("<|im_end|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248047: AddedToken("<|object_ref_start|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248048: AddedToken("<|object_ref_end|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248049: AddedToken("<|box_start|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248050: AddedToken("<|box_end|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248051: AddedToken("<|quad_start|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248052: AddedToken("<|quad_end|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248053: AddedToken("<|vision_start|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248054: AddedToken("<|vision_end|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248055: AddedToken("<|vision_pad|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248056: AddedToken("<|image_pad|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248057: AddedToken("<|video_pad|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248058: AddedToken("<tool_call>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248059: AddedToken("</tool_call>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248060: AddedToken("<|fim_prefix|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248061: AddedToken("<|fim_middle|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248062: AddedToken("<|fim_suffix|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248063: AddedToken("<|fim_pad|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248064: AddedToken("<|repo_name|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248065: AddedToken("<|file_sep|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248066: AddedToken("<tool_response>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248067: AddedToken("</tool_response>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248068: AddedToken("<think>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248069: AddedToken("</think>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=False),
+	248070: AddedToken("<|audio_start|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248071: AddedToken("<|audio_end|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248072: AddedToken("<tts_pad>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248073: AddedToken("<tts_text_bos>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248074: AddedToken("<tts_text_eod>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248075: AddedToken("<tts_text_bos_single>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+	248076: AddedToken("<|audio_pad|>", rstrip=False, lstrip=False, single_word=False, normalized=False, special=True),
+})
+- video_processor: Qwen3VLVideoProcessor {
+  "do_convert_rgb": true,
+  "do_normalize": true,
+  "do_rescale": true,
+  "do_resize": true,
+  "do_sample_frames": true,
+  "fps": 2,
+  "image_mean": [
+    0.5,
+    0.5,
+    0.5
+  ],
+  "image_std": [
+    0.5,
+    0.5,
+    0.5
+  ],
+  "max_frames": 768,
+  "merge_size": 2,
+  "min_frames": 4,
+  "patch_size": 16,
+  "resample": 3,
+  "rescale_factor": 0.00392156862745098,
+  "return_metadata": false,
+  "size": {
+    "longest_edge": 25165824,
+    "shortest_edge": 4096
+  },
+  "temporal_patch_size": 2,
+  "video_processor_type": "Qwen3VLVideoProcessor"
+}
+
+
+{
+  "image_processor": {
+    "do_convert_rgb": true,
+    "do_normalize": true,
+    "do_rescale": true,
+    "do_resize": true,
+    "image_mean": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "image_processor_type": "Qwen2VLImageProcessor",
+    "image_std": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "merge_size": 2,
+    "patch_size": 16,
+    "resample": 3,
+    "rescale_factor": 0.00392156862745098,
+    "size": {
+      "longest_edge": 16777216,
+      "shortest_edge": 65536
+    },
+    "temporal_patch_size": 2
+  },
+  "processor_class": "Qwen3VLProcessor",
+  "video_processor": {
+    "do_convert_rgb": true,
+    "do_normalize": true,
+    "do_rescale": true,
+    "do_resize": true,
+    "do_sample_frames": true,
+    "fps": 2,
+    "image_mean": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "image_std": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "max_frames": 768,
+    "merge_size": 2,
+    "min_frames": 4,
+    "patch_size": 16,
+    "resample": 3,
+    "rescale_factor": 0.00392156862745098,
+    "return_metadata": false,
+    "size": {
+      "longest_edge": 25165824,
+      "shortest_edge": 4096
+    },
+    "temporal_patch_size": 2,
+    "video_processor_type": "Qwen3VLVideoProcessor"
+  }
+}
+
+[INFO|2026-11-09 20:13:32] llamafactory.data.loader:144 >> Loading dataset tieba_C.json...
+[INFO|configuration_utils.py:778] 2026-11-09 20:13:38,051 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/config.json
+[INFO|configuration_utils.py:856] 2026-11-09 20:13:38,066 >> Model config Qwen3_5Config {
+  "architectures": [
+    "Qwen3_5ForConditionalGeneration"
+  ],
+  "image_token_id": 248056,
+  "model_type": "qwen3_5",
+  "text_config": {
+    "attention_bias": false,
+    "attention_dropout": 0.0,
+    "attn_output_gate": true,
+    "bos_token_id": null,
+    "dtype": "bfloat16",
+    "eos_token_id": 248044,
+    "full_attention_interval": 4,
+    "head_dim": 256,
+    "hidden_act": "silu",
+    "hidden_size": 4096,
+    "initializer_range": 0.02,
+    "intermediate_size": 12288,
+    "layer_types": [
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "linear_attention",
+      "linear_attention",
+      "full_attention"
+    ],
+    "linear_conv_kernel_dim": 4,
+    "linear_key_head_dim": 128,
+    "linear_num_key_heads": 16,
+    "linear_num_value_heads": 32,
+    "linear_value_head_dim": 128,
+    "mamba_ssm_dtype": "float32",
+    "max_position_embeddings": 262144,
+    "mlp_only_layers": [],
+    "model_type": "qwen3_5_text",
+    "mtp_num_hidden_layers": 1,
+    "mtp_use_dedicated_embeddings": false,
+    "num_attention_heads": 16,
+    "num_hidden_layers": 32,
+    "num_key_value_heads": 4,
+    "pad_token_id": null,
+    "partial_rotary_factor": 0.25,
+    "rms_norm_eps": 1e-06,
+    "rope_parameters": {
+      "mrope_interleaved": true,
+      "mrope_section": [
+        11,
+        11,
+        10
+      ],
+      "partial_rotary_factor": 0.25,
+      "rope_theta": 10000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "use_cache": true,
+    "vocab_size": 248320
+  },
+  "tie_word_embeddings": false,
+  "transformers_version": "5.8.0",
+  "video_token_id": 248057,
+  "vision_config": {
+    "deepstack_visual_indexes": [],
+    "depth": 27,
+    "hidden_act": "gelu_pytorch_tanh",
+    "hidden_size": 1152,
+    "in_channels": 3,
+    "initializer_range": 0.02,
+    "intermediate_size": 4304,
+    "model_type": "qwen3_5_vision",
+    "num_heads": 16,
+    "num_position_embeddings": 2304,
+    "out_hidden_size": 4096,
+    "patch_size": 16,
+    "spatial_merge_size": 2,
+    "temporal_patch_size": 2
+  },
+  "vision_end_token_id": 248054,
+  "vision_start_token_id": 248053
+}
+
+training example:
+input_ids:
+[248045, 8678, 198, 133653, 120772, 115523, 110257, 3709, 96050, 109185, 99445, 97235, 115523, 97995, 1710, 110865, 104355, 95826, 124317, 98933, 98419, 95933, 144472, 5205, 98430, 104223, 98661, 1710, 271, 2, 13455, 271, 2523, 599, 2528, 310, 279, 2614, 5568, 25, 271, 27, 15449, 29, 198, 4754, 591, 763, 328, 447, 71053, 487, 328, 4532, 763, 328, 96284, 102486, 96230, 100446, 101831, 1710, 487, 328, 13390, 763, 5046, 1267, 763, 328, 1640, 487, 328, 12811, 763, 15969, 328, 6081, 763, 2958, 3307, 198, 4754, 591, 763, 328, 1551, 60259, 19608, 487, 328, 4532, 763, 328, 111388, 103864, 97198, 118641, 109423, 101831, 3709, 99488, 109423, 103934, 95999, 108850, 1710, 487, 328, 13390, 763, 5046, 1267, 763, 328, 1640, 487, 328, 12811, 763, 5046, 27666, 763, 5046, 1267, 763, 328, 889, 487, 328, 4532, 763, 328, 97198, 96009, 3709, 108532, 12512, 99449, 10119, 13933, 328, 9226, 763, 5046, 1267, 763, 328, 11326, 487, 328, 4532, 763, 328, 108709, 99488, 98425, 96233, 3709, 101908, 220, 17, 15, 8934, 2069, 328, 6081, 763, 4241, 27666, 1293, 3307, 198, 4754, 591, 763, 328, 26610, 487, 328, 4532, 763, 328, 95772, 103864, 97198, 100598, 96125, 97814, 99730, 3709, 99488, 99143, 100598, 109640, 1710, 487, 328, 13390, 763, 5046, 1267, 763, 328, 1640, 487, 328, 12811, 763, 5046, 27666, 763, 5046, 1267, 763, 328, 889, 487, 328, 4532, 763, 328, 97198, 96009, 13933, 328, 2034, 763, 5046, 1267, 763, 328, 889, 487, 328, 4532, 763, 328, 109423, 103934, 3709, 109225, 220, 19, 15, 220, 96356, 13933, 328, 1733, 763, 5046, 1267, 763, 328, 889, 487, 328, 4532, 763, 328, 109423, 108850, 8934, 2069, 328, 6081, 763, 4241, 27666, 487, 328, 2034, 487, 328, 1733, 1293, 3307, 198, 510, 15449, 29, 271, 2592, 488, 4992, 310, 1562, 264, 709, 25835, 9559, 303, 279, 2614, 3443, 440, 5486, 19900, 25, 271, 248058, 198, 27, 1628, 28, 8422, 8901, 1224, 29, 198, 27, 15704, 28, 8422, 24109, 62, 16, 29, 198, 927, 62, 16, 198, 510, 15704, 29, 198, 27, 15704, 28, 8422, 24109, 62, 17, 29, 198, 1919, 369, 279, 869, 364, 279, 2018, 5555, 198, 8761, 628, 9111, 198, 34493, 4965, 198, 510, 15704, 29, 198, 510, 1628, 29, 198, 248059, 271, 27, 95328, 29, 198, 92065, 25, 198, 12, 5534, 6526, 26834, 1732, 279, 5024, 3443, 25, 449, 8906, 361, 1628, 28, 1076, 1419, 1628, 29, 2424, 1902, 381, 23283, 2785, 220, 248058, 248059, 11535, 9212, 198, 12, 12296, 4868, 26834, 381, 5024, 198, 12, 1394, 1189, 3300, 9801, 31626, 364, 678, 709, 1562, 303, 5629, 3992, 54588, 279, 709, 1562, 11, 694, 4045, 1238, 198, 12, 1368, 1017, 369, 874, 709, 1562, 2420, 11, 4087, 279, 3296, 1040, 4472, 440, 678, 1428, 6337, 321, 635, 524, 3184, 279, 1156, 883, 709, 6526, 198, 510, 95328, 29, 248046, 198, 248045, 846, 198, 96200, 102486, 140528, 96125, 96230, 100446, 3709, 97374, 95839, 12512, 99449, 10119, 97198, 1710, 97374, 95990, 97552, 108695, 1710, 248046, 198, 248045, 74455, 198, 248068, 271, 248069, 271, 248058, 198, 27, 1628, 27362, 71053, 29, 198, 510, 1628, 29, 198, 248059, 248046, 198, 248045, 846, 198, 248066, 198, 4754, 88200, 35580, 109292, 120879, 96158, 95855, 117128, 98057, 97375, 96755, 113705, 3709, 117998, 96200, 127742, 97652, 95839, 95986, 97047, 3709, 117128, 96984, 103703, 96152, 3709, 96342, 96652, 97185, 122718, 1710, 96151, 103868, 103903, 138554, 96317, 115831, 100557, 1710, 108553, 103971, 99470, 101652, 140967, 96481, 100286, 1710, 2129, 140809, 96330, 3709, 95959, 98549, 114026, 104504, 3709, 96098, 96933, 128081, 96079, 96352, 1710, 100826, 96074, 97470, 95839, 141982, 3709, 96846, 108604, 101015, 132337, 3709, 109187, 114013, 127784, 96481, 95840, 126475, 96390, 101759, 97470, 1710, 97989, 105340, 126475, 101759, 3709, 108785, 100020, 95759, 1710, 2129, 100131, 109323, 96756, 95930, 97411, 112097, 3709, 104439, 96230, 95930, 96074, 97224, 100001, 3709, 99977, 96473, 97968, 1710, 114050, 95990, 96293, 95759, 123962, 3709, 97790, 123526, 111400, 3709, 113911, 100589, 96230, 96425, 105515, 1710, 108643, 99504, 96382, 97000, 100286, 1710, 2129, 104368, 110266, 96063, 96186, 3709, 100049, 97895, 100647, 95759, 102624, 97944, 3709, 97358, 98125, 140114, 147812, 101791, 125858, 96156, 1710, 96074, 99177, 144650, 100361, 96986, 3709, 98351, 117362, 96293, 3709, 97790, 118558, 95840, 117914, 1710, 2129, 119272, 104439, 103712, 3709, 95952, 131138, 97456, 96481, 106081, 3709, 95952, 95912, 96473, 97799, 117616, 1710, 99469, 96907, 95872, 99332, 96802, 131740, 3709, 96177, 108453, 95744, 96500, 3709, 115759, 98950, 109103, 102034, 1710, 96496, 110896, 96619, 98158, 101707, 1710, 2129, 101608, 101970, 96584, 104477, 3709, 96846, 101908, 96186, 119328, 1710, 111938, 98064, 98632, 97048, 3709, 97989, 119328, 140809, 95889, 122958, 1710, 103352, 95759, 98868, 96082, 3709, 97375, 109317, 97849, 101759, 3709, 96647, 111187, 98607, 1710, 2129, 104699, 95839, 96838, 116079, 3709, 108891, 111847, 99093, 98870, 3709, 109913, 140540, 111552, 98632, 3709, 108688, 96079, 117172, 1710, 109267, 108570, 98544, 108570, 96003, 96488, 95952, 97072, 96878, 97294, 95849, 109827, 1710, 98544, 96306, 101683, 111385, 3709, 96496, 100651, 96790, 96075, 98154, 95759, 1710, 2129, 96219, 108777, 98816, 96907, 3709, 113281, 130217, 112511, 120953, 96543, 95761, 110804, 4960, 139572, 5205, 101970, 96132, 96389, 5205, 118903, 5205, 98451, 99631, 98411, 1710, 99000, 139303, 3709, 99000, 95839, 103948, 100048, 98695, 110804, 3709, 96473, 96823, 116800, 1710, 2129, 103704, 116639, 97703, 121202, 97724, 98004, 3709, 99646, 97922, 95983, 95982, 100733, 3709, 96213, 95982, 100658, 96473, 96004, 100774, 98666, 1710, 97790, 136342, 97703, 3709, 95772, 123482, 100655, 96569, 95938, 96151, 96357, 3709, 97275, 109616, 124080, 1710, 2129, 98627, 98568, 95761, 113824, 96378, 97270, 98580, 96507, 95759, 3709, 97884, 98568, 112132, 96288, 99835, 3709, 97989, 110306, 96932, 132721, 1710, 96182, 139303, 103903, 96976, 96183, 1710, 96846, 98130, 99296, 95966, 129054, 96870, 99519, 3709, 96098, 96379, 98500, 96079, 95802, 95858, 1710, 89254, 198, 248067, 248046, 198, 248045, 74455, 198, 248068, 271, 248069, 271, 248058, 198, 27, 1628, 39619, 60259, 19608, 29, 198, 27, 15704, 28, 27666, 29, 198, 99449, 198, 510, 15704, 29, 198, 27, 15704, 28, 9226, 29, 198, 17, 15, 198, 510, 15704, 29, 198, 510, 1628, 29, 198, 248059, 248046, 198, 248045, 846, 198, 248066, 198, 4754, 12301, 763, 64040, 198, 248067, 248046, 198, 248045, 74455, 198, 248068, 271, 248069, 271, 248058, 198, 27, 1628, 16874, 2457, 29, 198, 27, 15704, 28, 27666, 29, 198, 99449, 198, 510, 15704, 29, 198, 27, 15704, 87393, 29, 198, 103704, 116639, 97703, 121202, 97724, 98004, 3709, 99646, 97922, 95983, 95982, 100733, 3709, 96213, 95982, 100658, 96473, 96004, 100774, 1873, 198, 510, 15704, 29, 198, 27, 15704, 28, 1733, 29, 198, 103704, 116639, 97703, 121202, 97724, 98004, 3709, 99646, 97922, 95983, 95982, 100733, 3709, 96213, 95982, 100658, 96473, 96004, 100774, 98666, 1710, 97790, 136342, 97703, 3709, 95772, 123482, 100655, 96569, 95938, 96151, 96357, 3709, 97275, 109616, 124080, 1710, 198, 510, 15704, 29, 198, 510, 1628, 29, 198, 248059, 248046, 198, 248045, 846, 198, 248066, 198, 4754, 2738, 3147, 15615, 2129, 19290, 3147, 5769, 19912, 2129, 53642, 816, 3147, 1531, 1402, 17, 24, 19, 10481, 24, 64, 21, 15, 21, 66, 8934, 198, 248067, 248046, 198, 248045, 74455, 198, 248068, 271, 248069, 271, 248058, 198, 27, 1628, 39619, 60259, 19608, 29, 198, 27, 15704, 28, 27666, 29, 198, 99449, 198, 510, 15704, 29, 198, 27, 15704, 28, 9226, 29, 198, 17, 15, 198, 510, 15704, 29, 198, 510, 1628, 29, 198, 248059, 248046, 198, 248045, 846, 198, 248066, 198, 4754, 12301, 64331, 2034, 3147, 103704, 116639, 97703, 121202, 97724, 98004, 3709, 99646, 97922, 95983, 95982, 100733, 3709, 96213, 95982, 100658, 96473, 96004, 100774, 1873, 2129, 1733, 3147, 103704, 116639, 97703, 121202, 97724, 98004, 3709, 99646, 97922, 95983, 95982, 100733, 3709, 96213, 95982, 100658, 96473, 96004, 100774, 98666, 1710, 97790, 136342, 97703, 3709, 95772, 123482, 100655, 96569, 95938, 96151, 96357, 3709, 97275, 109616, 124080, 1710, 8934, 13587, 198, 248067, 248046, 198, 248045, 74455, 198, 248068, 271, 248069, 271, 96120, 96182, 97198, 97129, 101632, 109423, 96221, 97374, 3709, 96487, 108695, 100598, 1710, 248046, 198]
+inputs:
+<|im_start|>system
+你是一个贴吧发帖助手，可以调用工具完成发帖任务。请在结束后用一两句话说明你做了什么、最终结论是什么。
+
+# Tools
+
+You have access to the following functions:
+
+<tools>
+{"name": "get_candidates", "description": "取候选热梗列表。", "parameters": {"type": "object", "properties": {}, "required": []}}
+{"name": "list_recent_posts", "description": "读取指定吧的最新帖子列表，返回帖子标题与正文。", "parameters": {"type": "object", "properties": {"kw": {"type": "string", "description": "吧名，例如「测试」"}, "limit": {"type": "integer", "description": "最多返回多少条，默认 20"}}, "required": ["kw"]}}
+{"name": "publish", "description": "在指定吧提交一个主题帖，返回本次提交的状态。", "parameters": {"type": "object", "properties": {"kw": {"type": "string", "description": "吧名"}, "title": {"type": "string", "description": "帖子标题，不超过 40 字"}, "content": {"type": "string", "description": "帖子正文"}}, "required": ["kw", "title", "content"]}}
+</tools>
+
+If you choose to call a function ONLY reply in the following format with NO suffix:
+
+<tool_call>
+<function=example_function_name>
+<parameter=example_parameter_1>
+value_1
+</parameter>
+<parameter=example_parameter_2>
+This is the value for the second parameter
+that can span
+multiple lines
+</parameter>
+</function>
+</tool_call>
+
+<IMPORTANT>
+Reminder:
+- Function calls MUST follow the specified format: an inner <function=...></function> block must be nested within <tool_call></tool_call> XML tags
+- Required parameters MUST be specified
+- You may provide optional reasoning for your function call in natural language BEFORE the function call, but NOT after
+- If there is no function call available, answer the question like normal with your current knowledge and do not tell the user about function calls
+</IMPORTANT><|im_end|>
+<|im_start|>user
+从候选中选一个热梗，发布到「测试」吧。发布前检查重复。<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+<tool_call>
+<function=get_candidates>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"candidates":["吃了三年的那家包子铺今天换人了，豆浆从两块涨到三块，包子还是那个价，但皮厚了一圈。老老板说是回老家带孙子去了。站在门口突然有点不知道该吃啥。","八点整，电钻准时开工，比我的闹钟还准。本来想睡到十点，现在坐在床上发呆，想着要不要下楼吃个早饭再回来睡。结果吃完早饭回来，人家休息了。","早上出门冷得缩脖子，中午热得想脱衣服，晚上又凉。衣柜前站了十分钟，最后穿了外套，然后在办公室热了一整天。明天到底该穿啥。","旁边大哥外放，一条视频循环了七八遍，魔性的背景音乐现在还在我脑子里转。想提醒又怕吵起来，忍了三站，最后换了个车厢。","工作日中午一个人，点炒菜怕吃不完，点面又觉得单调。最近发现小碗菜挺好，两荤一素，吃得干净还不浪费。就是排队的人越来越多了。","以前快递送上门，现在默认放驿站。下班绕过去拿，结果驿站八点就关门。攒了三个件，今天一次性抱回来，像搬家一样。","加班到九点半，头发长得遮眼睛，抱着试试看的心态过去，居然还开着。师傅一边剪一边说这个点来的都是刚下班的。剪完确实清爽，就是回家已经十一点了。","清内存的时候发现，三千张照片里有两千张是截图：聊天记录、快递单号、菜谱、别人发的地址。删了半天，删到一张三年前的截图，又停下来了。","打开购票软件翻了二十分钟，评分高的都看过了，没看过的又提不起兴趣。最后关掉软件，在沙发上看了半部老片，看到一半睡着了。","上一盆是浇水太勤烂根了，这一盆特意少浇，结果叶子开始发黄。查了半天说是缺光。现在每天搬着花盆追太阳，比养猫还上心。"]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+<tool_call>
+<function=list_recent_posts>
+<parameter=kw>
+测试
+</parameter>
+<parameter=limit>
+20
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"posts":[]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+<tool_call>
+<function=publish>
+<parameter=kw>
+测试
+</parameter>
+<parameter=title>
+打开购票软件翻了二十分钟，评分高的都看过了，没看过的又提不起…
+</parameter>
+<parameter=content>
+打开购票软件翻了二十分钟，评分高的都看过了，没看过的又提不起兴趣。最后关掉软件，在沙发上看了半部老片，看到一半睡着了。
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"status":"unknown","reason":"submit_timeout","attempt_id":"att-b294fb9a606c"}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+<tool_call>
+<function=list_recent_posts>
+<parameter=kw>
+测试
+</parameter>
+<parameter=limit>
+20
+</parameter>
+</function>
+</tool_call><|im_end|>
+<|im_start|>user
+<tool_response>
+{"posts":[{"title":"打开购票软件翻了二十分钟，评分高的都看过了，没看过的又提不起…","content":"打开购票软件翻了二十分钟，评分高的都看过了，没看过的又提不起兴趣。最后关掉软件，在沙发上看了半部老片，看到一半睡着了。"}]}
+</tool_response><|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+回查吧页确认帖子已发布，没有重复提交。<|im_end|>
+
+label_ids:
+[-100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 248058, 198, 27, 1628, 27362, 71053, 29, 198, 510, 1628, 29, 198, 248059, 248046, 198, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 248058, 198, 27, 1628, 39619, 60259, 19608, 29, 198, 27, 15704, 28, 27666, 29, 198, 99449, 198, 510, 15704, 29, 198, 27, 15704, 28, 9226, 29, 198, 17, 15, 198, 510, 15704, 29, 198, 510, 1628, 29, 198, 248059, 248046, 198, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 248058, 198, 27, 1628, 16874, 2457, 29, 198, 27, 15704, 28, 27666, 29, 198, 99449, 198, 510, 15704, 29, 198, 27, 15704, 87393, 29, 198, 103704, 116639, 97703, 121202, 97724, 98004, 3709, 99646, 97922, 95983, 95982, 100733, 3709, 96213, 95982, 100658, 96473, 96004, 100774, 1873, 198, 510, 15704, 29, 198, 27, 15704, 28, 1733, 29, 198, 103704, 116639, 97703, 121202, 97724, 98004, 3709, 99646, 97922, 95983, 95982, 100733, 3709, 96213, 95982, 100658, 96473, 96004, 100774, 98666, 1710, 97790, 136342, 97703, 3709, 95772, 123482, 100655, 96569, 95938, 96151, 96357, 3709, 97275, 109616, 124080, 1710, 198, 510, 15704, 29, 198, 510, 1628, 29, 198, 248059, 248046, 198, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 248058, 198, 27, 1628, 39619, 60259, 19608, 29, 198, 27, 15704, 28, 27666, 29, 198, 99449, 198, 510, 15704, 29, 198, 27, 15704, 28, 9226, 29, 198, 17, 15, 198, 510, 15704, 29, 198, 510, 1628, 29, 198, 248059, 248046, 198, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, 96120, 96182, 97198, 97129, 101632, 109423, 96221, 97374, 3709, 96487, 108695, 100598, 1710, 248046, 198]
+labels:
+<tool_call>
+<function=get_candidates>
+</function>
+</tool_call><|im_end|>
+<tool_call>
+<function=list_recent_posts>
+<parameter=kw>
+测试
+</parameter>
+<parameter=limit>
+20
+</parameter>
+</function>
+</tool_call><|im_end|>
+<tool_call>
+<function=publish>
+<parameter=kw>
+测试
+</parameter>
+<parameter=title>
+打开购票软件翻了二十分钟，评分高的都看过了，没看过的又提不起…
+</parameter>
+<parameter=content>
+打开购票软件翻了二十分钟，评分高的都看过了，没看过的又提不起兴趣。最后关掉软件，在沙发上看了半部老片，看到一半睡着了。
+</parameter>
+</function>
+</tool_call><|im_end|>
+<tool_call>
+<function=list_recent_posts>
+<parameter=kw>
+测试
+</parameter>
+<parameter=limit>
+20
+</parameter>
+</function>
+</tool_call><|im_end|>
+回查吧页确认帖子已发布，没有重复提交。<|im_end|>
+
+[INFO|2026-11-09 20:13:38] llamafactory.model.model_utils.kv_cache:144 >> KV cache is disabled during training.
+[INFO|modeling_utils.py:766] 2026-11-09 20:13:41,790 >> loading weights file /public/home/scnsjwf2qh/models/Qwen3.5-9B/model.safetensors.index.json
+[INFO|modeling_utils.py:852] 2026-11-09 20:13:41,834 >> Since the `dtype` attribute can't be found in model's config object, will use dtype=torch.bfloat16 as derived from model's weights
+[INFO|configuration_utils.py:1086] 2026-11-09 20:13:41,836 >> Generate config GenerationConfig {
+  "output_attentions": false,
+  "output_hidden_states": false,
+  "use_cache": false
+}
+
+[WARNING|logging.py:340] 2026-11-09 20:13:41,895 >> The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+Loading weights:   0%|          | 0/760 [00:00<?, ?it/s]Loading weights:   0%|          | 1/760 [00:27<5:51:28, 27.79s/it]Loading weights:   0%|          | 2/760 [00:37<3:35:56, 17.09s/it]Loading weights:   1%|          | 5/760 [00:37<1:01:52,  4.92s/it]Loading weights:   1%|          | 7/760 [00:38<38:31,  3.07s/it]  Loading weights:   1%|▏         | 11/760 [00:38<17:55,  1.44s/it]Loading weights:   2%|▏         | 13/760 [00:39<13:54,  1.12s/it]Loading weights:   2%|▏         | 15/760 [00:40<12:10,  1.02it/s]Loading weights:   3%|▎         | 22/760 [00:43<07:55,  1.55it/s]Loading weights:   5%|▍         | 36/760 [00:43<03:13,  3.74it/s]Loading weights:   5%|▌         | 38/760 [00:44<03:01,  3.98it/s]Loading weights:   5%|▌         | 41/760 [00:44<02:53,  4.15it/s]Loading weights:   6%|▌         | 42/760 [00:45<03:31,  3.39it/s]Loading weights:   6%|▌         | 46/760 [00:48<04:50,  2.46it/s]Loading weights:   7%|▋         | 54/760 [00:48<02:34,  4.57it/s]Loading weights:   8%|▊         | 57/760 [00:48<02:11,  5.36it/s]Loading weights:   8%|▊         | 62/760 [00:48<01:50,  6.32it/s]Loading weights:   9%|▊         | 66/760 [00:50<02:26,  4.74it/s]Loading weights:  10%|▉         | 75/760 [00:53<03:13,  3.54it/s]Loading weights:  12%|█▏        | 89/760 [00:54<02:05,  5.33it/s]Loading weights:  13%|█▎        | 99/760 [00:55<01:34,  7.00it/s]Loading weights:  13%|█▎        | 101/760 [00:56<01:54,  5.74it/s]Loading weights:  14%|█▍        | 106/760 [00:56<01:34,  6.94it/s]Loading weights:  15%|█▍        | 113/760 [00:57<01:13,  8.84it/s]Loading weights:  15%|█▌        | 116/760 [00:57<01:23,  7.67it/s]Loading weights:  16%|█▌        | 118/760 [00:59<02:50,  3.77it/s]Loading weights:  17%|█▋        | 129/760 [01:00<01:26,  7.33it/s]Loading weights:  17%|█▋        | 132/760 [01:02<02:28,  4.22it/s]Loading weights:  19%|█▊        | 142/760 [01:07<03:37,  2.84it/s]Loading weights:  21%|██        | 158/760 [01:07<01:58,  5.10it/s]Loading weights:  23%|██▎       | 172/760 [01:09<01:40,  5.82it/s]Loading weights:  23%|██▎       | 177/760 [01:10<01:27,  6.64it/s]Loading weights:  24%|██▎       | 180/760 [01:10<01:31,  6.32it/s]Loading weights:  24%|██▍       | 182/760 [01:10<01:25,  6.79it/s]Loading weights:  24%|██▍       | 186/760 [01:10<01:10,  8.20it/s]Loading weights:  25%|██▍       | 188/760 [01:13<02:33,  3.72it/s]Loading weights:  26%|██▌       | 196/760 [01:16<02:55,  3.22it/s]Loading weights:  28%|██▊       | 213/760 [01:16<01:16,  7.12it/s]Loading weights:  29%|██▉       | 221/760 [01:16<00:57,  9.37it/s]Loading weights:  30%|██▉       | 225/760 [01:19<01:43,  5.19it/s]Loading weights:  31%|███       | 235/760 [01:21<01:51,  4.71it/s]Loading weights:  33%|███▎      | 249/760 [01:25<02:02,  4.18it/s]Loading weights:  35%|███▌      | 266/760 [01:25<01:09,  7.09it/s]Loading weights:  36%|███▌      | 271/760 [01:25<01:00,  8.09it/s]Loading weights:  36%|███▋      | 276/760 [01:26<01:08,  7.03it/s]Loading weights:  37%|███▋      | 280/760 [01:29<02:00,  3.98it/s]Loading weights:  37%|███▋      | 284/760 [01:30<01:45,  4.52it/s]Loading weights:  38%|███▊      | 290/760 [01:31<01:40,  4.66it/s]Loading weights:  39%|███▉      | 298/760 [01:37<02:58,  2.59it/s]Loading weights:  42%|████▏     | 319/760 [01:37<01:14,  5.94it/s]Loading weights:  43%|████▎     | 327/760 [01:38<01:10,  6.13it/s]Loading weights:  44%|████▎     | 332/760 [01:39<01:14,  5.75it/s]Loading weights:  45%|████▍     | 340/760 [01:40<01:12,  5.79it/s]Loading weights:  45%|████▌     | 345/760 [01:41<01:03,  6.57it/s]Loading weights:  46%|████▌     | 347/760 [01:41<01:08,  6.04it/s]Loading weights:  47%|████▋     | 354/760 [01:42<00:50,  8.02it/s]Loading weights:  47%|████▋     | 356/760 [01:44<01:40,  4.03it/s]Loading weights:  49%|████▉     | 376/760 [01:44<00:36, 10.45it/s]Loading weights:  50%|█████     | 381/760 [01:45<00:42,  8.96it/s]Loading weights:  51%|█████     | 385/760 [01:46<00:56,  6.58it/s]Loading weights:  52%|█████▏    | 393/760 [01:48<01:01,  5.96it/s]Loading weights:  54%|█████▎    | 408/760 [01:50<00:54,  6.51it/s]Loading weights:  55%|█████▌    | 418/760 [01:50<00:41,  8.28it/s]Loading weights:  55%|█████▌    | 420/760 [01:51<00:45,  7.50it/s]Loading weights:  56%|█████▌    | 422/760 [01:51<00:45,  7.38it/s]Loading weights:  57%|█████▋    | 430/760 [01:52<00:35,  9.36it/s]Loading weights:  59%|█████▉    | 447/760 [01:52<00:17, 18.32it/s]Loading weights:  60%|██████    | 456/760 [01:52<00:13, 22.58it/s]Loading weights:  61%|██████    | 463/760 [01:52<00:11, 26.74it/s]Loading weights:  64%|██████▍   | 489/760 [01:52<00:05, 53.37it/s]Loading weights:  66%|██████▌   | 500/760 [01:52<00:04, 59.75it/s]Loading weights:  70%|██████▉   | 529/760 [01:53<00:02, 96.47it/s]Loading weights:  74%|███████▍  | 564/760 [01:53<00:01, 113.65it/s]Loading weights:  79%|███████▊  | 598/760 [01:53<00:01, 146.79it/s]Loading weights:  82%|████████▏ | 622/760 [01:53<00:01, 129.52it/s]Loading weights:  87%|████████▋ | 661/760 [01:53<00:00, 175.02it/s]Loading weights:  91%|█████████ | 692/760 [01:53<00:00, 199.19it/s]Loading weights:  96%|█████████▌| 728/760 [01:53<00:00, 232.67it/s]Loading weights:  99%|█████████▉| 756/760 [01:54<00:00, 136.74it/s]Loading weights: 100%|██████████| 760/760 [01:54<00:00,  6.64it/s] 
+[INFO|utils.py:412] 2026-11-09 20:15:37,913 >> Generation config file not found, using a generation config created from the model config.
+[INFO|configuration_utils.py:1037] 2026-11-09 20:15:37,939 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/config.json
+[INFO|configuration_utils.py:1086] 2026-11-09 20:15:37,939 >> Generate config GenerationConfig {}
+
+[INFO|2026-11-09 20:15:37] llamafactory.model.model_utils.checkpointing:144 >> Gradient checkpointing enabled.
+[INFO|2026-11-09 20:15:37] llamafactory.model.model_utils.attention:144 >> Using vanilla attention implementation.
+[INFO|2026-11-09 20:15:37] llamafactory.model.adapter:144 >> Upcasting trainable params to float32.
+[INFO|2026-11-09 20:15:37] llamafactory.model.adapter:144 >> Fine-tuning method: LoRA
+[INFO|2026-11-09 20:15:37] llamafactory.model.model_utils.misc:144 >> Found linear modules: in_proj_qkv,v_proj,up_proj,in_proj_z,k_proj,o_proj,q_proj,gate_proj,out_proj,in_proj_a,in_proj_b,down_proj
+[INFO|2026-11-09 20:15:37] llamafactory.model.model_utils.visual:144 >> Set vision model not trainable: ['visual.pos_embed', 'visual.patch_embed', 'visual.blocks'].
+[INFO|2026-11-09 20:15:37] llamafactory.model.model_utils.visual:144 >> Set multi model projector not trainable: ['model.visual.merger'].
+[INFO|2026-11-09 20:15:38] llamafactory.model.loader:144 >> trainable params: 21,639,168 || all params: 9,431,452,912 || trainable%: 0.2294
+Detected kernel version 3.10.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+[INFO|trainer.py:680] 2026-11-09 20:15:45,694 >> max_steps is given, it will override any value given in num_train_epochs
+[WARNING|trainer_utils.py:1238] 2026-11-09 20:15:45,717 >> The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'eos_token_id': 248046, 'pad_token_id': 248044}.
+[INFO|trainer.py:1469] 2026-11-09 20:15:46,515 >> ***** Running training *****
+[INFO|trainer.py:1470] 2026-11-09 20:15:46,515 >>   Num examples = 100
+[INFO|trainer.py:1471] 2026-11-09 20:15:46,515 >>   Num Epochs = 8
+[INFO|trainer.py:1472] 2026-11-09 20:15:46,515 >>   Num update steps per epoch = 13
+[INFO|trainer.py:1473] 2026-11-09 20:15:46,515 >>   Instantaneous batch size per device = 1
+[INFO|trainer.py:1476] 2026-11-09 20:15:46,515 >>   Total train batch size (w. parallel, distributed & accumulation) = 8
+[INFO|trainer.py:1477] 2026-11-09 20:15:46,515 >>   Gradient Accumulation steps = 8
+[INFO|trainer.py:1478] 2026-11-09 20:15:46,515 >>   Total optimization steps = 100
+[INFO|trainer.py:1479] 2026-11-09 20:15:46,524 >>   Number of trainable parameters = 21,639,168
+  0%|          | 0/100 [00:00<?, ?it/s]  1%|          | 1/100 [00:51<1:25:05, 51.57s/it]                                                   1%|          | 1/100 [00:51<1:25:05, 51.57s/it]  2%|▏         | 2/100 [01:32<1:14:20, 45.51s/it]                                                   2%|▏         | 2/100 [01:32<1:14:20, 45.51s/it]  3%|▎         | 3/100 [02:16<1:12:29, 44.84s/it]                                                   3%|▎         | 3/100 [02:16<1:12:29, 44.84s/it]  4%|▍         | 4/100 [02:57<1:09:17, 43.30s/it]                                                   4%|▍         | 4/100 [02:57<1:09:17, 43.30s/it]  5%|▌         | 5/100 [03:42<1:09:17, 43.77s/it]                                                   5%|▌         | 5/100 [03:42<1:09:17, 43.77s/it]  6%|▌         | 6/100 [04:26<1:08:32, 43.75s/it]                                                   6%|▌         | 6/100 [04:26<1:08:32, 43.75s/it]  7%|▋         | 7/100 [05:07<1:06:48, 43.10s/it]                                                   7%|▋         | 7/100 [05:07<1:06:48, 43.10s/it]  8%|▊         | 8/100 [05:50<1:06:04, 43.09s/it]                                                   8%|▊         | 8/100 [05:50<1:06:04, 43.09s/it]  9%|▉         | 9/100 [06:33<1:05:01, 42.87s/it]                                                   9%|▉         | 9/100 [06:33<1:05:01, 42.87s/it] 10%|█         | 10/100 [07:17<1:05:05, 43.39s/it]                                                   10%|█         | 10/100 [07:17<1:05:05, 43.39s/it] 11%|█         | 11/100 [08:01<1:04:20, 43.37s/it]                                                   11%|█         | 11/100 [08:01<1:04:20, 43.37s/it] 12%|█▏        | 12/100 [08:42<1:02:42, 42.75s/it]                                                   12%|█▏        | 12/100 [08:42<1:02:42, 42.75s/it] 13%|█▎        | 13/100 [09:05<53:17, 36.75s/it]                                                   13%|█▎        | 13/100 [09:05<53:17, 36.75s/it] 14%|█▍        | 14/100 [09:48<55:19, 38.59s/it]                                                 14%|█▍        | 14/100 [09:48<55:19, 38.59s/it] 15%|█▌        | 15/100 [10:31<56:25, 39.83s/it]                                                 15%|█▌        | 15/100 [10:31<56:25, 39.83s/it] 16%|█▌        | 16/100 [11:14<57:26, 41.03s/it]                                                 16%|█▌        | 16/100 [11:14<57:26, 41.03s/it] 17%|█▋        | 17/100 [11:57<57:21, 41.46s/it]                                                 17%|█▋        | 17/100 [11:57<57:21, 41.46s/it] 18%|█▊        | 18/100 [12:39<56:50, 41.59s/it]                                                 18%|█▊        | 18/100 [12:39<56:50, 41.59s/it] 19%|█▉        | 19/100 [13:22<56:46, 42.06s/it]                                                 19%|█▉        | 19/100 [13:22<56:46, 42.06s/it] 20%|██        | 20/100 [14:03<55:44, 41.81s/it]                                                 20%|██        | 20/100 [14:03<55:44, 41.81s/it][INFO|trainer.py:3815] 2026-11-09 20:29:50,164 >> Saving model checkpoint to /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-20
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 20:29:50,472 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-20/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 20:29:50,474 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-20/tokenizer_config.json
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 20:29:51,214 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-20/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 20:29:51,215 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-20/tokenizer_config.json
+[INFO|processing_utils.py:881] 2026-11-09 20:29:51,435 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-20/chat_template.jinja
+[INFO|processing_utils.py:899] 2026-11-09 20:29:51,438 >> processor saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-20/processor_config.json
+ 21%|██        | 21/100 [14:46<55:29, 42.15s/it]                                                 21%|██        | 21/100 [14:46<55:29, 42.15s/it] 22%|██▏       | 22/100 [15:31<55:59, 43.06s/it]                                                 22%|██▏       | 22/100 [15:31<55:59, 43.06s/it] 23%|██▎       | 23/100 [16:14<55:11, 43.01s/it]                                                 23%|██▎       | 23/100 [16:14<55:11, 43.01s/it] 24%|██▍       | 24/100 [16:56<54:08, 42.75s/it]                                                 24%|██▍       | 24/100 [16:56<54:08, 42.75s/it] 25%|██▌       | 25/100 [17:38<53:00, 42.41s/it]                                                 25%|██▌       | 25/100 [17:38<53:00, 42.41s/it] 26%|██▌       | 26/100 [17:58<44:07, 35.78s/it]                                                 26%|██▌       | 26/100 [17:58<44:07, 35.78s/it] 27%|██▋       | 27/100 [18:42<46:30, 38.22s/it]                                                 27%|██▋       | 27/100 [18:42<46:30, 38.22s/it] 28%|██▊       | 28/100 [19:23<46:43, 38.94s/it]                                                 28%|██▊       | 28/100 [19:23<46:43, 38.94s/it] 29%|██▉       | 29/100 [20:05<47:12, 39.89s/it]                                                 29%|██▉       | 29/100 [20:05<47:12, 39.89s/it] 30%|███       | 30/100 [20:46<46:52, 40.18s/it]                                                 30%|███       | 30/100 [20:46<46:52, 40.18s/it] 31%|███       | 31/100 [21:26<46:14, 40.21s/it]                                                 31%|███       | 31/100 [21:26<46:14, 40.21s/it] 32%|███▏      | 32/100 [22:07<45:59, 40.58s/it]                                                 32%|███▏      | 32/100 [22:07<45:59, 40.58s/it] 33%|███▎      | 33/100 [22:55<47:33, 42.59s/it]                                                 33%|███▎      | 33/100 [22:55<47:33, 42.59s/it] 34%|███▍      | 34/100 [23:41<48:06, 43.74s/it]                                                 34%|███▍      | 34/100 [23:41<48:06, 43.74s/it] 35%|███▌      | 35/100 [24:27<47:59, 44.31s/it]                                                 35%|███▌      | 35/100 [24:27<47:59, 44.31s/it] 36%|███▌      | 36/100 [25:16<48:57, 45.89s/it]                                                 36%|███▌      | 36/100 [25:16<48:57, 45.89s/it] 37%|███▋      | 37/100 [26:02<48:03, 45.77s/it]                                                 37%|███▋      | 37/100 [26:02<48:03, 45.77s/it] 38%|███▊      | 38/100 [26:47<47:04, 45.55s/it]                                                 38%|███▊      | 38/100 [26:47<47:04, 45.55s/it] 39%|███▉      | 39/100 [27:11<39:45, 39.10s/it]                                                 39%|███▉      | 39/100 [27:11<39:45, 39.10s/it] 40%|████      | 40/100 [27:54<40:22, 40.37s/it]                                                 40%|████      | 40/100 [27:54<40:22, 40.37s/it][INFO|trainer.py:3815] 2026-11-09 20:43:41,315 >> Saving model checkpoint to /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-40
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 20:43:41,716 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-40/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 20:43:41,717 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-40/tokenizer_config.json
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 20:43:42,399 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-40/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 20:43:42,400 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-40/tokenizer_config.json
+[INFO|processing_utils.py:881] 2026-11-09 20:43:42,628 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-40/chat_template.jinja
+[INFO|processing_utils.py:899] 2026-11-09 20:43:42,631 >> processor saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-40/processor_config.json
+ 41%|████      | 41/100 [28:37<40:16, 40.96s/it]                                                 41%|████      | 41/100 [28:37<40:16, 40.96s/it] 42%|████▏     | 42/100 [29:17<39:28, 40.84s/it]                                                 42%|████▏     | 42/100 [29:17<39:28, 40.84s/it] 43%|████▎     | 43/100 [29:59<39:11, 41.25s/it]                                                 43%|████▎     | 43/100 [29:59<39:11, 41.25s/it] 44%|████▍     | 44/100 [30:42<38:54, 41.69s/it]                                                 44%|████▍     | 44/100 [30:42<38:54, 41.69s/it] 45%|████▌     | 45/100 [31:25<38:36, 42.11s/it]                                                 45%|████▌     | 45/100 [31:25<38:36, 42.11s/it] 46%|████▌     | 46/100 [32:05<37:23, 41.55s/it]                                                 46%|████▌     | 46/100 [32:05<37:23, 41.55s/it] 47%|████▋     | 47/100 [32:48<36:52, 41.75s/it]                                                 47%|████▋     | 47/100 [32:48<36:52, 41.75s/it] 48%|████▊     | 48/100 [33:30<36:13, 41.80s/it]                                                 48%|████▊     | 48/100 [33:30<36:13, 41.80s/it] 49%|████▉     | 49/100 [34:12<35:47, 42.11s/it]                                                 49%|████▉     | 49/100 [34:12<35:47, 42.11s/it] 50%|█████     | 50/100 [34:54<34:58, 41.98s/it]                                                 50%|█████     | 50/100 [34:54<34:58, 41.98s/it] 51%|█████     | 51/100 [35:36<34:10, 41.85s/it]                                                 51%|█████     | 51/100 [35:36<34:10, 41.85s/it] 52%|█████▏    | 52/100 [35:58<28:49, 36.03s/it]                                                 52%|█████▏    | 52/100 [35:58<28:49, 36.03s/it] 53%|█████▎    | 53/100 [36:40<29:31, 37.69s/it]                                                 53%|█████▎    | 53/100 [36:40<29:31, 37.69s/it] 54%|█████▍    | 54/100 [37:22<30:02, 39.18s/it]                                                 54%|█████▍    | 54/100 [37:22<30:02, 39.18s/it] 55%|█████▌    | 55/100 [38:04<30:03, 40.08s/it]                                                 55%|█████▌    | 55/100 [38:04<30:03, 40.08s/it] 56%|█████▌    | 56/100 [38:46<29:46, 40.61s/it]                                                 56%|█████▌    | 56/100 [38:46<29:46, 40.61s/it] 57%|█████▋    | 57/100 [39:27<29:07, 40.64s/it]                                                 57%|█████▋    | 57/100 [39:27<29:07, 40.64s/it] 58%|█████▊    | 58/100 [40:09<28:39, 40.94s/it]                                                 58%|█████▊    | 58/100 [40:09<28:39, 40.94s/it] 59%|█████▉    | 59/100 [40:49<27:50, 40.74s/it]                                                 59%|█████▉    | 59/100 [40:49<27:50, 40.74s/it] 60%|██████    | 60/100 [41:29<27:05, 40.63s/it]                                                 60%|██████    | 60/100 [41:29<27:05, 40.63s/it][INFO|trainer.py:3815] 2026-11-09 20:57:16,325 >> Saving model checkpoint to /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-60
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 20:57:16,611 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-60/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 20:57:16,614 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-60/tokenizer_config.json
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 20:57:17,313 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-60/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 20:57:17,314 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-60/tokenizer_config.json
+[INFO|processing_utils.py:881] 2026-11-09 20:57:17,553 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-60/chat_template.jinja
+[INFO|processing_utils.py:899] 2026-11-09 20:57:17,556 >> processor saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-60/processor_config.json
+ 61%|██████    | 61/100 [42:12<26:44, 41.15s/it]                                                 61%|██████    | 61/100 [42:12<26:44, 41.15s/it] 62%|██████▏   | 62/100 [42:55<26:26, 41.75s/it]                                                 62%|██████▏   | 62/100 [42:55<26:26, 41.75s/it] 63%|██████▎   | 63/100 [43:38<25:57, 42.08s/it]                                                 63%|██████▎   | 63/100 [43:38<25:57, 42.08s/it] 64%|██████▍   | 64/100 [44:21<25:23, 42.32s/it]                                                 64%|██████▍   | 64/100 [44:21<25:23, 42.32s/it] 65%|██████▌   | 65/100 [44:41<20:52, 35.80s/it]                                                 65%|██████▌   | 65/100 [44:41<20:52, 35.80s/it] 66%|██████▌   | 66/100 [45:24<21:33, 38.05s/it]                                                 66%|██████▌   | 66/100 [45:24<21:33, 38.05s/it] 67%|██████▋   | 67/100 [46:07<21:38, 39.36s/it]                                                 67%|██████▋   | 67/100 [46:07<21:38, 39.36s/it] 68%|██████▊   | 68/100 [46:47<21:11, 39.74s/it]                                                 68%|██████▊   | 68/100 [46:47<21:11, 39.74s/it] 69%|██████▉   | 69/100 [47:29<20:45, 40.17s/it]                                                 69%|██████▉   | 69/100 [47:29<20:45, 40.17s/it] 70%|███████   | 70/100 [48:10<20:14, 40.48s/it]                                                 70%|███████   | 70/100 [48:10<20:14, 40.48s/it] 71%|███████   | 71/100 [48:51<19:39, 40.69s/it]                                                 71%|███████   | 71/100 [48:51<19:39, 40.69s/it] 72%|███████▏  | 72/100 [49:32<18:57, 40.63s/it]                                                 72%|███████▏  | 72/100 [49:32<18:57, 40.63s/it] 73%|███████▎  | 73/100 [50:13<18:20, 40.76s/it]                                                 73%|███████▎  | 73/100 [50:13<18:20, 40.76s/it] 74%|███████▍  | 74/100 [50:53<17:39, 40.75s/it]                                                 74%|███████▍  | 74/100 [50:53<17:39, 40.75s/it] 75%|███████▌  | 75/100 [51:38<17:28, 41.93s/it]                                                 75%|███████▌  | 75/100 [51:38<17:28, 41.93s/it] 76%|███████▌  | 76/100 [52:18<16:34, 41.42s/it]                                                 76%|███████▌  | 76/100 [52:18<16:34, 41.42s/it] 77%|███████▋  | 77/100 [52:59<15:51, 41.36s/it]                                                 77%|███████▋  | 77/100 [52:59<15:51, 41.36s/it] 78%|███████▊  | 78/100 [53:20<12:52, 35.13s/it]                                                 78%|███████▊  | 78/100 [53:20<12:52, 35.13s/it] 79%|███████▉  | 79/100 [54:01<12:55, 36.93s/it]                                                 79%|███████▉  | 79/100 [54:01<12:55, 36.93s/it] 80%|████████  | 80/100 [54:43<12:49, 38.46s/it]                                                 80%|████████  | 80/100 [54:43<12:49, 38.46s/it][INFO|trainer.py:3815] 2026-11-09 21:10:30,250 >> Saving model checkpoint to /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-80
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 21:10:30,497 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-80/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 21:10:30,501 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-80/tokenizer_config.json
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 21:10:31,222 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-80/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 21:10:31,222 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-80/tokenizer_config.json
+[INFO|processing_utils.py:881] 2026-11-09 21:10:31,436 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-80/chat_template.jinja
+[INFO|processing_utils.py:899] 2026-11-09 21:10:31,440 >> processor saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-80/processor_config.json
+ 81%|████████  | 81/100 [55:27<12:38, 39.94s/it]                                                 81%|████████  | 81/100 [55:27<12:38, 39.94s/it] 82%|████████▏ | 82/100 [56:11<12:20, 41.15s/it]                                                 82%|████████▏ | 82/100 [56:11<12:20, 41.15s/it] 83%|████████▎ | 83/100 [56:51<11:35, 40.93s/it]                                                 83%|████████▎ | 83/100 [56:51<11:35, 40.93s/it] 84%|████████▍ | 84/100 [57:31<10:49, 40.58s/it]                                                 84%|████████▍ | 84/100 [57:31<10:49, 40.58s/it] 85%|████████▌ | 85/100 [58:12<10:10, 40.69s/it]                                                 85%|████████▌ | 85/100 [58:12<10:10, 40.69s/it] 86%|████████▌ | 86/100 [58:54<09:36, 41.14s/it]                                                 86%|████████▌ | 86/100 [58:54<09:36, 41.14s/it] 87%|████████▋ | 87/100 [59:36<08:58, 41.40s/it]                                                 87%|████████▋ | 87/100 [59:36<08:58, 41.40s/it] 88%|████████▊ | 88/100 [1:00:16<08:11, 40.98s/it]                                                   88%|████████▊ | 88/100 [1:00:16<08:11, 40.98s/it] 89%|████████▉ | 89/100 [1:00:57<07:30, 40.92s/it]                                                   89%|████████▉ | 89/100 [1:00:57<07:30, 40.92s/it] 90%|█████████ | 90/100 [1:01:38<06:49, 40.90s/it]                                                   90%|█████████ | 90/100 [1:01:38<06:49, 40.90s/it] 91%|█████████ | 91/100 [1:01:59<05:15, 35.02s/it]                                                   91%|█████████ | 91/100 [1:01:59<05:15, 35.02s/it] 92%|█████████▏| 92/100 [1:02:41<04:57, 37.20s/it]                                                   92%|█████████▏| 92/100 [1:02:41<04:57, 37.20s/it] 93%|█████████▎| 93/100 [1:03:22<04:29, 38.44s/it]                                                   93%|█████████▎| 93/100 [1:03:22<04:29, 38.44s/it] 94%|█████████▍| 94/100 [1:04:04<03:56, 39.35s/it]                                                   94%|█████████▍| 94/100 [1:04:04<03:56, 39.35s/it] 95%|█████████▌| 95/100 [1:04:44<03:18, 39.69s/it]                                                   95%|█████████▌| 95/100 [1:04:44<03:18, 39.69s/it] 96%|█████████▌| 96/100 [1:05:26<02:40, 40.12s/it]                                                   96%|█████████▌| 96/100 [1:05:26<02:40, 40.12s/it] 97%|█████████▋| 97/100 [1:06:07<02:01, 40.61s/it]                                                   97%|█████████▋| 97/100 [1:06:07<02:01, 40.61s/it] 98%|█████████▊| 98/100 [1:06:51<01:23, 41.60s/it]                                                   98%|█████████▊| 98/100 [1:06:51<01:23, 41.60s/it] 99%|█████████▉| 99/100 [1:07:32<00:41, 41.43s/it]                                                   99%|█████████▉| 99/100 [1:07:32<00:41, 41.43s/it]100%|██████████| 100/100 [1:08:14<00:00, 41.51s/it]                                                   100%|██████████| 100/100 [1:08:14<00:00, 41.51s/it][INFO|trainer.py:3815] 2026-11-09 21:24:00,956 >> Saving model checkpoint to /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-100
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 21:24:01,182 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-100/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 21:24:01,184 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-100/tokenizer_config.json
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 21:24:01,867 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-100/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 21:24:01,867 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-100/tokenizer_config.json
+[INFO|processing_utils.py:881] 2026-11-09 21:24:02,093 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-100/chat_template.jinja
+[INFO|processing_utils.py:899] 2026-11-09 21:24:02,095 >> processor saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/checkpoint-100/processor_config.json
+[INFO|trainer.py:1823] 2026-11-09 21:24:02,096 >> 
+
+Training completed. Do not forget to share your model on huggingface.co/models =)
+
+
+                                                   100%|██████████| 100/100 [1:08:15<00:00, 41.51s/it]100%|██████████| 100/100 [1:08:15<00:00, 40.96s/it]
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 21:24:02,105 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 21:24:02,108 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/tokenizer_config.json
+[INFO|processing_utils.py:881] 2026-11-09 21:24:02,316 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/chat_template.jinja
+[INFO|processing_utils.py:899] 2026-11-09 21:24:02,319 >> processor saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/processor_config.json
+[INFO|trainer.py:3815] 2026-11-09 21:24:02,321 >> Saving model checkpoint to /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C
+[INFO|tokenization_utils_base.py:3281] 2026-11-09 21:24:02,512 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-09 21:24:02,513 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C/tokenizer_config.json
+[INFO|modelcard.py:263] 2026-11-09 21:24:02,754 >> Dropping the following result as it does not have all the necessary fields:
+{'task': {'name': 'Causal Language Modeling', 'type': 'text-generation'}}
+{'loss': '0.288', 'grad_norm': '0.6315', 'learning_rate': '0', 'epoch': '0.08'}
+{'loss': '0.3131', 'grad_norm': '0.7155', 'learning_rate': '5e-06', 'epoch': '0.16'}
+{'loss': '0.2935', 'grad_norm': '0.6519', 'learning_rate': '1e-05', 'epoch': '0.24'}
+{'loss': '0.2667', 'grad_norm': '0.6199', 'learning_rate': '1.5e-05', 'epoch': '0.32'}
+{'loss': '0.2448', 'grad_norm': '0.5597', 'learning_rate': '2e-05', 'epoch': '0.4'}
+{'loss': '0.2604', 'grad_norm': '0.6704', 'learning_rate': '2.5e-05', 'epoch': '0.48'}
+{'loss': '0.2624', 'grad_norm': '0.6688', 'learning_rate': '3e-05', 'epoch': '0.56'}
+{'loss': '0.2703', 'grad_norm': '0.6602', 'learning_rate': '3.5e-05', 'epoch': '0.64'}
+{'loss': '0.2483', 'grad_norm': '0.5911', 'learning_rate': '4e-05', 'epoch': '0.72'}
+{'loss': '0.1919', 'grad_norm': '0.4615', 'learning_rate': '4.5e-05', 'epoch': '0.8'}
+{'loss': '0.1554', 'grad_norm': '0.3608', 'learning_rate': '5e-05', 'epoch': '0.88'}
+{'loss': '0.1599', 'grad_norm': '0.7447', 'learning_rate': '4.998e-05', 'epoch': '0.96'}
+{'loss': '0.1392', 'grad_norm': '0.326', 'learning_rate': '4.994e-05', 'epoch': '1'}
+{'loss': '0.1271', 'grad_norm': '0.3743', 'learning_rate': '4.986e-05', 'epoch': '1.08'}
+{'loss': '0.1097', 'grad_norm': '0.4218', 'learning_rate': '4.976e-05', 'epoch': '1.16'}
+{'loss': '0.09674', 'grad_norm': '0.3412', 'learning_rate': '4.962e-05', 'epoch': '1.24'}
+{'loss': '0.09324', 'grad_norm': '0.4987', 'learning_rate': '4.945e-05', 'epoch': '1.32'}
+{'loss': '0.0818', 'grad_norm': '0.276', 'learning_rate': '4.926e-05', 'epoch': '1.4'}
+{'loss': '0.06494', 'grad_norm': '0.2341', 'learning_rate': '4.903e-05', 'epoch': '1.48'}
+{'loss': '0.06391', 'grad_norm': '0.2701', 'learning_rate': '4.878e-05', 'epoch': '1.56'}
+{'loss': '0.0567', 'grad_norm': '0.2958', 'learning_rate': '4.849e-05', 'epoch': '1.64'}
+{'loss': '0.0577', 'grad_norm': '0.2729', 'learning_rate': '4.818e-05', 'epoch': '1.72'}
+{'loss': '0.0378', 'grad_norm': '0.2381', 'learning_rate': '4.784e-05', 'epoch': '1.8'}
+{'loss': '0.04313', 'grad_norm': '0.1962', 'learning_rate': '4.747e-05', 'epoch': '1.88'}
+{'loss': '0.04382', 'grad_norm': '0.1885', 'learning_rate': '4.707e-05', 'epoch': '1.96'}
+{'loss': '0.02901', 'grad_norm': '0.2545', 'learning_rate': '4.665e-05', 'epoch': '2'}
+{'loss': '0.04202', 'grad_norm': '0.2385', 'learning_rate': '4.62e-05', 'epoch': '2.08'}
+{'loss': '0.02471', 'grad_norm': '0.1526', 'learning_rate': '4.573e-05', 'epoch': '2.16'}
+{'loss': '0.03236', 'grad_norm': '0.2371', 'learning_rate': '4.523e-05', 'epoch': '2.24'}
+{'loss': '0.0228', 'grad_norm': '0.2226', 'learning_rate': '4.47e-05', 'epoch': '2.32'}
+{'loss': '0.02217', 'grad_norm': '0.131', 'learning_rate': '4.415e-05', 'epoch': '2.4'}
+{'loss': '0.01756', 'grad_norm': '0.5424', 'learning_rate': '4.358e-05', 'epoch': '2.48'}
+{'loss': '0.02206', 'grad_norm': '0.1482', 'learning_rate': '4.298e-05', 'epoch': '2.56'}
+{'loss': '0.01628', 'grad_norm': '0.1515', 'learning_rate': '4.237e-05', 'epoch': '2.64'}
+{'loss': '0.01623', 'grad_norm': '0.1861', 'learning_rate': '4.173e-05', 'epoch': '2.72'}
+{'loss': '0.0184', 'grad_norm': '0.1512', 'learning_rate': '4.107e-05', 'epoch': '2.8'}
+{'loss': '0.01551', 'grad_norm': '0.2775', 'learning_rate': '4.039e-05', 'epoch': '2.88'}
+{'loss': '0.01391', 'grad_norm': '0.108', 'learning_rate': '3.969e-05', 'epoch': '2.96'}
+{'loss': '0.01259', 'grad_norm': '0.1482', 'learning_rate': '3.898e-05', 'epoch': '3'}
+{'loss': '0.01177', 'grad_norm': '0.221', 'learning_rate': '3.825e-05', 'epoch': '3.08'}
+{'loss': '0.01137', 'grad_norm': '0.08686', 'learning_rate': '3.75e-05', 'epoch': '3.16'}
+{'loss': '0.0123', 'grad_norm': '0.1824', 'learning_rate': '3.674e-05', 'epoch': '3.24'}
+{'loss': '0.009082', 'grad_norm': '0.09518', 'learning_rate': '3.596e-05', 'epoch': '3.32'}
+{'loss': '0.009274', 'grad_norm': '0.1087', 'learning_rate': '3.517e-05', 'epoch': '3.4'}
+{'loss': '0.007833', 'grad_norm': '0.08335', 'learning_rate': '3.437e-05', 'epoch': '3.48'}
+{'loss': '0.01127', 'grad_norm': '0.07762', 'learning_rate': '3.355e-05', 'epoch': '3.56'}
+{'loss': '0.00909', 'grad_norm': '0.1296', 'learning_rate': '3.273e-05', 'epoch': '3.64'}
+{'loss': '0.0114', 'grad_norm': '0.1645', 'learning_rate': '3.189e-05', 'epoch': '3.72'}
+{'loss': '0.009711', 'grad_norm': '0.1281', 'learning_rate': '3.105e-05', 'epoch': '3.8'}
+{'loss': '0.0109', 'grad_norm': '0.1832', 'learning_rate': '3.02e-05', 'epoch': '3.88'}
+{'loss': '0.01127', 'grad_norm': '0.1496', 'learning_rate': '2.934e-05', 'epoch': '3.96'}
+{'loss': '0.008048', 'grad_norm': '0.2116', 'learning_rate': '2.848e-05', 'epoch': '4'}
+{'loss': '0.01042', 'grad_norm': '0.1929', 'learning_rate': '2.761e-05', 'epoch': '4.08'}
+{'loss': '0.00826', 'grad_norm': '0.08428', 'learning_rate': '2.674e-05', 'epoch': '4.16'}
+{'loss': '0.008306', 'grad_norm': '0.1112', 'learning_rate': '2.587e-05', 'epoch': '4.24'}
+{'loss': '0.008519', 'grad_norm': '0.0953', 'learning_rate': '2.5e-05', 'epoch': '4.32'}
+{'loss': '0.0112', 'grad_norm': '0.1655', 'learning_rate': '2.413e-05', 'epoch': '4.4'}
+{'loss': '0.009539', 'grad_norm': '0.09694', 'learning_rate': '2.326e-05', 'epoch': '4.48'}
+{'loss': '0.0112', 'grad_norm': '0.1627', 'learning_rate': '2.239e-05', 'epoch': '4.56'}
+{'loss': '0.009905', 'grad_norm': '0.6655', 'learning_rate': '2.152e-05', 'epoch': '4.64'}
+{'loss': '0.009383', 'grad_norm': '0.1266', 'learning_rate': '2.066e-05', 'epoch': '4.72'}
+{'loss': '0.00807', 'grad_norm': '0.1018', 'learning_rate': '1.98e-05', 'epoch': '4.8'}
+{'loss': '0.008471', 'grad_norm': '0.4186', 'learning_rate': '1.895e-05', 'epoch': '4.88'}
+{'loss': '0.008892', 'grad_norm': '0.2581', 'learning_rate': '1.811e-05', 'epoch': '4.96'}
+{'loss': '0.009745', 'grad_norm': '0.1398', 'learning_rate': '1.727e-05', 'epoch': '5'}
+{'loss': '0.007939', 'grad_norm': '0.06675', 'learning_rate': '1.645e-05', 'epoch': '5.08'}
+{'loss': '0.007963', 'grad_norm': '0.09205', 'learning_rate': '1.563e-05', 'epoch': '5.16'}
+{'loss': '0.008649', 'grad_norm': '0.1038', 'learning_rate': '1.483e-05', 'epoch': '5.24'}
+{'loss': '0.009078', 'grad_norm': '0.1584', 'learning_rate': '1.404e-05', 'epoch': '5.32'}
+{'loss': '0.009637', 'grad_norm': '0.1438', 'learning_rate': '1.326e-05', 'epoch': '5.4'}
+{'loss': '0.009349', 'grad_norm': '0.09328', 'learning_rate': '1.25e-05', 'epoch': '5.48'}
+{'loss': '0.01014', 'grad_norm': '0.1507', 'learning_rate': '1.175e-05', 'epoch': '5.56'}
+{'loss': '0.01009', 'grad_norm': '0.1235', 'learning_rate': '1.102e-05', 'epoch': '5.64'}
+{'loss': '0.009499', 'grad_norm': '0.1271', 'learning_rate': '1.031e-05', 'epoch': '5.72'}
+{'loss': '0.0069', 'grad_norm': '0.1209', 'learning_rate': '9.608e-06', 'epoch': '5.8'}
+{'loss': '0.0113', 'grad_norm': '0.3127', 'learning_rate': '8.93e-06', 'epoch': '5.88'}
+{'loss': '0.008983', 'grad_norm': '0.09736', 'learning_rate': '8.272e-06', 'epoch': '5.96'}
+{'loss': '0.009759', 'grad_norm': '0.165', 'learning_rate': '7.634e-06', 'epoch': '6'}
+{'loss': '0.008737', 'grad_norm': '0.05202', 'learning_rate': '7.017e-06', 'epoch': '6.08'}
+{'loss': '0.008185', 'grad_norm': '0.06705', 'learning_rate': '6.421e-06', 'epoch': '6.16'}
+{'loss': '0.008484', 'grad_norm': '0.08356', 'learning_rate': '5.849e-06', 'epoch': '6.24'}
+{'loss': '0.007619', 'grad_norm': '0.07983', 'learning_rate': '5.3e-06', 'epoch': '6.32'}
+{'loss': '0.01034', 'grad_norm': '0.1685', 'learning_rate': '4.775e-06', 'epoch': '6.4'}
+{'loss': '0.01112', 'grad_norm': '0.1862', 'learning_rate': '4.274e-06', 'epoch': '6.48'}
+{'loss': '0.009068', 'grad_norm': '0.1612', 'learning_rate': '3.799e-06', 'epoch': '6.56'}
+{'loss': '0.009374', 'grad_norm': '0.1912', 'learning_rate': '3.349e-06', 'epoch': '6.64'}
+{'loss': '0.00775', 'grad_norm': '0.08182', 'learning_rate': '2.926e-06', 'epoch': '6.72'}
+{'loss': '0.01003', 'grad_norm': '0.1657', 'learning_rate': '2.53e-06', 'epoch': '6.8'}
+{'loss': '0.009668', 'grad_norm': '0.1812', 'learning_rate': '2.161e-06', 'epoch': '6.88'}
+{'loss': '0.009134', 'grad_norm': '0.1083', 'learning_rate': '1.82e-06', 'epoch': '6.96'}
+{'loss': '0.0085', 'grad_norm': '0.2141', 'learning_rate': '1.508e-06', 'epoch': '7'}
+{'loss': '0.008294', 'grad_norm': '0.1061', 'learning_rate': '1.224e-06', 'epoch': '7.08'}
+{'loss': '0.00954', 'grad_norm': '0.1734', 'learning_rate': '9.685e-07', 'epoch': '7.16'}
+{'loss': '0.007991', 'grad_norm': '0.1206', 'learning_rate': '7.426e-07', 'epoch': '7.24'}
+{'loss': '0.00937', 'grad_norm': '0.07589', 'learning_rate': '5.463e-07', 'epoch': '7.32'}
+{'loss': '0.009409', 'grad_norm': '0.09386', 'learning_rate': '3.798e-07', 'epoch': '7.4'}
+{'loss': '0.009661', 'grad_norm': '0.09207', 'learning_rate': '2.433e-07', 'epoch': '7.48'}
+{'loss': '0.008135', 'grad_norm': '0.1117', 'learning_rate': '1.37e-07', 'epoch': '7.56'}
+{'loss': '0.009249', 'grad_norm': '0.09982', 'learning_rate': '6.09e-08', 'epoch': '7.64'}
+{'loss': '0.007442', 'grad_norm': '0.08034', 'learning_rate': '1.523e-08', 'epoch': '7.72'}
+{'train_runtime': '4096', 'train_samples_per_second': '0.195', 'train_steps_per_second': '0.024', 'train_loss': '0.04848', 'epoch': '7.72'}
+***** train metrics *****
+  epoch                    =       7.72
+  total_flos               = 52936196GF
+  train_loss               =     0.0485
+  train_runtime            = 1:08:15.57
+  train_samples_per_second =      0.195
+  train_steps_per_second   =      0.024

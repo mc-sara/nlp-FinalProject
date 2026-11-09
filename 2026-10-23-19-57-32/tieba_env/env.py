@@ -58,10 +58,10 @@ class MockTiebaEnv:
         env = MockTiebaEnv(candidates=["热梗1", "热梗2"], delay_k=2)
         env.reset(fault_plan={1: FaultSpec(STATUS_UNKNOWN, "submit_timeout",
                                            published=True, visible_after=2)})
-        env.publish("测试", "分享", "热梗1")   # -> unknown，真值：已发布但查不到
-        env.list_recent_posts("测试")          # -> 空
-        env.list_recent_posts("测试")          # -> 空
-        env.list_recent_posts("测试")          # -> 命中
+        env.publish("agenttest", "分享", "热梗1")  # -> unknown，真值：已发布但查不到
+        env.list_recent_posts("agenttest")        # -> 空
+        env.list_recent_posts("agenttest")        # -> 空
+        env.list_recent_posts("agenttest")        # -> 命中
         env.truth()["post_count"]              # -> 1
     """
 
@@ -71,7 +71,7 @@ class MockTiebaEnv:
         *,
         delay_k: int = 2,
         duplicate_guard: bool = False,
-        title_limit: int = 40,
+        title_limit: int = 31,
         account_level: int = 6,
         required_level: int = 4,
         list_default_limit: int = 20,
@@ -203,6 +203,11 @@ class MockTiebaEnv:
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"publish 的 {name} 必须是非空字符串")
 
+        # 标题口径（PLAN 2.1 / 8 已冻结）：真实客户端在 31 字处截断后照发，
+        # 服务端看不到超长标题，所以这里也截断，而不是拒绝。
+        if self.title_limit and len(title) > self.title_limit:
+            title = title[: self.title_limit]
+
         self.attempt_count += 1
         record_seq = self.attempt_count
 
@@ -298,8 +303,6 @@ class MockTiebaEnv:
     # ------------------------------------------------------------------ 内部
 
     def _check_site_rules(self, kw: str, title: str, content: str) -> tuple[str, bool] | None:
-        if self.title_limit and len(title) > self.title_limit:
-            return "title_too_long", False
         if self.account_level < self.required_level:
             return "level_limit", False
         if self.duplicate_guard and any(

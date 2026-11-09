@@ -142,14 +142,18 @@ class TestFaultInjection(unittest.TestCase):
         self.assertEqual(env.truth()["post_count"], 2, "只有第 1、3 次真的写了帖子")
 
     def test_rule_rejection_does_not_consume_fault_plan(self):
-        """硬规则挡下的发帖不占故障位：否则一个超长标题就能吃掉注入（P2 复盘发现）。"""
-        env = make_env()
+        """硬规则挡下的发帖不占故障位：否则一次硬拒绝就能吃掉注入（P2 复盘发现）。
+
+        标题超长已按冻结口径改为截断（不再是硬拒绝），这里用等级不足触发硬拒绝。
+        """
+        env = make_env(account_level=1, required_level=4)
         env.reset(fault_plan={1: FaultSpec(STATUS_UNKNOWN, "submit_timeout", published=False)})
 
-        bad = env.publish("测试", "标" * 55, "热梗1")
+        bad = env.publish("测试", "分享", "热梗1")
         self.assertEqual(bad.status, STATUS_REJECTED)
-        self.assertEqual(bad.reason, "title_too_long")
+        self.assertEqual(bad.reason, "level_limit")
 
+        env.account_level = 9
         good = env.publish("测试", "分享", "热梗2")
         self.assertEqual(good.status, STATUS_UNKNOWN, "第 1 次有效发帖必须命中 1 号故障位")
         truth = env.truth()
@@ -197,12 +201,20 @@ class TestFaultInjection(unittest.TestCase):
 
 class TestSiteRules(unittest.TestCase):
 
-    def test_title_too_long(self):
+    def test_long_title_is_truncated_not_rejected(self):
+        """口径冻结（PLAN 2.1/8）：真实客户端 31 字截断照发，mock 同口径，不再返回 title_too_long。"""
         env = make_env(title_limit=5)
         result = env.publish("测试", "标题超过五个字符了", "热梗1")
-        self.assertEqual(result.status, STATUS_REJECTED)
-        self.assertEqual(result.reason, "title_too_long")
-        self.assertEqual(env.truth()["post_count"], 0)
+        self.assertEqual(result.status, STATUS_OK)
+        truth = env.truth()
+        self.assertEqual(truth["post_count"], 1)
+        self.assertEqual(truth["posts"][0]["title"], "标题超过五", "入库的是截断后的标题")
+
+    def test_default_title_limit_matches_real_client(self):
+        env = make_env()
+        self.assertEqual(env.title_limit, 31)
+        env.publish("测试", "标" * 55, "热梗1")
+        self.assertEqual(env.truth()["posts"][0]["title"], "标" * 31)
 
     def test_level_limit(self):
         env = make_env(account_level=2, required_level=4)
@@ -287,12 +299,13 @@ class TestAdapterContract(unittest.TestCase):
 
         attempt_id 只在「可能已经发出去了」的 ok / unknown 上有对账价值。
         """
-        env = make_env(title_limit=2)
+        env = make_env(account_level=1, required_level=4)
         env.reset(fault_plan={1: FaultSpec(STATUS_ERROR, "selector_missing")})
         adapter = TiebaAdapter(MockBackend(env), attempt_id_factory=lambda: "att-fixed")
-        rejected, _ = adapter.call("publish", {"kw": "测试", "title": "太长了", "content": "热梗1"})
+        rejected, _ = adapter.call("publish", {"kw": "测试", "title": "分享", "content": "热梗1"})
+        env.account_level = 9
         error, _ = adapter.call("publish", {"kw": "测试", "title": "a", "content": "热梗1"})
-        self.assertEqual(rejected, {"status": "rejected", "reason": "title_too_long"})
+        self.assertEqual(rejected, {"status": "rejected", "reason": "level_limit"})
         self.assertEqual(error, {"status": "error", "reason": "selector_missing"})
 
     def test_unknown_tool_raises_model_error(self):
@@ -537,7 +550,14 @@ class TestScenarioGenerator(unittest.TestCase):
         train_pool = {s.candidate for s in train}
         test_pool = {s.candidate for s in test}
         self.assertFalse(train_pool & test_pool, "训练集与测试集热梗不得重叠")
-        self.assertNotEqual({s.kw for s in train}, {s.kw for s in test})
+        # 吧名口径已冻结：模拟与真实统一 agenttest（PLAN 8），隔离不再靠吧名，
+        # 而是靠候选池不重叠 + scenario_id 前缀。
+        self.assertEqual({s.kw for s in train}, {"agenttest"})
+        self.assertEqual({s.kw for s in test}, {"agenttest"})
+        self.assertFalse(
+            {s.scenario_id for s in train} & {s.scenario_id for s in test},
+            "训练/测试 scenario_id 不得重叠",
+        )
         self.assertNotEqual(
             sorted(s.delay_k for s in train if s.family == FAMILY_UNKNOWN_DELAYED),
             [],

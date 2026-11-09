@@ -26,7 +26,7 @@ ERROR_REASONS = ("login_expired", "selector_missing")
 # 为了让真实轨迹不被 adapter 当成契约违规丢掉，这里多开两个取值；mock 永远不产生它们
 # （tests 里有断言）。改这里等于改工具契约，要同步 PLAN 2.1 与 README 的映射表。
 REJECTED_REASONS = ("title_too_long", "duplicate", "level_limit", "content_invalid", "rate_limited")
-REJECTED_REASONS_MOCK_ONLY = ("title_too_long", "duplicate", "level_limit")
+REJECTED_REASONS_MOCK_ONLY = ("duplicate", "level_limit")
 
 _REASONS_BY_STATUS: dict[str, tuple[str, ...]] = {
     STATUS_UNKNOWN: UNKNOWN_REASONS,
