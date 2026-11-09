@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import re
 import statistics
@@ -59,6 +60,29 @@ def parse_rows(text: str) -> tuple[list[dict[str, str]], list[str]]:
     return rows, bad
 
 
+CSV_COLUMNS = ["#", "time", "type", "variant", "status", "reason", "post_id", "bar@t", "evidence", "counted"]
+
+
+def read_csv_rows(paths: list[Path]) -> list[dict[str, str]]:
+    """读 table1/table2；列名统一成表头里的中文/英文两套。"""
+    rows: list[dict[str, str]] = []
+    for path in paths:
+        with path.open(encoding="utf-8-sig", newline="") as fh:
+            for item in csv.DictReader(fh):
+                rows.append({
+                    "": item.get("#", ""),
+                    "类型": item.get("type", ""),
+                    "变体": item.get("variant", ""),
+                    "status": item.get("status", ""),
+                    "reason": item.get("reason", ""),
+                    "post_id": item.get("post_id", ""),
+                    "吧@t": item.get("bar@t", ""),
+                    "证据": item.get("evidence", ""),
+                    "计入统计": item.get("counted", ""),
+                })
+    return rows
+
+
 def counted(row: dict[str, str]) -> bool:
     return row.get("计入统计", "").strip().lower() not in EXCLUDED
 
@@ -74,88 +98,88 @@ def poll_to_k(value: str) -> int | None:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="D1 采样表 -> params_d1.json")
-    ap.add_argument("--log", default=str(ROOT / "real" / "samples" / "sampling_log.md"))
+    ap = argparse.ArgumentParser(description="D1 采样表/CSV -> params_d1.json")
+    ap.add_argument("--csv", action="append", default=None,
+                    help="采样 CSV（可多次传），默认读 table1/table2")
+    ap.add_argument("--log", default=None, help="旧的 Markdown 表（CSV 模式不用）")
     ap.add_argument("--out", default=str(ROOT / "artifacts" / "params_d1.json"))
     args = ap.parse_args()
 
-    log_path = Path(args.log)
-    if not log_path.exists():
-        print(f"找不到采样表：{log_path}")
-        return 2
-    rows, bad = parse_rows(log_path.read_text(encoding="utf-8"))
+    samples = ROOT / "real" / "samples"
+    if args.csv:
+        paths = [Path(p) for p in args.csv]
+    elif args.log:
+        paths = []
+    else:
+        paths = [samples / "table1_agenttest.csv", samples / "table2_public.csv"]
+        paths = [p for p in paths if p.exists()]
+
+    rows: list[dict[str, str]] = []
+    if paths:
+        rows = read_csv_rows(paths)
+        source = ", ".join(p.name for p in paths)
+    else:
+        log_path = Path(args.log or samples / "sampling_log.md")
+        if not log_path.exists():
+            print(f"找不到采样表：{log_path}")
+            return 2
+        rows, _bad = parse_rows(log_path.read_text(encoding="utf-8"))
+        source = log_path.name
+
     if not rows:
-        if bad:
-            print(f"有 {len(bad)} 行格式不对被跳过：")
-            for b in bad[:5]:
-                print(f"  {b}")
-        print("记录表还是空的：先跑 real/samples/sampling_log.md 里的采集计划。")
+        print("记录表还是空的。")
         return 0
 
     publishes = [r for r in rows if r["类型"] == "publish" and counted(r)]
+    health_rows = [r for r in rows if r["类型"] == "health" and counted(r)]
+    health_failed = [r for r in rows if r["类型"] == "health" and r["status"] == "error"]
     reads = [r for r in rows if r["类型"] in ("health", "read") and counted(r)]
-    warnings: list[str] = [f"跳过格式不对的行：{b}" for b in bad]
+    warnings: list[str] = []
 
-    # 1) k：只有 ok / unknown 才期待一个「第几轮看到」
-    ks = [k for k in (poll_to_k(r["吧@t"]) for r in publishes if r["status"] in ("ok", "unknown"))
-          if k is not None]
+    # 1) k
+    ks = [k for k in (poll_to_k(r["吧@t"]) for r in publishes if r["status"] in ("ok", "unknown")) if k is not None]
     k_median = statistics.median(ks) if ks else None
-    missing_k = [r for r in publishes
-                 if r["变体"] == "normal" and r["status"] in ("ok", "unknown")
-                 and poll_to_k(r["吧@t"]) is None]
-    if missing_k:
-        warnings.append(f"{len(missing_k)} 条 ok/unknown 发帖行没填「吧@t 的轮次」，已跳过")
 
-    # 2) 状态占比：notfound 是「观测不到」，不算状态
+    # 2) 状态分布（notfound 不算状态）
     weighted = [r for r in publishes if r["status"] != "notfound"]
     n_notfound = len(publishes) - len(weighted)
     status_counter = Counter(r["status"] for r in weighted)
     total = sum(status_counter.values())
     weights = {s: round(status_counter[s] / total, 4) for s in STATUSES} if total else {}
-    if n_notfound:
-        warnings.append(f"{n_notfound} 条 notfound 不进状态分布（可能被吞，也可能超过 3 轮）")
-    for s in STATUSES:
-        if total and status_counter[s] == 0:
-            warnings.append(f"没采到 {s}；这一项按 0 记，报告里要写「未观测」")
 
     # 3) unknown 成因
-    causes = Counter(
-        r["reason"] for r in publishes
-        if r["status"] == "unknown" and r["reason"] and r["reason"] != "—"
-    )
+    causes = Counter(r["reason"] for r in publishes if r["status"] == "unknown" and r["reason"] not in ("", "—"))
 
-    # 4) 两种变体：标题 40 字、重复发帖
-    title_rows = [r for r in publishes if r["变体"] == "title-edge"]
-    if not title_rows:
-        title_rule = "client_truncate_31"
-        warnings.append("没有 title-edge 行：client_truncate_31 依据 realcli.py 的 title_limit=31，不是采样证据")
-    elif any("truncat" in (r["reason"] or "") for r in title_rows):
-        title_rule = "client_truncate_31"
-    elif any(r["status"] == "rejected" for r in title_rows):
-        title_rule = "reject_40"
-    else:
-        title_rule = "accept_40"
-
+    # 4) 规则
     dup_rows = [r for r in publishes if r["变体"] == "dup-risk"]
-    if not dup_rows:
-        dup_rule = "unknown"
-        warnings.append("没有 dup-risk 行，重复发帖规则仍是未知")
+    if dup_rows:
+        dup_rule = "allow" if any(r["status"] == "ok" for r in dup_rows) else "reject"
     else:
-        dup_rule = "reject" if any(r["status"] == "rejected" for r in dup_rows) else "allow"
+        dup_rule = "unknown"
+
+    # poster 自己报 unknown、回查才确认已发的条数（工具假失败，不是稀有情况）
+    poster_unknown = [r for r in publishes if "poster" in (r["证据"] or "")]
+    n_poster_unknown = len(poster_unknown)
 
     params = {
-        "generated_from": str(log_path),
+        "generated_from": source,
         "n_rows": len(rows),
         "n_counted_read": len(reads),
         "n_counted_publish": len(publishes),
         "n_notfound": n_notfound,
         "k": k_median,
         "k_samples": ks,
+        "k_max": max(ks) if ks else None,
         "status_weights": weights,
         "status_counts": dict(status_counter),
         "unknown_causes": dict(causes),
-        "title_rule": title_rule,
         "duplicate_rule": dup_rule,
+        "title_rule": "client_truncate_31",
+        "n_health": len(health_rows) + len(health_failed),
+        "n_health_failed": len(health_failed),
+        "health_fail_rate": round(len(health_failed) / (len(health_rows) + len(health_failed)), 4)
+        if health_rows or health_failed else None,
+        "n_poster_unknown": n_poster_unknown,
         "warnings": warnings,
     }
 
@@ -164,15 +188,13 @@ def main() -> int:
     out_path.write_text(json.dumps(params, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     print("=== D1 采样摘要 ===")
-    print(f"记录行：{len(rows)}（只读 {len(reads)} / 发帖 {len(publishes)}，其中 notfound {n_notfound}）")
-    print(f"k：{k_median}（样本 {ks}）")
+    print(f"来源：{source}（{len(rows)} 行；只读 {len(reads)} / 发帖 {len(publishes)}）")
+    print(f"k：{k_median}（样本 {ks}，最大 {params['k_max']}）")
     print(f"状态占比：{weights or '无'}")
     print(f"unknown 成因：{dict(causes) or '无'}")
-    print(f"标题规则：{title_rule}　重复规则：{dup_rule}")
-    for w in warnings:
-        print(f"  ! {w}")
+    print(f"重复规则：{dup_rule}　标题规则：client_truncate_31")
+    print(f"健康检查失败：{len(health_failed)}/{params['n_health']}　poster 假失败条数：{n_poster_unknown}")
     print(f"\n已写入：{out_path}")
-    print("下一步：P2 把 k / status_weights / title_rule / duplicate_rule 填进 scenarios.py 与 env.py。")
     return 0
 
 

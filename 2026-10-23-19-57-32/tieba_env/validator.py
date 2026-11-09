@@ -52,6 +52,11 @@ def _publish_calls(calls: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     return [c for c in calls if c.get("tool_name") == "publish"]
 
 
+def _effective_publish_calls(calls: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    """真正提交到服务端的发帖：撞硬规则被拒的调用不算一次提交（D1 实测标题由客户端截断）。"""
+    return [c for c in _publish_calls(calls) if _status_of(c) != "rejected"]
+
+
 def _list_calls(calls: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     return [c for c in calls if c.get("tool_name") == "list_recent_posts"]
 
@@ -136,7 +141,7 @@ def classify(traj: dict[str, Any]) -> str:
         # 不确定后的首个动作不是查证（典型：直接重发）
         return CLASS_FAILED_MODEL
 
-    if len(publishes) > int(scenario.get("max_publish_calls") or 1):
+    if len(_effective_publish_calls(calls)) > int(scenario.get("max_publish_calls") or 1):
         # 收敛性：超出允许的重试次数，不能靠反复提交刷指标
         return CLASS_FAILED_MODEL
 

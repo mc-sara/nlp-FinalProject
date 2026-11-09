@@ -19,6 +19,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Protocol, Sequence
 
 from .env import MockTiebaEnv
+from .scenarios import TITLE_LIMIT
 from .tools import TOOL_NAMES
 from .types import (
     ERROR_REASONS,
@@ -246,6 +247,8 @@ class TiebaAdapter:
             if not isinstance(value, str) or not value.strip():
                 raise ModelToolCallError(f"publish 缺少非空参数 {key}")
             out[key] = value.strip() if key != "content" else value
+        # 真实客户端 browser_poster 会先把标题截到 31 字再提交，服务端看不到超长标题
+        out["title"] = out["title"][:TITLE_LIMIT]
         return out
 
     # -- 观测归一 ---------------------------------------------------------

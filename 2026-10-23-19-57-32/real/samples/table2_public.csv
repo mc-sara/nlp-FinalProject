@@ -1,0 +1,29 @@
+﻿#,time,type,variant,status,reason,post_id,bar@t,evidence,counted
+1,19:06:52,health,—,error,health_failed,—,生活@1,"login,level,editor,list",否
+2,19:07:37,health,—,ok,—,—,生活@1,"login,level,editor,list",是
+3,19:10:31,publish,normal,unknown,poster_msg_lost_after_crash,11172640997,生活@—,事后list命中:p2,是
+4,19:29:44,health,—,ok,—,—,生活@1,"login,level,editor,list",是
+5,19:29:47,publish,dup-risk,error,md_missing_front_matter,—,生活@—,rc=1 未发帖（输出被GBK崩溃吞掉，19:37 用同一条代码路径复现 TiebaError-7）,否
+6,19:36:57,health,—,ok,—,—,生活@1,"login,level,editor,list",是
+7,19:37:00,publish,dup-risk,error,md_missing_front_matter,—,生活@—,rc=1 TiebaError-7:缺少吧名(kw)，帖子文件未被解析，未发帖,否
+8,19:47:30,health,—,ok,—,—,生活@1,"login,level,editor,list",是
+9,19:47:50,publish,dup-risk,ok,recheck_confirmed,11172719804,生活@—,poster报[None]未知错误(假失败)；回查吧页 0→1 条同名（19:29/19:36 均无此帖），21.7s 后确已上线,是
+10,19:56:26,health,—,ok,—,—,生活@1,"login,level,editor,list",是
+11,19:57:20,publish,dup-risk,error,editor_not_opened,—,生活@—,点了「发贴」按钮但编辑器20s未出现，提交键没按过，必未发出（回查亦1→1）；疑似发帖入口被静默限流,否
+12,20:00:51,health,—,error,health_failed,—,生活@1,"login,level,editor,list",否
+13,20:03:34,health,—,ok,—,—,生活@1,"login,level,editor,list",是
+14,20:08:21,health,—,error,health_failed,—,生活@1,"login,level,editor,list",否
+15,20:09:02,health,—,ok,—,—,生活@1,"login,level,editor,list",是
+16,20:09:43,publish,normal,ok,recheck_confirmed,11172759769,生活@1,list@t1:p1(poster:no_response),是
+17,20:12:31,publish,normal,ok,recheck_confirmed,11172765031,生活@1,list@t1:p1(poster:no_response),是
+18,20:15:16,publish,normal,ok,recheck_confirmed,11172769848,生活@1,list@t1:p1(poster:no_response),是
+19,20:19:40,publish,normal,error,editor_not_opened,—,生活@—,未回查（status=error）,否
+20,09:36:46,health,—,ok,—,—,生活@1,"login,level,editor,list",是
+21,09:37:06,publish,normal,ok,recheck_confirmed,11174198052,生活@1,list@t1:p1(poster:no_response),是
+22,09:39:36,publish,normal,ok,recheck_confirmed,11174204908,生活@1,list@t1:p1(poster:no_response),是
+23,09:42:08,publish,normal,ok,recheck_confirmed,11174211968,生活@2,list@t2:p1(poster:no_response),是
+24,09:44:38,publish,normal,ok,recheck_confirmed,11174219028,生活@1,list@t1:p1(poster:no_response),是
+25,09:50:15,health,—,ok,—,—,生活@1,"login,level,editor,list",是
+26,09:52:30,health,—,ok,—,—,生活@1,"login,level,editor,list",是
+27,09:52:51,publish,dup-risk,ok,recheck_confirmed,11174242623,生活@1,list:1→2条同名；新帖 11174242623 在最上，旧帖 11172719804 仍在 → 服务端接受重复提交（不去重）,是
+28,09:55:23,publish,normal,ok,recheck_confirmed,11174249819,生活@1,list@t1:p1(poster:no_response),是

@@ -62,12 +62,49 @@ def print_table(rows: list[tuple[str, str, dict[str, Any]]]) -> None:
         print("  ".join(pad(c, w) for c, w in zip(cells, widths)))
 
 
+BUILD_SEEDS = {"train": 20261109, "test": 777001}
+
+
+def build(per_family: int, out_dir: Path) -> int:
+    """用参考策略批量跑轨迹并转 ShareGPT；这是训练数据的唯一生成入口。"""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for split, seed in BUILD_SEEDS.items():
+        scenarios = generate_scenarios(split, per_family=per_family, seed=seed)
+        trajs = []
+        for scenario in scenarios:
+            env = MockTiebaEnv()
+            traj = run_episode(env, TiebaAdapter(MockBackend(env)), scenario,
+                               ReferencePolicy(verify_budget=3, max_republish=1))
+            traj["class"] = classify(traj)
+            trajs.append(traj)
+
+        summary = summarize(trajs)
+        lines = "".join(json.dumps(t, ensure_ascii=False) + "\n" for t in trajs)
+        (out_dir / f"{split}.jsonl").write_text(lines, encoding="utf-8")
+        share = "".join(json.dumps(trajectory_to_sharegpt(t), ensure_ascii=False) + "\n" for t in trajs)
+        (out_dir / f"{split}_sharegpt.jsonl").write_text(share, encoding="utf-8")
+        (out_dir / f"{split}_metrics.json").write_text(
+            json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        counts = summary["overall"]["counts"]
+        print(f"{split}: {len(trajs)} 条（正常 {counts['SUCCESS_NORMAL']} / 恢复 "
+              f"{counts['SUCCESS_RECOVERED']} / 重复帖 {counts['DUPLICATE_POST']} / "
+              f"模型失败 {counts['FAILED_MODEL']}）→ {out_dir}")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="贴吧发帖模拟器自检")
     parser.add_argument("--split", default="test", choices=("train", "test"))
     parser.add_argument("--per-family", type=int, default=5)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--build", action="store_true",
+                        help="生成训练集：runs/sim/{train,test}.jsonl + *_sharegpt.jsonl")
+    parser.add_argument("--out", default="runs/sim", help="--build 的输出目录")
     args = parser.parse_args()
+
+    if args.build:
+        return build(args.per_family, Path(args.out))
 
     scenarios = generate_scenarios(args.split, per_family=args.per_family, seed=args.seed)
     verify_budget = max([s.delay_k for s in scenarios] + [1]) + 1

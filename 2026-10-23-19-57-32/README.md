@@ -561,7 +561,18 @@ class Policy(Protocol):
 - 不模拟贴吧界面、推荐算法、审核机制、真实用户评论（2.2 明确排除）。
 - `list_recent_posts` 的 `limit` 目前只做截断，不模拟翻页。
 - 语义重复判断、参数错误修复、主动放弃发布属二期，未实现。
-- **超长标题的处理两侧不一致**：真实脚本在客户端就截断到 31 字后照发（模型会看到 `ok`），
-  而模拟器按 PLAN 的"站内硬规则"记 `rejected`。候选标题都在 31 字内时不触发；
-  要让两侧完全同构，得把 mock 改成截断语义，但那会动 PLAN 2.1 的判定定义，先没改。
+- 超长标题已统一：`TiebaAdapter` 在提交前截到 31 字（与真实客户端一致），mock 不再按 40 字拒绝。
+  硬规则拒绝（重复/等级）也不再算一次"有效提交"，验证器的重试预算按有效提交计。
 - 真实侧的真实限制见上一节末尾「真实侧的已知限制」。
+
+
+## 从模拟器到训练集
+
+```
+python real/samples/derive_params.py                 # table1/table2 → artifacts/params_d1.json
+python demo.py --build --per-family 20               # → runs/sim/{train,test}.jsonl + *_sharegpt.jsonl
+```
+
+`runs/sim/train.jsonl` 每条是一整条轨迹（`scenario / steps / truth / class`），
+`*_sharegpt.jsonl` 是 LLaMA-Factory 直接可读的 `conversations` 格式。
+真实轨迹（`runs/real/*.json`）不参与 SFT，只用于 few-shot 与评测。

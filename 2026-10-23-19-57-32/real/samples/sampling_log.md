@@ -78,13 +78,8 @@
 | 48 | 17:14:33 | publish | normal | ok | — | — | agenttest@1 | list@t1 | 是 |
 | 49 | 17:15:22 | publish | normal | ok | — | — | agenttest@1 | list@t1 | 是 |
 | 50 | 17:16:26 | publish | normal | ok | — | — | agenttest@1 | list@t1 | 是 |
-| 51 | 17:02:47 | health | — | error | health_failed | — | agenttest@1 | login,level,editor,list | 否 |
-| 52 | 17:04:02 | health | — | error | health_failed | — | agenttest@1 | login,level,editor,list | 否 |
-| 53 | 18:00:32 | health | — | error | health_failed | — | agenttest@1 | login,level,editor,list | 否 |
-| 54 | 18:02:28 | health | — | error | health_failed | — | agenttest@1 | login,level,editor,list | 否 |
-| 55 | 18:02:50 | health | — | ok | — | — | agenttest@1 | login,level,editor,list | 是 |
 
-## 记录表2 - 公共吧数据（跑完后写在这里）
+## 记录表2 - 公共吧数据
 | # | time | type | variant | status | reason | post_id | bar@t | evidence | counted |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 19:06:52 | health | — | error | health_failed | — | 生活@1 | login,level,editor,list | 否 |
@@ -115,6 +110,7 @@
 | 26 | 09:52:30 | health | — | ok | — | — | 生活@1 | login,level,editor,list | 是 |
 | 27 | 09:52:51 | publish | dup-risk | ok | recheck_confirmed | 11174242623 | 生活@1 | list:1→2条同名；新帖 11174242623 在最上，旧帖 11172719804 仍在 → 服务端接受重复提交（不去重） | 是 |
 | 28 | 09:55:23 | publish | normal | ok | recheck_confirmed | 11174249819 | 生活@1 | list@t1:p1(poster:no_response) | 是 |
+
 
 ## 列名解释
 

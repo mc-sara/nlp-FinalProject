@@ -36,19 +36,19 @@ FAMILIES: tuple[str, ...] = (
     FAMILY_UNKNOWN_RESUBMIT_UNKNOWN,
 )
 
-TITLE_LIMIT = 40
+TITLE_LIMIT = 31          # 与真实客户端一致：超过 31 字由客户端截断
 
 # 两个 split 的差异都集中在这里，改参数只改这一处
 SPLIT_CONFIG: dict[str, dict[str, Any]] = {
     "train": {
         "kw": "测试",
-        "delay_choices": (1, 2),          # train 用短延迟
+        "delay_choices": (0, 1),          # D1 实测 k=0 为主，偶尔 1
         "unknown_reasons": ("submit_timeout", "captcha", "no_response"),
         "per_family": 10,
     },
     "test": {
         "kw": "实验二",
-        "delay_choices": (2, 3),          # test 用更长延迟，防止背下 k
+        "delay_choices": (1, 1),          # test 固定 k=1，防背 train 的 k=0
         "unknown_reasons": ("submit_timeout", "no_response", "captcha"),
         "per_family": 5,
     },
