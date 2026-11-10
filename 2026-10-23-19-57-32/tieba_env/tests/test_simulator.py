@@ -563,11 +563,18 @@ class TestScenarioGenerator(unittest.TestCase):
             [],
         )
 
-    def test_candidates_file_has_20_entries(self):
+    def test_candidates_pool_is_isolated_by_split(self):
         data = load_candidates()
-        self.assertEqual(len(data), 20)
+        self.assertEqual(len(data), 100)
+        self.assertEqual(len({c["id"] for c in data}), 100, "候选 id 不得重复")
+        self.assertEqual(len({c["title"] for c in data}), 100, "候选标题不得重复")
         splits = {c["split"] for c in data}
         self.assertEqual(splits, {"train", "test", "real"})
+        for split in ("train", "test", "real"):
+            self.assertGreaterEqual(
+                sum(1 for c in data if c["split"] == split), 15,
+                f"{split} 候选太少，场景轮换会重复内容",
+            )
 
     def test_scenario_truth_expectations(self):
         cases = {

@@ -417,22 +417,31 @@ def trajectory_to_sharegpt(traj: dict, system_prompt: str) -> dict:
 
 ## 8. 待决策事项
 
-- ☐ Qwen3.5-9B 的具体 checkpoint 与解码参数（temperature、top_p、最大步数）。
-- ☐ LoRA 超参：rank、target modules、学习率、训练步数。
-- ☑ 自建吧吧名：agenttest（2026-10-26 起使用）。
-- ☐ 该账号等级是否满足发帖门槛（部分吧要求 4 级以上）。
-- ☐ D6 的目标公共吧选择，以及发帖内容的准备方式。
-- ☐ 回查延迟 k 的取值——由 D1 采样裁决（§5.1）；3 次轮询窗口内 k>3 与被吞不可区分，报告要注明。
+2026-11-09 收口：能定的已定，没必要的已删；只剩一条待拍板。
+
+- ☑ 模型与解码：Qwen3.5-9B（`/public/home/scnsjwf2qh/models/Qwen3.5-9B`），greedy（`do_sample=False`），
+  `max_new_tokens=512`，`context=8192`，模板 `qwen3_5_nothink`，单轮单工具调用，步数上限 16。
+- ☑ LoRA 超参：r=8 / alpha=16 / `lora_target=all`，lr 5e-5，cosine + warmup 0.1，100 步，
+  bs 1 × grad-accum 8，bf16，梯度检查点开，`flash_attn=disabled`（A/B/C 三组必须完全相同）。
+- ☑ 自建吧吧名：agenttest（2026-10-26 起使用）；模拟与真实统一用 agenttest。
+- ☑ 发帖门槛：agenttest 30 篇全部发出、公共吧「生活」11 篇拿到 post_id，账号等级满足要求。
+- ☑ D6 目标公共吧：「生活」（与 D1 公共吧采样同一个吧）；发帖内容取 `candidates.json` 里 `split=real` 的候选。
+- ☑ 回查延迟 k：train `{0,1}`（D1 实测以 k=0 为主）、test 固定 1；3 次轮询窗口内 k>3 与被吞不可区分，报告注明。
 - ☑ 标题超长：真实侧客户端在 31 字就截断（`realcli.py:56` `title_limit=31`），40 字发不出去，
   模拟器按 31 字截断冻结；D1 的 40 字行只做 dry-run 确认，不写记录表、不占发帖次数。
 - ☑ `notfound` 不进 `status_weights` 分母，只记数量——它可能是被吞，也可能 k>3，不构成一种状态。
-- ☐ `rejected` 是否纳入 `content_invalid` / `rate_limited`；`ok` 是否允许 `post_id: null`（由 D1 采样裁决）。
-- ☐ `publish_interval_seconds` 的取值与放行条件（现状为 0，与 6.3 冲突）。
-- ☐ 模拟器训练/测试用的吧名（"测试" / "实验二"）与真实侧 agenttest 不一致，是否统一。
-- ☐ 20 条训练数据是否够；不够时是扩大采样还是改用拒绝采样。
-- ☐ 人工修正的标注规则：由谁修正、多人如何对齐、是否需要交叉复核。
-- ☐ 轨迹与指标的归档格式，多次运行如何聚合。
-- ☐ 二期是否补一组"原始模型 + 确定性规则"基线，用于回答"为什么不用规则解决"。
+- ☑ `rejected` 单列计数，不并入 `content_invalid` / `rate_limited`；`ok` 允许 `post_id: null`
+  （自建吧列表不返回 id，公共吧才返回）。
+- ☑ `publish_interval_seconds`：模拟器不模拟发帖间隔；真实采样用 600 s 间隔、每日上限 10 篇
+  （D1 采样时的 130 s 是提速手段，写实验记录时注明与正式口径不同）。
+- ☑ 数据规模：候选热梗 100 条（train 60 / test 25 / real 15，三个 split 互不重叠），
+  单条候选在场景里轮换使用，不再出现 10 条候选被复用 10 次的情况。
+- ☑ 人工修正标注规则：修正序列由 agent 按 ReferencePolicy（`verify_budget=3`、`max_republish=1`）
+  与 D1 实测起草，逐条由 Yu Song 批核；单人项目不做多人交叉复核；`correction_provenance` 记
+  corrector / reviewed_by / 依据 / env sha256 / 重放时间。
+- ☑ 归档格式：`artifacts/runs/<run_id>.jsonl` + `<run_id>.manifest.json`（env/validator sha256、seed、
+  per_family、模型、解码参数、origin 计数）；指标由 `metrics_table.py` 汇总成 `artifacts/runs/abc_table.md`。
+- ☐ 训练场景规模：300 条（60/族，100 步 ≈ 2.7 epoch）还是 100 条（100 步 = 8 epoch，需把步数降到 30）——待拍板。
 
 **维护规则**：完成任务后只更新第 4 节的进度和第 8 节的勾选项。
 数值、图表、运行命令与分析写入实验记录文档。

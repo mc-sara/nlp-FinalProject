@@ -72,11 +72,12 @@ def load_candidates(path: str | Path | None = None) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     for index, item in enumerate(raw, start=1):
         if isinstance(item, str):
-            out.append({"id": f"cand-{index:03d}", "content": item, "split": "train", "tags": []})
+            out.append({"id": f"cand-{index:03d}", "title": "", "content": item, "split": "train", "tags": []})
         elif isinstance(item, dict) and item.get("content"):
             out.append(
                 {
                     "id": str(item.get("id") or f"cand-{index:03d}"),
+                    "title": str(item.get("title") or ""),
                     "content": str(item["content"]),
                     "split": str(item.get("split") or "train"),
                     "tags": list(item.get("tags") or []),

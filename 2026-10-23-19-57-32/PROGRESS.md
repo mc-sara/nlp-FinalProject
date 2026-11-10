@@ -1,11 +1,12 @@
-# 进度备份（2026-11-09 21:50）
+# 进度备份（2026-11-10 13:55）
 
 本文件记录**当前真实状态**，包括已作废的实验，避免后面误当结论用。
 
 ## 一句话状态
 
-口径（标题 31 字截断 / 吧名 agenttest / origin 标注）已冻结并落地到代码与数据；训练数据已按新口径重建；
-**C 组 adapter 是旧口径数据训出来的，作废**，只当管线验证；A/B/C 正式评测尚未开始。
+口径已冻结（标题 31 字截断 / 吧名 agenttest / `origin` 标注）；候选池扩到 100 条（train 60 / test 25 / real 15）；
+**ABC 实验按「方案 1」执行：每组 300 条场景、100 步**。C 组旧 adapter（100 条数据、8 epoch）作废，只当管线验证。
+三组跑完后再做一次真实环境确认（D6），本阶段实验即结束。
 
 ## 1. 口径冻结（v1，已提交）
 
@@ -21,29 +22,57 @@
 `README.md`（四处同步）。测试 104 个通过，唯一失败是既有的 Windows 路径用例
 `tests/test_real.py:127 test_resolve_relative_to_poster_dir`（POSIX 上必然失败，与本改动无关）。
 
-## 2. 数据（新口径，已重建并上传）
+## 2. 候选池（已扩到 100 条）
 
-- `runs/sim/{train,test}.jsonl`：各 100 条（5 族 × 20；正常 20 / 恢复 80），kw 全 `agenttest`，
-  标题全部 ≤31 字，`origin` 全 `reference_policy`。生成命令 `python demo.py --build --per-family 20`
-  （`BUILD_SEEDS = {"train": 20261109, "test": 777001}`）。配套 `_sharegpt.jsonl`、`_metrics.json` 已重写。
-- `artifacts/data_v2/`：`tieba_B.json` 20 条 / `tieba_C.json` 100 条 / `dataset_info.json` /
-  `provenance.json`（`origins {"reference_policy": 100}`）。审核表 `artifacts/runs/sim_train_review_v2.json`
-  （100 条，`approved=true`，label 由环境真值 `classify` 得出，reviewer 记 `P2 auto-check 2026-11-09 (env-truth classify); P3 sign-off pending`）。
-- 旧 `artifacts/data`（集群上，未入仓）是旧口径数据，保留未删；新训练一律用 `artifacts/data_v2`。
+`tieba_env/data/candidates.json`：**100 条**，`train 60 / test 25 / real 15`，id、标题、正文三元组唯一，
+标题 ≤14 字、正文 45–71 字。原 20 条一字未动，新增 80 条（`c21–c70` train、`c71–c90` test、`c91–c100` real）。
+**这 80 条是我按贴吧生活语感写的，不是网络采集的真实帖**，报告里必须写明，不能当真实采样证据。
 
-## 3. 训练：C 组已跑完但作废
+`tests/test_simulator.py` 的 `test_candidates_file_has_20_entries` 已换成
+`test_candidates_pool_is_isolated_by_split`（断言 100 条、id/标题唯一、3 个 split 各 ≥15 条）；
+`tieba_env/scenarios.py` 的 `load_candidates` 补上 `title` 字段（原来归一化会丢掉）。
 
-- 运行：2026-11-09 20:12:05 → 21:24（100 步，`train_runtime` 1:08:15 ≈ 41 s/step，
-  `train_loss` 0.04848，`epoch` 7.72）。日志 `artifacts/runs/train_C.log`，配置 `artifacts/configs/train_C.yaml`。
-- 产物（集群 `artifacts/adapters/C/`，637 MB）：`adapter_model.safetensors` 86 MB，
+## 3. 数据（方案 1：每组 300 条）
+
+- `runs/sim/{train,test}.jsonl`：各 **300 条**（5 族 × 60；正常 60 / 恢复 240），kw 全 `agenttest`，
+  标题全部 ≤31 字，`origin` 全 `reference_policy`。生成命令 `python demo.py --build --per-family 60`
+  （`BUILD_SEEDS = {"train": 20261109, "test": 777001}`），配套 `_sharegpt.jsonl`、`_metrics.json` 一并重写。
+- 候选覆盖：train 300 条里 **60 条候选每条恰好出现 5 次**（每个族各 1 次，内容与故障族正交，不泄漏）；
+  test 300 条用 test 池 25 条（每族 60 条，故每候选 10–15 次，测试集只要求隔离不要求均衡）。
+- 训练集：`artifacts/data_v3/`（集群）—— `tieba_B.json` 300 条纯 normal，`tieba_C.json` 300 条
+  （normal 60 + 恢复 240），`provenance.json` 记 `origins`。审核表 `artifacts/runs/sim_train_review_v3.json`，
+  label 由环境真值 `classify` 得出，reviewer 记 `P2 auto-check 2026-11-10 (env-truth classify)`。
+- 旧 `artifacts/data`（旧口径）、`artifacts/data_v2`（100 条）保留未删，训练一律用 `data_v3`。
+
+## 4. ABC 实验设计（方案 1，2026-11-10 定稿）
+
+| 组 | 训练数据 | 训练 | 目的 |
+|---|---|---|---|
+| A | 无 | 不训练（原始 Qwen3.5-9B） | 下限基线 |
+| B | `tieba_B`：300 条纯 normal 轨迹 | LoRA 100 步 | 控制「只学格式/工具调用」这一项 |
+| C | `tieba_C`：300 条（normal 60 + 故障恢复 240） | LoRA 100 步 | 主组：看故障恢复策略是否被学到 |
+
+- 三组**完全一致**：Agent Runner、工具接口、系统提示、解码（greedy、`max_new=512`、`context=8192`、
+  `qwen3_5_nothink`）、最大工具调用 16 步、测试任务集。
+- LoRA 超参（B/C 相同）：`r=8, alpha=16, lora_target=all`、lr `5e-5`、cosine + warmup 0.1、bs 1 × ga 8、
+  100 步 = 800 样本次 ÷ 300 条 = **2.7 epoch**、bf16、梯度检查点、`flash_attn=disabled`。
+- 预计单组 ≈73 分钟（100 步 × 41 s + 约 5 分钟加载），B、C 串行 ≈2.5 小时。
+- **评测**：test split 每组 100 条（每族 20，`--seed 1042`），A/B/C 各跑一遍；
+  指标 = 重复帖产生率、不确定后首动作查证率、恢复成功率、无故障成功率（能力保持）、
+  过度查证（查证次数 > 3）、收敛性（平均工具调用数 / 触顶比例）、error 比例、FAILED_TOOL 单列（不进分母）。
+- **真实确认（D6）**：三组评测后，用公共吧「生活」发 5–10 次，人工盯；
+  只验证「策略在真实条件下没崩」，不做统计显著性。这是本阶段的最后一步。
+
+## 5. 训练历史：C 组旧 adapter 作废
+
+- 2026-11-09 20:12:05 → 21:24 跑完（100 步，`train_runtime` 1:08:15 ≈ 41 s/step，
+  `train_loss` 0.04848，`epoch` 7.72）。产物集群 `artifacts/adapters/C/`，`adapter_model.safetensors` 86 MB，
   sha256 前 24 位 `0fbe1a61438a84d2f04ffd69`。
-- **作废理由**：训练数据是旧口径 `artifacts/data`——超长标题被 mock 判 `rejected`、吧名 `测试`，
-  与刚冻结的口径不一致；且 100 步 × bs1 × ga8 对 100 条样本是 **8 epoch**，样本本身又全是
-  `ReferencePolicy` 首跑正确的蒸馏轨迹（0 条重复帖失败样本、0 条模型失败修正样本）。
-- 因此：该 adapter 只能说明「LoRA 管线能跑通」，不构成任何关于恢复策略的结论。
-- 未训练 B 组、未跑 A/B/C 评测；`chain_after_C.sh` 已于 20:49 kill（`artifacts/runs/chain.log`）。
+- **作废理由**：数据是旧口径（超长标题被 mock 判 `rejected`、吧名 `测试`），且 100 步对 100 条样本是
+  **8 epoch**，样本本身又全是 `ReferencePolicy` 首跑正确的蒸馏轨迹。该 adapter 只说明「LoRA 管线能跑通」。
+- 未训练 B 组、未跑 A/B/C 评测；`chain_after_C.sh` 已于 2026-11-09 20:49 kill（`artifacts/runs/chain.log`）。
 
-## 4. P3 复核（final，已随本仓库备份）
+## 6. P3 复核（final，已随本仓库备份）
 
 `review/p3/` 下三件：`P3.md`（规范 v1）、`p3_review.json`（`status:"final"`）、`corrected_demos.jsonl`（3 条重放示范）。
 结论：P2 交接的 5 条轨迹标签**全部判对**；v0 的两条初判（visible 判错、not_published 按 Q2 改判）已撤回。
@@ -51,24 +80,28 @@ Q1 有效发布口径、Q2 四族一律先查证、Q3 沿用 `step_limit=16`、Q
 重放：固定 `P2_handoff/p2_scnet/vendor/p1`，3 条示范 gate 3/3 pass；现行 validator 判 3/3 `SUCCESS_RECOVERED`，
 v4 validator 判 3/3 `FAILED_MODEL`（差异只在 `validator.py:139` 是否把被拒发布计入 `max_publish_calls`）。
 
-## 5. few-shot 门槛（已过，记录留档）
+## 7. few-shot 门槛（已过，记录留档）
 
 `artifacts/runs/fewshot-20261109.{jsonl,log,manifest.json,provisional.json}` 与
 `fewshot_31415.{jsonl,review.json}`：10 条，7 成功（`SUCCESS_RECOVERED`），落在 PLAN §5.2 的 30–80% 区间；
 逐族 delayed 2/2、not_published 3/3、visible 2/2、**resubmit_unknown 0/3**（这条要写进报告）。
 
-## 6. 已知缺口（训练/评测前必须处理）
+## 8. 已知限制（写报告时必须交代）
 
-1. **C 组人工修正轨迹不足**：PLAN §5.3/D4 要求 10 条人工修正轨迹，目前只有 P3 的 3 条（且 review 仍 `approved:false`，未并入）。
-2. **B 组定义未定**：20 条 × 100 步 = 40 epoch 会过拟合；对齐 8 epoch 需要 100 条正常轨迹（`= steps × bs × ga ÷ epochs = 100×1×8÷8`）。
-3. **标签口径**：正式评测的重复帖计数用「有效发布」，需在 `validator.py:139` 固化并写进报告。
-4. **§7.2 同构性预览校验**、**D6 训后真实确认 5–10 次** 均未做。
+1. **B/C 都是脚本专家蒸馏**（`ReferencePolicy` rollout），不是 PLAN 原设想的 human-corrected 模型失败轨迹；
+   审核门禁是「环境真值 `classify` 自动打标」，不是人工逐条审核。P3 的 3 条人工修正示范已单独交付，
+   **尚未并入 C 组**（并入需在冻结版 env 上重放，因为示范里含「长标题被拒」的旧口径步骤）。
+2. **C 组 0 条重复帖失败样本**：重复帖能力只能从「unknown 后先查证」间接学，评测里的重复帖率才是检验。
+3. **标签口径**：重复帖与 `max_publish_calls` 统一按「有效发布」计，需在 `validator.py:139` 固化并写进报告。
+4. **§7.2 同构性预览校验**未做（模拟/真实后端逐字节比对观测）。
+5. **真实确认只有 5–10 次**，不做统计显著性。
 
-## 7. 环境与路径
+## 9. 环境与路径
 
 - 本地仓库：`/Users/sara/Desktop/NLP/github-nlp-FinalProject`（子目录 `2026-10-23-19-57-32/` 是工程）。
 - 集群：`/public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet`（工程根），活动模拟器副本在
   **`vendor/p1/tieba_env`**（`p2.py:10` 把 `vendor/p1` 插进 `sys.path`；工程根没有 `tieba_env/`）。
+- 模型：`/public/home/scnsjwf2qh/models/Qwen3.5-9B`；单卡 HCU 64 GB；`source /opt/dtk-26.04/env.sh`。
 - 集群备份：`backup_pre_freeze/env_before_freeze.tgz`（旧 `vendor/p1/tieba_env` + `runs/sim`）、
   `backup_pre_freeze/p2.py.bak`。
 - 集群 `p2.py` 已打两处补丁：`prepare` 的 origin 白名单加 `reference_policy`；`provenance.json` 记录
