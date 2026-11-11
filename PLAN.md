@@ -417,7 +417,7 @@ def trajectory_to_sharegpt(traj: dict, system_prompt: str) -> dict:
 
 ## 8. 待决策事项
 
-2026-11-09 收口：能定的已定，没必要的已删；只剩一条待拍板。
+2026-11-09 收口：能定的已定，没必要的已删；2026-11-11 末条（训练场景规模）拍板为 300 条，待决策事项全部闭合。
 
 - ☑ 模型与解码：Qwen3.5-9B（`/public/home/scnsjwf2qh/models/Qwen3.5-9B`），greedy（`do_sample=False`），
   `max_new_tokens=512`，`context=8192`，模板 `qwen3_5_nothink`，单轮单工具调用，步数上限 16。
@@ -441,7 +441,7 @@ def trajectory_to_sharegpt(traj: dict, system_prompt: str) -> dict:
   corrector / reviewed_by / 依据 / env sha256 / 重放时间。
 - ☑ 归档格式：`artifacts/runs/<run_id>.jsonl` + `<run_id>.manifest.json`（env/validator sha256、seed、
   per_family、模型、解码参数、origin 计数）；指标由 `metrics_table.py` 汇总成 `artifacts/runs/abc_table.md`。
-- ☐ 训练场景规模：300 条（60/族，100 步 ≈ 2.7 epoch）还是 100 条（100 步 = 8 epoch，需把步数降到 30）——待拍板。
+- ☑ 训练场景规模：300 条（60/族，100 步 ≈ 2.7 epoch）。
 
 **维护规则**：完成任务后只更新第 4 节的进度和第 8 节的勾选项。
 数值、图表、运行命令与分析写入实验记录文档。
