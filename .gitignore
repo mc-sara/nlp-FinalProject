@@ -4,3 +4,13 @@ __pycache__/
 .DS_Store
 real/captures/raw/
 artifacts/runs/
+
+# LaTeX 编译产物（build/ 目录，report.pdf 初稿保留提交）
+build/*.aux
+build/*.log
+build/*.bbl
+build/*.blg
+build/*.fdb_latexmk
+build/*.fls
+build/*.out
+build/*.xdv
