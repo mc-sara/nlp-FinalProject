@@ -1,6 +1,6 @@
 % Compile with XeLaTeX or LuaLaTeX from this directory.
 \documentclass[11pt]{article}
-\usepackage{acl}
+\usepackage[preprint]{acl}
 \usepackage{fontspec}
 \usepackage{microtype}
 \usepackage{graphicx}
@@ -57,20 +57,16 @@ The main contributions are:
 
 \section{Background and Related Work}
 
-\paragraph{Tool-using language agents.}
-ReAct interleaves reasoning and environment actions so that new observations can inform later steps \citep{yao2023react}. Our project tests a specific decision within that cycle: whether an agent verifies an action whose result is uncertain before deciding to retry it.
+\paragraph{Tool-using agents.}
+ReAct interleaves reasoning, environment actions, and observations \citep{yao2023react}. Our project studies a specific decision in this cycle: whether an agent verifies an action whose result is uncertain before retrying it.
 
-\paragraph{Web and browser agents.}
-WebArena provides realistic, reproducible websites for evaluating autonomous web agents \citep{zhou2024webarena}. Our task uses a real browser-backed posting tool as its motivating environment and isolates one failure mode: the mismatch between a successful submission and its delayed or missing confirmation. The simulator preserves the tool observations and hidden state needed to evaluate that recovery decision.
+\paragraph{Web agents and uncertainty recovery.}
+WebArena provides realistic, reproducible websites for evaluating autonomous web agents \citep{zhou2024webarena}. In contrast, our project isolates one failure mode: a posting action may succeed while its confirmation is delayed or missing. This controlled setting makes it possible to measure whether the agent verifies before retrying.
 
-\paragraph{Trajectory supervision and tool-use learning.}
-ReAct also motivates representing interaction as alternating actions and observations \citep{yao2023react}. We encode each trajectory as a ShareGPT conversation with system, human, assistant tool-call, tool-result, and final-answer messages. Recovery supervision focuses on the ordering and consequences of verification and retry actions.
+\paragraph{LoRA and research gap.}
+LoRA adapts a pretrained model through low-rank updates while keeping the base model fixed \citep{hu2022lora}. We use it to test whether a targeted recovery behavior can be learned without full-model fine-tuning. Existing tool-using agents generally focus on whether an action can be completed; this project focuses on how an agent should respond when the result is uncertain and retrying may create duplicates.
 
-\paragraph{Parameter-efficient fine-tuning.}
-LoRA adapts a pretrained model by learning low-rank updates while keeping the base model fixed \citep{hu2022lora}. QLoRA further reduces memory requirements through quantized training \citep{dettmers2023qlora}. We use LoRA because the project asks whether a targeted recovery behavior can be learned without full-model fine-tuning.
-
-\paragraph{Positioning of this work.}
-Existing work has studied tool use, browser interaction, trajectory supervision, and parameter-efficient adaptation separately. Our project combines these ideas around uncertainty-aware recovery: after a publishing call returns \texttt{unknown}, the agent must distinguish delayed visibility from non-publication using only the available observation tool. This framing also makes it possible to compare model behavior against an environment-truth validator rather than relying on the agent's final self-report.
+After a publishing call returns \texttt{unknown}, the agent must distinguish delayed visibility from non-publication using only the available observation tool.
 
 \section{Detailed Description}
 
@@ -111,9 +107,9 @@ The publishing tool can return \texttt{ok}, \texttt{unknown}, \texttt{rejected},
 
 The reference policy uses a bounded verification budget and at most one republish attempt. After an uncertain result, the agent first queries recent posts. If the post is found, it stops. If it is not found and the verification budget remains, it queries again. Only after the available evidence supports non-publication may it republish once. The exact delay values are frozen from the D1 sampling procedure.
 
-\subsection{Real-World Data Collection and Boundary}
+\subsection{Data Collection and Simulator}
 
-Real sampling estimates four properties: the visibility delay after publication, the distribution of tool statuses, the title-length rule, and the behavior of duplicate submissions. The resulting parameter file is \texttt{params\_d1.json}. Raw captures are stored separately with credentials redacted.
+Real sampling estimates the visibility delay after publication, tool-status frequencies, the title-length rule, and duplicate-submission behavior. These parameters are stored in \texttt{params\_d1.json} and used to configure the simulator. Raw captures are stored separately with credentials redacted.
 
 \begin{table}[H]
 \centering
@@ -135,11 +131,11 @@ ShareGPT & LoRA input & Yes\\
 
 This boundary prevents real evaluation traces from becoming hidden positive demonstrations. It also makes the main quantitative comparison reproducible: the simulator exposes the same model-visible observation format while retaining an internal truth used only by the validator.
 
-\subsection{Simulator Design}
-
 The simulator, \texttt{MockTiebaEnv}, maintains an in-memory post database and supports explicit or probabilistic fault injection. Each trajectory starts from a clean environment. The simulator models the tool JSON format, the hidden post state, and delayed visibility through \texttt{list\_recent\_posts}. It does not attempt to reproduce the full Tieba interface, recommendation system, moderation process, or user comments.
 
 Delayed visibility is essential. If a post became visible immediately after every uncertain response, the agent could learn the shortcut ``query once; if absent, republish.'' The simulator therefore exposes observations that can remain ambiguous for a configurable number of queries. Training uses the frozen delay settings specified in the project plan, while test scenarios use separate candidate content and failure order.
+
+An \texttt{unknown} result means that the publish request may have succeeded, but the agent receives no reliable confirmation and must verify the post state before retrying. The agent observes only tool outputs, whereas the validator additionally accesses the simulator's hidden environment truth to determine whether a post was created and whether a duplicate occurred.
 
 \subsection{Scenario Families and Splits}
 
@@ -177,28 +173,13 @@ C: Recovery LoRA & 60 + 240 recovery & Main condition\\
 
 Condition B is necessary because normal trajectories may teach the model tool syntax and task formatting without teaching it how to recover from uncertainty. A stronger result for C than for B provides evidence that the model learned a recovery policy rather than merely becoming more familiar with the tools.
 
-\subsection{Trajectory Construction and LoRA Training}
+\subsection{Training and Validation}
 
 Each trajectory is converted to a ShareGPT conversation containing a fixed system prompt, the human task, alternating assistant tool calls and tool results, and a final answer. The system prompt is identical across A, B, and C and describes the task and output requirements without stating the recovery rule. The frozen B and C datasets each contain 300 scripted \texttt{ReferencePolicy} rollouts; C contains 60 normal and 240 recovery trajectories. Their labels were checked automatically against environment truth. Three separately reviewed, manually corrected demonstrations were used for the few-shot check and were not merged into C. The dataset provenance records the scripted origin; it should not be presented as model-generated or individually human-corrected data.
 
 The frozen training configuration is Qwen3.5-9B with LoRA rank 8, alpha 16, all linear layers targeted, learning rate $5\times10^{-5}$, cosine scheduling with 0.1 warmup, 100 steps, batch size 1 with gradient accumulation 8, bf16 computation, gradient checkpointing, and disabled FlashAttention. Inference uses greedy decoding, a context length of 8192, at most 512 generated tokens, one tool call per turn, and a maximum of 16 tool steps.
 
-\subsection{Implementation Components}
-
-The implementation is divided into components with separate responsibilities:
-
-\begin{itemize}
-  \item \texttt{MockTiebaEnv}: simulator state, delays, and fault injection;
-  \item \texttt{TiebaAdapter}: common interface for simulated and real backends;
-  \item Agent Runner: tool-call parsing, step limits, and trajectory logging;
-  \item \texttt{convert\_to\_sharegpt.py}: conversion to training conversations;
-  \item Validator: environment-truth trajectory classification; and
-  \item \texttt{metrics\_table.py}: aggregation of run manifests and metrics.
-\end{itemize}
-
-\subsection{Testing and Validation}
-
-The validation plan has several layers. Simulator unit tests cover uncertain-state truth combinations, delayed visibility, reset behavior, and duplicate rules. Agent Runner tests check tool-call parsing and step limits. The validator is checked against reviewed traces, and an end-to-end run checks reproducibility under a fixed seed. The most recent progress record reports 104 passing tests and one pre-existing Windows-path test that fails on POSIX. A byte-for-byte comparison of simulated and real model-visible observations remains outstanding; therefore, interface equivalence should not yet be claimed.
+Unit tests cover simulator state transitions, delayed visibility, duplicate handling, tool-call parsing, step limits, and trajectory validation. A fixed-seed end-to-end run checks reproducibility. Simulated and real model-visible observations have not yet been shown to be byte-for-byte equivalent; therefore, interface equivalence should not be claimed.
 
 \section{Experimental Setup and Evaluation}
 
@@ -283,7 +264,7 @@ The analysis will examine whether the model behaves differently for immediate vi
 
 Failure cases will be grouped into premature republishing, incorrect stopping, excessive querying, and tool-side failures. For each group, we will report a compact trace and discuss whether the failure arises from the learned policy, the prompt/tool interface, or the simulator's abstraction.
 
-\section{Limitations, Difficulties, and Future Work}
+\section{Limitations}
 
 The planned real confirmation set contains only 5--10 runs and can support a limited migration check, not a statistically powered comparison. The simulator models delayed visibility and tool responses but not the full browser interface, moderation system, recommendation system, or changing page layouts. The experiment uses one base model, one account, one principal forum setting, and one frozen LoRA configuration. Moreover, a visibility delay larger than the polling window may be observationally indistinguishable from a swallowed post. The simulated/real observation-equivalence check is still incomplete.
 

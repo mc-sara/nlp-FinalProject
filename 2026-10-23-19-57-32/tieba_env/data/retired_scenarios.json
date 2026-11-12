@@ -1,0 +1,11 @@
+{
+ "retired": {
+  "test-unknown_delayed-001": "人工修正示范 F1 的来源场景，已并入训练集，不再用于评测",
+  "test-unknown_delayed-014": "人工修正示范 F2 的来源场景，已并入训练集，不再用于评测",
+  "test-unknown_visible-008": "人工修正示范 F3 的来源场景，已并入训练集，不再用于评测",
+  "test-unknown_visible-012": "人工修正示范 F4 的来源场景，已并入训练集，不再用于评测",
+  "test-unknown_not_published-002": "人工修正示范 F5 的来源场景，已并入训练集，不再用于评测",
+  "test-unknown_not_published-007": "人工修正示范 F6 的来源场景，已并入训练集，不再用于评测",
+  "test-unknown_resubmit_unknown-007": "人工修正示范 F7 的来源场景，已并入训练集，不再用于评测"
+ }
+}

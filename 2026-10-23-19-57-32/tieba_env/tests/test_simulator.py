@@ -34,6 +34,7 @@ from tieba_env.scenarios import (
     FAMILY_UNKNOWN_VISIBLE,
     generate_scenarios,
     load_candidates,
+    retired_scenario_ids,
 )
 from tieba_env.types import (
     STATUS_ERROR,
@@ -545,7 +546,14 @@ class TestScenarioGenerator(unittest.TestCase):
         train = generate_scenarios("train", per_family=2, seed=0)
         test = generate_scenarios("test", per_family=2, seed=0)
         self.assertEqual(len(train), 10)
-        self.assertEqual(len(test), 10)
+        # 测试集允许有已退休场景（被选作人工修正示范后不再评测），
+        # 但生成结果里绝不能出现退休 id，且每族仍要覆盖到。
+        retired = retired_scenario_ids()
+        self.assertFalse({s.scenario_id for s in test} & retired, '退休场景不得出现在生成结果里')
+        families = (FAMILY_NORMAL, FAMILY_UNKNOWN_VISIBLE, FAMILY_UNKNOWN_DELAYED,
+                    FAMILY_UNKNOWN_NOT_PUBLISHED, FAMILY_UNKNOWN_RESUBMIT_UNKNOWN)
+        generated = {f'test-{f}-{i + 1:03d}' for f in families for i in range(2)}
+        self.assertEqual(len(test), len(generated - retired))
 
         train_pool = {s.candidate for s in train}
         test_pool = {s.candidate for s in test}

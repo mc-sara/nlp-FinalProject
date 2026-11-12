@@ -59,6 +59,17 @@ SPLIT_CONFIG: dict[str, dict[str, Any]] = {
 DATA_DIR = Path(__file__).resolve().parent / "data"
 CANDIDATES_PATH = DATA_DIR / "candidates.json"
 
+# 已退休场景：被用作人工修正示范后退出测试集，生成时直接跳过
+RETIRED_PATH = DATA_DIR / "retired_scenarios.json"
+
+
+def retired_scenario_ids() -> set[str]:
+    """读已退休场景清单；文件不存在时返回空集。"""
+    if not RETIRED_PATH.exists():
+        return set()
+    raw = json.loads(RETIRED_PATH.read_text(encoding="utf-8"))
+    return set(raw.get("retired") or {})
+
 
 # --------------------------------------------------------------------------- 候选池
 
@@ -244,6 +255,9 @@ def generate_scenarios(
                     family, split=split, index=index, cfg=cfg, cand=cand, pool=pool, rng=rng
                 )
             )
+    retired = retired_scenario_ids()
+    if retired:
+        scenarios = [scene for scene in scenarios if scene.scenario_id not in retired]
     rng.shuffle(scenarios)
     return scenarios
 

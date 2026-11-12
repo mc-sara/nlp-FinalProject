@@ -65,11 +65,20 @@ def print_table(rows: list[tuple[str, str, dict[str, Any]]]) -> None:
 BUILD_SEEDS = {"train": 20261109, "test": 777001}
 
 
-def build(per_family: int, out_dir: Path) -> int:
-    """用参考策略批量跑轨迹并转 ShareGPT；这是训练数据的唯一生成入口。"""
+TEST_PER_FAMILY = 20
+
+
+def build(per_family: int, out_dir: Path, families: list[str] | None = None,
+          test_per_family: int = TEST_PER_FAMILY) -> int:
+    """用参考策略批量跑轨迹并转 ShareGPT；这是训练数据的唯一生成入口。
+
+    per_family 只作用于 train（训练集规模），test 固定 test_per_family 条/族；
+    families 用于单独生成某一族（B 组只要 normal）。
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
     for split, seed in BUILD_SEEDS.items():
-        scenarios = generate_scenarios(split, per_family=per_family, seed=seed)
+        n = per_family if split == 'train' else test_per_family
+        scenarios = generate_scenarios(split, per_family=n, seed=seed, families=families)
         trajs = []
         for scenario in scenarios:
             env = MockTiebaEnv()
@@ -103,10 +112,15 @@ def main() -> int:
     parser.add_argument("--build", action="store_true",
                         help="生成训练集：runs/sim/{train,test}.jsonl + *_sharegpt.jsonl")
     parser.add_argument("--out", default="runs/sim", help="--build 的输出目录")
+    parser.add_argument("--families", default="", help="--build 只生成指定族，逗号分隔")
+    parser.add_argument("--test-per-family", type=int, default=TEST_PER_FAMILY,
+                        help="--build 时 test 每族的条数")
     args = parser.parse_args()
 
     if args.build:
-        return build(args.per_family, Path(args.out))
+        return build(args.per_family, Path(args.out),
+                     families=args.families.split(',') if args.families else None,
+                     test_per_family=args.test_per_family)
 
     scenarios = generate_scenarios(args.split, per_family=args.per_family, seed=args.seed)
     verify_budget = max([s.delay_k for s in scenarios] + [1]) + 1
