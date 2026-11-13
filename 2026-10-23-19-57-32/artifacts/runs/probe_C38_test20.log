@@ -1,0 +1,40 @@
+    "out_hidden_size": 4096,
+    "patch_size": 16,
+    "spatial_merge_size": 2,
+    "temporal_patch_size": 2
+  },
+  "vision_end_token_id": 248054,
+  "vision_start_token_id": 248053
+}
+
+[INFO|2026-11-13 23:08:27] llamafactory.model.model_utils.kv_cache:144 >> KV cache is enabled for faster generation.
+[INFO|modeling_utils.py:766] 2026-11-13 23:08:30,798 >> loading weights file /public/home/scnsjwf2qh/models/Qwen3.5-9B/model.safetensors.index.json
+[INFO|modeling_utils.py:852] 2026-11-13 23:08:30,991 >> Since the `dtype` attribute can't be found in model's config object, will use dtype=torch.bfloat16 as derived from model's weights
+[INFO|configuration_utils.py:1086] 2026-11-13 23:08:30,994 >> Generate config GenerationConfig {
+  "output_attentions": false,
+  "output_hidden_states": false,
+  "use_cache": true
+}
+
+[WARNING|logging.py:340] 2026-11-13 23:08:31,061 >> The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+[INFO|accelerate.py:285] 2026-11-13 23:08:32,183 >> We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+
+[INFO|utils.py:412] 2026-11-13 23:10:49,089 >> Generation config file not found, using a generation config created from the model config.
+[INFO|configuration_utils.py:1037] 2026-11-13 23:10:49,089 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/config.json
+[INFO|configuration_utils.py:1086] 2026-11-13 23:10:49,090 >> Generate config GenerationConfig {}
+
+[INFO|2026-11-13 23:10:49] llamafactory.model.model_utils.attention:144 >> Using vanilla attention implementation.
+[INFO|2026-11-13 23:10:58] llamafactory.model.adapter:144 >> Merged 1 adapter(s).
+[INFO|2026-11-13 23:10:58] llamafactory.model.adapter:144 >> Loaded adapter(s): artifacts/adapters/C38
+[INFO|2026-11-13 23:10:58] llamafactory.model.loader:144 >> all params: 9,409,813,744
+[WARNING|logging.py:340] 2026-11-13 23:11:02,723 >> Ignoring clean_up_tokenization_spaces=True for BPE tokenizer Qwen2Tokenizer. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+{
+  "mode": "test20",
+  "cases": 18,
+  "after_unknown_list": 14,
+  "after_unknown_other": 0,
+  "mean_steps": 8.61,
+  "step_limit_hits": 7,
+  "parse_errors": 0
+}
+→ artifacts/runs/probe_C38_test20.jsonl

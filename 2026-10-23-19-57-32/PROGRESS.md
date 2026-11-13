@@ -120,6 +120,29 @@ lr 5e-5、cosine+warmup 0.1、LoRA r=8/α=16/target all、bs1×ga8、cutoff 8192
   均值偏高主要来自前 8 步（占总 loss 三分之一），尾部已在 0.09–0.12。是否“学会”以行为探针为准（见 §5.3）。
 - 实测比预估慢：预估 90 s/step，实际 130.6 s/step——`data_v2` 样本更长（最长 3711 tokens，旧口径 1699）。
 
+### 5.3 C38 行为探针 test20（2026-11-13 23:32）
+
+命令：`.venv/bin/python probe.py --mode test20 --adapter artifacts/adapters/C38 --per-family 4`
+→ `artifacts/runs/probe_C38_test20.jsonl`（18 条：test 集每族 4 条，退役 7 条后共 18）。
+
+| 族 | n | 步数 | list | publish | post_count | 终态 |
+|---|---|---|---|---|---|---|
+| normal | 4 | 3 | 1 | 1 | 1 | ✅ |
+| unknown_visible | 4 | 4 | 2 | 1 | 1 | ✅ 查到即停 |
+| unknown_delayed | 4 | 5 | 3 | 1 | 1 | ✅ 查到即停 |
+| unknown_not_published | 3 | **16（撞上限）** | **14** | 1 | 0 | ❌ 只查不发 |
+| unknown_resubmit_unknown | 4 | **16（撞上限）** | **14** | 1 | 0 | ❌ 只查不发 |
+
+汇总：`after_unknown_list` **14/14**、`parse_errors 0`、`step_limit_hits 7`、`mean_steps 8.61`。
+
+判读：
+
+- **学到**：①拿不到明确结果先查吧页（14 个故障场景首动作全是 `list_recent_posts`）；②查到就停、不重复发。
+- **没学到**：“连查 3 次没有 → 补发一次”。训练示范里这一步是 8 步（`publish → 3×list → publish → list`），
+  模型在这 7 条里一路 list 到 16 步上限、一次都没补发，判 `FAILED_MODEL`。
+- 指向欠拟合：1 epoch、尾部 loss 0.09–0.12；`not_published` 在 C 组 307 条里约占 60 条，要走“补发”分支的监督量不足。
+- 结论：**C38 不能进 A/B/C 对照**（旧 C 在同批场景是 80/80）。下一步要么 C 组改 100 步，要么 60 步折中先看能否补上补发分支。
+
 ## 6. P3 复核（final，已随本仓库备份）
 
 `review/p3/` 下三件：`P3.md`（规范 v1）、`p3_review.json`（`status:"final"`）、`corrected_demos.jsonl`（3 条重放示范）。
