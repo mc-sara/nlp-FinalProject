@@ -232,6 +232,8 @@ def generate_scenarios(
     seed: int = 0,
     families: Iterable[str] | None = None,
     candidates_path: str | Path | None = None,
+    rotate_pool: bool = False,
+    shuffle_pool: bool = False,
 ) -> list[Scenario]:
     """生成一个 split 的场景清单。
 
@@ -247,12 +249,21 @@ def generate_scenarios(
 
     rng = random.Random(seed * 1009 + (0 if split == "train" else 77))
     scenarios: list[Scenario] = []
-    for family in chosen_families:
+    for rank, family in enumerate(chosen_families):
         for index in range(n):
             cand = pool_data[index % len(pool_data)]
+            ordered = pool
+            if shuffle_pool:
+                # 按 index 播种的随机排列：60 条候选的循环位移只有 60 种，排列才能让每条观测唯一
+                ordered = list(pool)
+                random.Random(index * 7919 + rank * 104729 + 17).shuffle(ordered)
+            elif rotate_pool:
+                # 只换候选列表的顺序，不换目标候选：每条轨迹看到的列表不同，目标仍按 index 轮换
+                rot = index % len(pool_data)
+                ordered = pool[rot:] + pool[:rot]
             scenarios.append(
                 _build_family(
-                    family, split=split, index=index, cfg=cfg, cand=cand, pool=pool, rng=rng
+                    family, split=split, index=index, cfg=cfg, cand=cand, pool=ordered, rng=rng
                 )
             )
     retired = retired_scenario_ids()

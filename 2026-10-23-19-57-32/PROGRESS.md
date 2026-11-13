@@ -34,15 +34,19 @@
 
 ## 3. 数据（方案 1：每组 300 条）
 
-- `runs/sim/{train,test}.jsonl`：各 **300 条**（5 族 × 60；正常 60 / 恢复 240），kw 全 `agenttest`，
-  标题全部 ≤31 字，`origin` 全 `reference_policy`。生成命令 `python demo.py --build --per-family 60`
-  （`BUILD_SEEDS = {"train": 20261109, "test": 777001}`），配套 `_sharegpt.jsonl`、`_metrics.json` 一并重写。
-- 候选覆盖：train 300 条里 **60 条候选每条恰好出现 5 次**（每个族各 1 次，内容与故障族正交，不泄漏）；
-  test 300 条用 test 池 25 条（每族 60 条，故每候选 10–15 次，测试集只要求隔离不要求均衡）。
-- 训练集：`artifacts/data_v3/`（集群）—— `tieba_B.json` 300 条纯 normal，`tieba_C.json` 300 条
-  （normal 60 + 恢复 240），`provenance.json` 记 `origins`。审核表 `artifacts/runs/sim_train_review_v3.json`，
-  label 由环境真值 `classify` 得出，reviewer 记 `P2 auto-check 2026-11-10 (env-truth classify)`。
-- 旧 `artifacts/data`（旧口径）、`artifacts/data_v2`（100 条）保留未删，训练一律用 `data_v3`。
+- `runs/sim/train.jsonl`：**300 条**（5 族 × 60；正常 60 / 恢复 240），`runs/sim/test.jsonl`：**93 条**
+  （每族 20 → 去掉 7 个被用作人工修正素材的退休场景，族分布 20/18/18/18/19）。
+- 生成命令（2026-11-13 重生成，带候选池随机排列与措辞池）：
+  `python demo.py --build --per-family 60 --splits train --shuffle-pool`、
+  `--per-family 20 --splits test --shuffle-pool`、B 组 `--families normal --per-family 300 --splits train --shuffle-pool`。
+- 多样性（2026-11-13 实测）：C-train 观测 **300** 种 / 动作序列 5 种 / 收尾句 **15** 种；
+  B 观测 **300** 种 / 动作序列 1 种（固定 3 步）/ 收尾句 **6** 种；test 观测 93 种 / 收尾句 15 种。
+  850 次 publish 全部满足 `title == _make_title(content)` 且 `content ∈ get_candidates` 返回池。
+- 训练输入：C 用 `runs/sim/train_all.jsonl`（300 + `human_corrected.jsonl` 7 = **307** 行，id 唯一、
+  `split` 全 train、`origins={reference_policy, human_corrected}`）；B 用 `runs/sim_b/train.jsonl`（300 行纯 normal）。
+- 集群数据集（2026-11-13 重建）：`artifacts/data_v2/tieba_B.json` 300 / `tieba_C.json` 307，
+  token 审计 B max 3173 / C max 3708（cutoff 8192），监督 token B 54,515 / C 99,468。
+  `prepare` 新增 `--only {B,C,both}`（只出 B 时不再强制要求 recovery 样本）。
 
 ## 4. ABC 实验设计（方案 1，2026-11-10 定稿）
 

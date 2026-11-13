@@ -65,20 +65,21 @@ def print_table(rows: list[tuple[str, str, dict[str, Any]]]) -> None:
 BUILD_SEEDS = {"train": 20261109, "test": 777001}
 
 
-TEST_PER_FAMILY = 20
-
-
-def build(per_family: int, out_dir: Path, families: list[str] | None = None,
-          test_per_family: int = TEST_PER_FAMILY) -> int:
+def build(per_family: int, out_dir: Path, *, families: list[str] | None = None,
+          splits: tuple[str, ...] = ("train", "test"), rotate_pool: bool = False,
+          shuffle_pool: bool = False) -> int:
     """用参考策略批量跑轨迹并转 ShareGPT；这是训练数据的唯一生成入口。
 
-    per_family 只作用于 train（训练集规模），test 固定 test_per_family 条/族；
-    families 用于单独生成某一族（B 组只要 normal）。
+    families 只生成指定族；splits 只生成指定 split；rotate_pool 让每条轨迹看到的
+    候选列表顺序不同（B 组 300 条 normal 去重用）。
     """
     out_dir.mkdir(parents=True, exist_ok=True)
     for split, seed in BUILD_SEEDS.items():
-        n = per_family if split == 'train' else test_per_family
-        scenarios = generate_scenarios(split, per_family=n, seed=seed, families=families)
+        if split not in splits:
+            continue
+        scenarios = generate_scenarios(split, per_family=per_family, seed=seed,
+                                       families=families, rotate_pool=rotate_pool,
+                                       shuffle_pool=shuffle_pool)
         trajs = []
         for scenario in scenarios:
             env = MockTiebaEnv()
@@ -112,15 +113,21 @@ def main() -> int:
     parser.add_argument("--build", action="store_true",
                         help="生成训练集：runs/sim/{train,test}.jsonl + *_sharegpt.jsonl")
     parser.add_argument("--out", default="runs/sim", help="--build 的输出目录")
-    parser.add_argument("--families", default="", help="--build 只生成指定族，逗号分隔")
-    parser.add_argument("--test-per-family", type=int, default=TEST_PER_FAMILY,
-                        help="--build 时 test 每族的条数")
+    parser.add_argument("--families", default="",
+                        help="--build 只生成指定族，逗号分隔（如 normal）")
+    parser.add_argument("--splits", default="train,test",
+                        help="--build 只生成指定 split，逗号分隔")
+    parser.add_argument("--rotate-pool", action="store_true",
+                        help="--build 时按 index 轮换候选列表顺序（循环位移只有 60 种）")
+    parser.add_argument("--shuffle-pool", action="store_true",
+                        help="--build 时按 index 随机排列候选列表（每条轨迹唯一）")
     args = parser.parse_args()
 
     if args.build:
         return build(args.per_family, Path(args.out),
-                     families=args.families.split(',') if args.families else None,
-                     test_per_family=args.test_per_family)
+                     families=[f for f in args.families.split(",") if f] or None,
+                     splits=tuple(s for s in args.splits.split(",") if s),
+                     rotate_pool=args.rotate_pool, shuffle_pool=args.shuffle_pool)
 
     scenarios = generate_scenarios(args.split, per_family=args.per_family, seed=args.seed)
     verify_budget = max([s.delay_k for s in scenarios] + [1]) + 1

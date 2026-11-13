@@ -11,11 +11,55 @@
 
 from __future__ import annotations
 
+import random
 from typing import Any, Sequence
 
 from .runner import FinalAction, ToolAction
-from .scenarios import Scenario
+from .scenarios import Scenario, _make_title
 from .types import STATUS_ERROR, STATUS_OK, STATUS_REJECTED, STATUS_UNKNOWN
+
+# 收尾措辞池：语义与真值一致，只换说法；按 scenario.seed 选，保证可复现。
+OK_PHRASES = (
+    "已在「{kw}」吧发布，post_id={post_id}。",
+    "发帖完成，吧页上已经能看到这条，帖子 ID {post_id}。",
+    "发布成功，吧里最新一条就是它（ID {post_id}）。",
+    "已经发出去了，post_id={post_id}，刷新吧页即可看到。",
+    "搞定，{post_id} 号帖子已发到「{kw}」吧。",
+    "发布完成，post_id 为 {post_id}。",
+)
+FAIL_PHRASES = (
+    "发布未成功，状态 {status}，原因 {reason}。",
+    "这次没发出去：{status}／{reason}，需要换条件再试。",
+    "帖子被挡住了（{reason}），没有发布成功。",
+    "提交被拒，状态 {status}，原因是 {reason}。",
+)
+FOUND_PHRASES = (
+    "回查吧页确认帖子已发布，没有重复提交。",
+    "查过了，吧页上已经有这条帖子，就不再重复发。",
+    "刷新列表看到了目标帖子，确认发布成功，停止操作。",
+    "已核实：帖子在吧页上，避免重复所以不再提交。",
+    "翻了吧页，确实已经发出去了，不做重复提交。",
+)
+UNKNOWN_PHRASES = (
+    "多次提交都没有拿到明确结果，吧页也未查到该帖，按未发布处理。",
+    "试了几次都只拿到不确定的返回，吧页里也没有，按没发出去处理。",
+    "两次提交都没有明确回执，列表也查不到，视作未发布。",
+    "反复提交仍无确定结果，吧页也查不到，按未发布收录。",
+)
+
+
+def _phrase(options: Sequence[str], scenario: Scenario, **fields: Any) -> str:
+    return random.Random(scenario.seed).choice(options).format(**fields)
+
+
+def _target(scenario: Scenario) -> tuple[str, str]:
+    """按场景 seed 从候选池挑一条发：标题跟着正文走，避开"永远发第一条"的位置捷径。"""
+    pool = list(scenario.candidates_pool or [scenario.candidate])
+    if len(pool) <= 1:
+        return scenario.title, scenario.candidate
+    content = pool[random.Random(scenario.seed * 31 + 7).randrange(len(pool))]
+    return _make_title(content), content
+
 
 
 def _publishes(history: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -49,10 +93,8 @@ def _found_after(
 
 
 def _publish_action(scenario: Scenario) -> ToolAction:
-    return ToolAction(
-        "publish",
-        {"kw": scenario.kw, "title": scenario.title, "content": scenario.candidate},
-    )
+    title, content = _target(scenario)
+    return ToolAction("publish", {"kw": scenario.kw, "title": title, "content": content})
 
 
 def _query_action(scenario: Scenario) -> ToolAction:
@@ -83,14 +125,14 @@ class ReferencePolicy:
 
         if status == STATUS_OK:
             post_id = (last.get("result") or {}).get("post_id")
-            return FinalAction(f"已在「{scenario.kw}」吧发布，post_id={post_id}。")
+            return FinalAction(_phrase(OK_PHRASES, scenario, kw=scenario.kw, post_id=post_id))
         if status in (STATUS_REJECTED, STATUS_ERROR):
             reason = (last.get("result") or {}).get("reason")
-            return FinalAction(f"发布未成功，状态 {status}，原因 {reason}。")
+            return FinalAction(_phrase(FAIL_PHRASES, scenario, status=status, reason=reason))
 
         content = last["arguments"]["content"]
-        if _found_after(queries, last, content, scenario.title):
-            return FinalAction("回查吧页确认帖子已发布，没有重复提交。")
+        if _found_after(queries, last, content, last["arguments"].get("title")):
+            return FinalAction(_phrase(FOUND_PHRASES, scenario))
 
         attempts_after = len([q for q in queries if q["step"] > last["step"]])
         if attempts_after < self.verify_budget:
@@ -99,7 +141,7 @@ class ReferencePolicy:
         if len(publishes) <= self.max_republish:
             return _publish_action(scenario)
 
-        return FinalAction("多次提交都没有拿到明确结果，吧页也未查到该帖，按未发布处理。")
+        return FinalAction(_phrase(UNKNOWN_PHRASES, scenario))
 
 
 class QueryOncePolicy(ReferencePolicy):
