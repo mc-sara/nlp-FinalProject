@@ -1,0 +1,60 @@
+
+
+
+                                                  
+
+[INFO|tokenization_utils_base.py:3281] 2026-11-13 22:58:09,892 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C38/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-13 22:58:09,896 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C38/tokenizer_config.json
+[INFO|processing_utils.py:881] 2026-11-13 22:58:10,170 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C38/chat_template.jinja
+[INFO|processing_utils.py:899] 2026-11-13 22:58:10,173 >> processor saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C38/processor_config.json
+[INFO|trainer.py:3815] 2026-11-13 22:58:10,175 >> Saving model checkpoint to /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C38
+[INFO|tokenization_utils_base.py:3281] 2026-11-13 22:58:10,380 >> chat template saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C38/chat_template.jinja
+[INFO|tokenization_utils_base.py:2114] 2026-11-13 22:58:10,381 >> tokenizer config file saved in /public/home/scnsjwf2qh/P2_SCNet_20261105/p2_scnet/artifacts/adapters/C38/tokenizer_config.json
+[INFO|modelcard.py:263] 2026-11-13 22:58:10,678 >> Dropping the following result as it does not have all the necessary fields:
+{'task': {'name': 'Causal Language Modeling', 'type': 'text-generation'}}
+{'loss': '0.3656', 'grad_norm': '0.6269', 'learning_rate': '0', 'epoch': '0.02606'}
+{'loss': '0.4311', 'grad_norm': '0.6622', 'learning_rate': '1.25e-05', 'epoch': '0.05212'}
+{'loss': '0.3455', 'grad_norm': '0.5748', 'learning_rate': '2.5e-05', 'epoch': '0.07818'}
+{'loss': '0.3468', 'grad_norm': '0.6311', 'learning_rate': '3.75e-05', 'epoch': '0.1042'}
+{'loss': '0.3146', 'grad_norm': '0.5237', 'learning_rate': '5e-05', 'epoch': '0.1303'}
+{'loss': '0.2994', 'grad_norm': '0.5792', 'learning_rate': '4.989e-05', 'epoch': '0.1564'}
+{'loss': '0.3302', 'grad_norm': '0.6187', 'learning_rate': '4.957e-05', 'epoch': '0.1824'}
+{'loss': '0.3133', 'grad_norm': '0.4546', 'learning_rate': '4.905e-05', 'epoch': '0.2085'}
+{'loss': '0.2005', 'grad_norm': '0.3187', 'learning_rate': '4.831e-05', 'epoch': '0.2345'}
+{'loss': '0.1881', 'grad_norm': '0.3382', 'learning_rate': '4.738e-05', 'epoch': '0.2606'}
+{'loss': '0.1743', 'grad_norm': '0.2826', 'learning_rate': '4.626e-05', 'epoch': '0.2866'}
+{'loss': '0.1965', 'grad_norm': '0.4714', 'learning_rate': '4.495e-05', 'epoch': '0.3127'}
+{'loss': '0.2073', 'grad_norm': '0.5349', 'learning_rate': '4.348e-05', 'epoch': '0.3388'}
+{'loss': '0.1803', 'grad_norm': '0.3989', 'learning_rate': '4.184e-05', 'epoch': '0.3648'}
+{'loss': '0.1929', 'grad_norm': '0.3988', 'learning_rate': '4.007e-05', 'epoch': '0.3909'}
+{'loss': '0.1382', 'grad_norm': '0.2887', 'learning_rate': '3.816e-05', 'epoch': '0.4169'}
+{'loss': '0.1455', 'grad_norm': '0.4128', 'learning_rate': '3.614e-05', 'epoch': '0.443'}
+{'loss': '0.1818', 'grad_norm': '0.4139', 'learning_rate': '3.403e-05', 'epoch': '0.4691'}
+{'loss': '0.1354', 'grad_norm': '0.2716', 'learning_rate': '3.184e-05', 'epoch': '0.4951'}
+{'loss': '0.1373', 'grad_norm': '0.3027', 'learning_rate': '2.959e-05', 'epoch': '0.5212'}
+{'loss': '0.1147', 'grad_norm': '0.3664', 'learning_rate': '2.731e-05', 'epoch': '0.5472'}
+{'loss': '0.1315', 'grad_norm': '0.367', 'learning_rate': '2.5e-05', 'epoch': '0.5733'}
+{'loss': '0.1164', 'grad_norm': '0.3574', 'learning_rate': '2.269e-05', 'epoch': '0.5993'}
+{'loss': '0.1156', 'grad_norm': '0.2786', 'learning_rate': '2.041e-05', 'epoch': '0.6254'}
+{'loss': '0.1254', 'grad_norm': '0.2899', 'learning_rate': '1.816e-05', 'epoch': '0.6515'}
+{'loss': '0.1046', 'grad_norm': '0.3502', 'learning_rate': '1.597e-05', 'epoch': '0.6775'}
+{'loss': '0.1178', 'grad_norm': '0.4292', 'learning_rate': '1.386e-05', 'epoch': '0.7036'}
+{'loss': '0.09055', 'grad_norm': '0.327', 'learning_rate': '1.184e-05', 'epoch': '0.7296'}
+{'loss': '0.1036', 'grad_norm': '0.4088', 'learning_rate': '9.934e-06', 'epoch': '0.7557'}
+{'loss': '0.1112', 'grad_norm': '0.35', 'learning_rate': '8.158e-06', 'epoch': '0.7818'}
+{'loss': '0.09458', 'grad_norm': '0.3753', 'learning_rate': '6.525e-06', 'epoch': '0.8078'}
+{'loss': '0.08013', 'grad_norm': '0.371', 'learning_rate': '5.05e-06', 'epoch': '0.8339'}
+{'loss': '0.08611', 'grad_norm': '0.306', 'learning_rate': '3.745e-06', 'epoch': '0.8599'}
+{'loss': '0.1217', 'grad_norm': '0.4014', 'learning_rate': '2.621e-06', 'epoch': '0.886'}
+{'loss': '0.09715', 'grad_norm': '0.3638', 'learning_rate': '1.688e-06', 'epoch': '0.9121'}
+{'loss': '0.1198', 'grad_norm': '0.5349', 'learning_rate': '9.544e-07', 'epoch': '0.9381'}
+{'loss': '0.09693', 'grad_norm': '0.3602', 'learning_rate': '4.257e-07', 'epoch': '0.9642'}
+{'loss': '0.09279', 'grad_norm': '0.3794', 'learning_rate': '1.066e-07', 'epoch': '0.9902'}
+{'train_runtime': '4965', 'train_samples_per_second': '0.061', 'train_steps_per_second': '0.008', 'train_loss': '0.1775', 'epoch': '0.9902'}
+***** train metrics *****
+  epoch                    =     0.9902
+  total_flos               = 48980345GF
+  train_loss               =     0.1775
+  train_runtime            = 1:22:44.67
+  train_samples_per_second =      0.061
+  train_steps_per_second   =      0.008
