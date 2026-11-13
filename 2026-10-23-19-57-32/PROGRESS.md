@@ -106,6 +106,20 @@
 附带发现：**k=3 时补发会让 `post_count=2`**（3 次查不到就看不出延迟，按“补发一次”规则动手），
 这种场景判分会计重复帖；测试集里没有 k=3，此前未暴露。
 
+### 5.2 C38 训练（38 步，2026-11-13）
+
+配置 `artifacts/configs/train_C38.yaml`：`dataset: tieba_C`（`artifacts/data_v2`，307 行）、`max_steps: 38`、
+lr 5e-5、cosine+warmup 0.1、LoRA r=8/α=16/target all、bs1×ga8、cutoff 8192、`save_steps: 20`。
+
+- 2026-11-13 21:31 启动，权重加载 2:27，21:35:24 开始计步；
+  `train_runtime` **1:22:44（4965 s，130.6 s/step）**，`train_loss` **0.1775**，`epoch` **0.9902**。
+- loss 轨迹：前 10 步均值 0.3135 → 后 10 步均值 0.1004；最低 0.0801（step 32），最高 0.4311（step 2）；
+  末端 8 步在 0.08–0.12 之间锯齿，未平滑贴底（原始曲线见 `artifacts/adapters/C38/trainer_log.jsonl`）。
+- 产物 `artifacts/adapters/C38/`（637 MB）：顶层 `adapter_model.safetensors`、`checkpoint-20`、`checkpoint-38`。
+- 判读：均值 0.1775 高于预设的 0.15 阈值，属**欠拟合一侧**；但与旧 C（100 步、8 epoch、0.0485）不可直接比。
+  均值偏高主要来自前 8 步（占总 loss 三分之一），尾部已在 0.09–0.12。是否“学会”以行为探针为准（见 §5.3）。
+- 实测比预估慢：预估 90 s/step，实际 130.6 s/step——`data_v2` 样本更长（最长 3711 tokens，旧口径 1699）。
+
 ## 6. P3 复核（final，已随本仓库备份）
 
 `review/p3/` 下三件：`P3.md`（规范 v1）、`p3_review.json`（`status:"final"`）、`corrected_demos.jsonl`（3 条重放示范）。
