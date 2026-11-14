@@ -1,0 +1,6 @@
+2026-10-27
+10 CPU integration tests passed (test_p2.py).
+Covered: pinned Qwen3.5 tool parser, malformed/truncated actions, all five P1 simulator families,
+hidden state exclusion, ShareGPT conversion, reviewed B/C data split, stale reviews and test leakage,
+scripted training-data rejection, three-demo selection, few-shot decision thresholds.
+No SCNet accelerator, dependency installation, model download, inference, SFT or final evaluation executed.
