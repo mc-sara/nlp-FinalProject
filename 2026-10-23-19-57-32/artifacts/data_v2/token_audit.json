@@ -1,0 +1,14 @@
+{
+  "B": {
+    "samples": 300,
+    "max_tokens": 3173,
+    "supervised_tokens": 54515,
+    "mean_supervised_tokens": 181.71666666666667
+  },
+  "C": {
+    "samples": 307,
+    "max_tokens": 3708,
+    "supervised_tokens": 99468,
+    "mean_supervised_tokens": 324.0
+  }
+}

@@ -1,0 +1,33 @@
+artifacts/adapters/B60:
+total 104175
+-rw-r--r-- 1 root root     1156 Nov 14 10:46 adapter_config.json
+-rw-r--r-- 1 root root 86630872 Nov 14 10:46 adapter_model.safetensors
+-rw-r--r-- 1 root root      223 Nov 14 10:46 all_results.json
+-rw-r--r-- 1 root root     7756 Nov 14 10:46 chat_template.jinja
+drwxr-xr-x 2 root root     4096 Nov 14 10:05 checkpoint-30
+drwxr-xr-x 2 root root     4096 Nov 14 10:46 checkpoint-60
+-rw-r--r-- 1 root root     1191 Nov 14 10:46 processor_config.json
+-rw-r--r-- 1 root root     1407 Nov 14 10:46 README.md
+-rw-r--r-- 1 root root     1192 Nov 14 10:46 tokenizer_config.json
+-rw-r--r-- 1 root root 19989325 Nov 14 10:46 tokenizer.json
+-rw-r--r-- 1 root root    12090 Nov 14 10:46 trainer_log.jsonl
+-rw-r--r-- 1 root root    11820 Nov 14 10:46 trainer_state.json
+-rw-r--r-- 1 root root     5969 Nov 14 10:46 training_args.bin
+-rw-r--r-- 1 root root      223 Nov 14 10:46 train_results.json
+
+artifacts/adapters/C60:
+total 104175
+-rw-r--r-- 1 root root     1156 Nov 14 02:44 adapter_config.json
+-rw-r--r-- 1 root root 86630872 Nov 14 02:44 adapter_model.safetensors
+-rw-r--r-- 1 root root      223 Nov 14 02:44 all_results.json
+-rw-r--r-- 1 root root     7756 Nov 14 02:44 chat_template.jinja
+drwxr-xr-x 2 root root     4096 Nov 14 01:41 checkpoint-30
+drwxr-xr-x 2 root root     4096 Nov 14 02:44 checkpoint-60
+-rw-r--r-- 1 root root     1191 Nov 14 02:44 processor_config.json
+-rw-r--r-- 1 root root     1407 Nov 14 02:44 README.md
+-rw-r--r-- 1 root root     1192 Nov 14 02:44 tokenizer_config.json
+-rw-r--r-- 1 root root 19989325 Nov 14 02:44 tokenizer.json
+-rw-r--r-- 1 root root    12357 Nov 14 02:44 trainer_log.jsonl
+-rw-r--r-- 1 root root    12092 Nov 14 02:44 trainer_state.json
+-rw-r--r-- 1 root root     5969 Nov 14 02:44 training_args.bin
+-rw-r--r-- 1 root root      223 Nov 14 02:44 train_results.json
