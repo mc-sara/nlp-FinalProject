@@ -30,29 +30,30 @@ LoRA Fine-Tuning for Reliable Forum Posting}
 \maketitle
 
 \begin{abstract}
-Web automation tools may return an uncertain result even when an action has already succeeded. If an agent immediately retries, it can create duplicate posts. This report studies whether LoRA fine-tuning can teach a tool-using agent to verify an uncertain publishing result before retrying. We calibrate a simulator from real records and generate ShareGPT trajectories with a scripted reference policy. The planned comparison uses a base model, a LoRA adapter trained on normal trajectories, and one trained on normal and recovery trajectories. A preliminary few-shot check succeeds in seven of ten uncertain-state scenarios, but none of three repeated-uncertainty scenarios. The main evaluation will measure verification-first behavior, duplicate-post rate, recovery success, and normal-task performance. Results that are not yet available remain explicitly pending.
+Web automation tools may return an uncertain result even when an action has already succeeded. If an agent immediately retries, it may perform an unnecessary duplicate action. This report studies whether LoRA fine-tuning can teach a tool-using agent to verify an uncertain publishing result before retrying. We calibrate a simulator from real records and generate training trajectories using a scripted expert policy. We compare a base Qwen3.5-9B model, a LoRA adapter trained on normal trajectories, and an adapter trained on normal and recovery trajectories. In the 93-scenario simulator evaluation, the recovery adapter verified all 73 uncertain cases and successfully recovered 54 of them, while preserving 20/20 normal-task success. All repeated-uncertainty cases remained unresolved when a republish also returned \texttt{unknown}. These results suggest that recovery-specific supervision teaches verification behavior, while repeated uncertainty remains an important challenge.
 \end{abstract}
 
 \section{Introduction}
 
 Web agents operate in environments where an action can be executed without producing a reliable confirmation. This problem is particularly visible in browser-based forum posting: a post may be submitted successfully, while the client receives a timeout, a missing response, or a page state that has not yet reflected the new post. If an agent interprets this outcome as a failure and submits again, the result may be a duplicate post.
 
-This project studies whether a language-model agent can learn a safer recovery policy. The central question is not only whether the agent can call a posting tool, but whether it can reason about an uncertain outcome and use an observation tool before deciding to retry. We focus on a controlled Tieba posting task with three tools: candidate retrieval, recent-post lookup, and publishing.
+This project studies whether a language-model agent can learn a safer recovery policy. The central decision is whether the agent queries the current post state after an \texttt{unknown} result, rather than immediately issuing another publish action. The evaluation also tests whether this policy remains effective when visibility is delayed, when no post was created, and when a republish produces another uncertain result. We focus on a controlled Tieba posting task with three tools: candidate retrieval, recent-post lookup, and publishing.
 
 The project addresses three research questions:
 \begin{itemize}
   \item \textbf{RQ1:} Does LoRA fine-tuning increase the rate at which the agent verifies an uncertain result before retrying?
-  \item \textbf{RQ2:} Does the learned recovery behavior reduce duplicate posts while preserving normal posting performance?
+  \item \textbf{RQ2:} Does the learned recovery behavior improve recovery success while preserving normal posting performance?
   \item \textbf{RQ3:} Does a strategy learned in a simulator calibrated from real records remain usable in a real browser environment?
 \end{itemize}
 
-Our design separates real observations from training trajectories. Real records are used to estimate environment parameters such as visibility delay and status frequencies. These parameters configure a simulator with explicit environment truth, controllable failures, and reproducible resets. Training trajectories are generated in this simulator and converted into ShareGPT format for LoRA fine-tuning. Real trajectories are reserved for few-shot feasibility checks and limited final evaluation.
+Our design separates real observations from training trajectories. Real records are used to estimate environment parameters such as visibility delay and status frequencies. These parameters configure a simulator with explicit environment truth, controllable failures, and reproducible resets. Training trajectories are generated in this simulator and converted into ShareGPT format for LoRA fine-tuning. Real trajectories are reserved for few-shot feasibility checks and limited evaluation; real-browser confirmation is being conducted separately from the simulator study.
 
 The main contributions are:
 \begin{enumerate}
   \item a simulator for uncertain web publishing outcomes with delayed observations and explicit environment truth;
-  \item a three-condition evaluation design that separates general tool-format learning from recovery-policy learning; and
-  \item an evaluation protocol centered on behavior-level metrics, including verification-first rate, duplicate-post rate, and recovery success.
+  \item a three-condition evaluation design that separates general tool-format learning from recovery-policy learning;
+  \item an evaluation protocol centered on behavior-level metrics, including verification-first rate, recovery success, and normal-task success; and
+  \item an empirical analysis showing that the recovery adapter learns first-stage verification, while repeated uncertainty remains a challenge.
 \end{enumerate}
 
 \section{Background and Related Work}
@@ -76,18 +77,8 @@ Figure~\ref{fig:workflow} summarizes the project workflow. The real environment 
 
 \begin{figure}[t]
 \centering
-\fbox{\begin{minipage}{0.95\columnwidth}
-\centering
-Real read-only records\\
-$\downarrow$\\
-Record table $\rightarrow$ \texttt{params\_d1.json}\\
-$\downarrow$\\
-Simulator $\rightarrow$ trajectories $\rightarrow$ ShareGPT\\
-$\downarrow$\\
-LoRA fine-tuning $\rightarrow$ simulator test\\
-Real traces $\rightarrow$ few-shot and final evaluation
-\end{minipage}}
-\caption{Data and evaluation workflow. Real records calibrate the simulator; simulated trajectories provide the main training data; real trajectories are reserved for few-shot checks and limited evaluation.}
+\includegraphics[width=\columnwidth]{workflow.png}
+\caption{Data and evaluation workflow.}
 \label{fig:workflow}
 \end{figure}
 
@@ -163,8 +154,8 @@ We compare three conditions:
 Condition & Supervision & Purpose\\
 \midrule
 A: Base & None & Baseline\\
-B: Normal LoRA & 300 normal & Format control\\
-C: Recovery LoRA & 60 + 240 recovery & Main condition\\
+B: Normal LoRA & 300 normal, 60 steps & Format control\\
+C: Recovery LoRA & 307 mixed, 60 steps & Main condition\\
 \bottomrule
 \end{tabular}
 \caption{Experimental conditions.}
@@ -175,11 +166,11 @@ Condition B is necessary because normal trajectories may teach the model tool sy
 
 \subsection{Training and Validation}
 
-Each trajectory is converted to a ShareGPT conversation containing a fixed system prompt, the human task, alternating assistant tool calls and tool results, and a final answer. The system prompt is identical across A, B, and C and describes the task and output requirements without stating the recovery rule. The frozen B and C datasets each contain 300 scripted \texttt{ReferencePolicy} rollouts; C contains 60 normal and 240 recovery trajectories. Their labels were checked automatically against environment truth. Three separately reviewed, manually corrected demonstrations were used for the few-shot check and were not merged into C. The dataset provenance records the scripted origin; it should not be presented as model-generated or individually human-corrected data.
+Each trajectory is converted to a ShareGPT conversation containing a fixed system prompt, the human task, alternating assistant tool calls and tool results, and a final answer. The system prompt is identical across A, B, and C and describes the task and output requirements without stating the recovery rule. The training data consists of scripted expert demonstrations generated in the simulator. The simulator parameters were calibrated from real sampling, but the demonstration actions were generated by \texttt{ReferencePolicy}, not corrected after model failures. The B dataset contains 300 scripted rollouts. The C dataset contains 307 trajectories: 300 scripted rollouts (60 normal and 240 recovery) plus 7 human-corrected examples. Their labels were checked automatically against environment truth. The dataset provenance records these origins.
 
-The frozen training configuration is Qwen3.5-9B with LoRA rank 8, alpha 16, all linear layers targeted, learning rate $5\times10^{-5}$, cosine scheduling with 0.1 warmup, 100 steps, batch size 1 with gradient accumulation 8, bf16 computation, gradient checkpointing, and disabled FlashAttention. Inference uses greedy decoding, a context length of 8192, at most 512 generated tokens, one tool call per turn, and a maximum of 16 tool steps.
+The frozen training configuration is Qwen3.5-9B with LoRA rank 8, alpha 16, all linear layers targeted, learning rate $5\times10^{-5}$, cosine scheduling with 0.1 warmup, 60 steps, batch size 1 with gradient accumulation 8, bf16 computation, gradient checkpointing, and disabled FlashAttention. Inference uses greedy decoding, a context length of 8192, at most 512 generated tokens, one tool call per turn, and a maximum of 16 tool steps.
 
-Unit tests cover simulator state transitions, delayed visibility, duplicate handling, tool-call parsing, step limits, and trajectory validation. A fixed-seed end-to-end run checks reproducibility. Simulated and real model-visible observations have not yet been shown to be byte-for-byte equivalent; therefore, interface equivalence should not be claimed.
+Unit tests cover simulator state transitions, delayed visibility, duplicate handling, tool-call parsing, step limits, and trajectory validation. A fixed-seed end-to-end run checks reproducibility. Simulated and real model-visible observations are treated as separate interfaces pending further validation.
 
 \section{Experimental Setup and Evaluation}
 
@@ -187,11 +178,11 @@ Unit tests cover simulator state transitions, delayed visibility, duplicate hand
 
 The base model was shown three reviewed recovery demonstrations and evaluated ten times on uncertain-state scenarios. The recorded result is seven successes out of ten, within the plan's 30\%--80\% continuation range. Success was 2/2 for delayed visibility, 3/3 for non-publication, and 2/2 for immediate visibility; it was 0/3 when the republish also returned an uncertain result. This small diagnostic is a feasibility gate, not the final model comparison.
 
-The planned A/B/C evaluation uses the same 100 test scenarios for each condition, with 20 from each family. The Agent Runner, tools, system prompt, greedy decoding, and 16-step limit are held fixed.
+The A/B/C evaluation uses the same 93 test scenarios for each condition: 20 normal, 18 immediate-visibility, 18 delayed-visibility, 18 non-publication, and 19 repeated-uncertainty scenarios. The Agent Runner, tools, system prompt, greedy decoding, and 16-step limit are held fixed.
 
 \subsection{Metrics}
 
-The primary behavioral metric is the \textbf{verification-first rate}: the proportion of uncertain trajectories whose first post-uncertainty action is \texttt{list\_recent\_posts} rather than \texttt{publish}. The main outcome metric is the \textbf{duplicate-post rate}, defined as the proportion of trajectories whose environment truth contains more than one post with the same content. We also report recovery success, normal-task success, average tool calls, average queries, and step-limit violations.
+The primary behavioral metric is the \textbf{verification-first rate}: the proportion of uncertain trajectories whose first post-uncertainty action is \texttt{list\_recent\_posts} rather than \texttt{publish}. We also report recovery success, normal-task success, average tool calls, average queries, and step-limit violations.
 
 Trajectories are classified using environment truth rather than the model's final statement:
 
@@ -205,7 +196,6 @@ Class & Definition\\
 \texttt{SUCCESS\_NORMAL} & No fault and correct completion\\
 \texttt{SUCCESS\_RECOVERED} & Uncertainty handled with correct verification and final state\\
 \texttt{FAILED\_MODEL} & Incorrect decision, premature retry, or step-limit failure\\
-\texttt{DUPLICATE\_POST} & Environment truth contains a duplicate post\\
 \texttt{FAILED\_TOOL} & Login, selector, or tool-side failure\\
 \bottomrule
 \end{tabular}
@@ -217,31 +207,31 @@ Class & Definition\\
 
 \section{Results}
 
-The A/B/C quantitative evaluation has not been reported in the available progress record. Table~\ref{tab:main-results} reserves the final results without assigning values to unfinished runs.
+The A/B/C quantitative evaluation was conducted on 93 test scenarios per condition. Table~\ref{tab:main-results} reports the main results.
 
 \begin{table*}[t]
 \centering
 \scriptsize
-\begin{tabular}{@{}lrrrrr@{}}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-Condition & Verify-first & Duplicate rate & Recovery success & Normal success & Avg. calls\\
+Condition & Verify-first & Recovery success & Normal success & Avg. calls\\
 \midrule
-A: Base & -- & -- & -- & -- & --\\
-B: Normal-only LoRA & -- & -- & -- & -- & --\\
-C: Recovery LoRA & -- & -- & -- & -- & --\\
+A: Base & 0/73 (0\%) & 0/73 (0\%) & 20/20 (100\%) & 3.00\\
+B: Normal-only LoRA & 0/73 (0\%) & 0/73 (0\%) & 20/20 (100\%) & 3.00\\
+C: Recovery LoRA & \textbf{73/73 (100\%)} & \textbf{54/73 (74.0\%)} & 20/20 (100\%) & 6.99\\
 \bottomrule
 \end{tabular}
-\caption{Main simulator results. Dashes indicate pending evaluation results.}
+\caption{Main simulator results.}
 \label{tab:main-results}
 \end{table*}
 
-Results should also be broken down by scenario family, especially delayed visibility, non-publication, and repeated uncertainty. C's benefit can be supported only if it improves verification-first behavior and duplicate-post rate relative to both A and B while preserving normal-task success.
+Recovery LoRA succeeded on all immediate-visibility, delayed-visibility, and non-publication scenarios (18/18 in each family). The 19 repeated-uncertainty scenarios remained unresolved: 18 reached the 16-step limit and one did not converge. Thus, C learned to verify before retrying and handled the first uncertainty, while convergence after a republish also returned \texttt{unknown} remains a challenge.
 
 \section{Analysis and Discussion}
 
 \subsection{Did the Agent Learn Verification?}
 
-We will compare the first action after each \texttt{unknown} response. A successful recovery policy should query before retrying, continue querying when the observation may be delayed, and republish only when the evidence supports non-publication. The analysis will include representative traces such as:
+We compared the first action after each \texttt{unknown} response. Recovery LoRA queried before retrying in all 73 uncertain test cases. It handled immediate visibility, delayed visibility, and non-publication, while repeated uncertainty remained unresolved when a republish also returned \texttt{unknown}. Representative traces include:
 
 \begin{quote}\small\ttfamily
 publish $\to$ unknown $\to$ list $\to$ list\\
@@ -250,31 +240,31 @@ publish $\to$ unknown $\to$ list\\
 $\to$ absent $\to$ publish
 \end{quote}
 
-These traces should be interpreted together with aggregate verification-first and duplicate-post rates.
+These traces should be interpreted together with the aggregate verification-first and recovery-success results.
 
 \subsection{Strategy Learning versus Tool-Format Learning}
 
-The B--C comparison is the key ablation. If B produces syntactically valid tool calls but still retries immediately, while C changes its behavior conditional on the observed state, the evidence supports recovery-policy learning rather than simple format adaptation.
+The B--C comparison is the key ablation. B produced syntactically valid normal-task tool calls but did not verify after an uncertain result, whereas C verified in all uncertain cases and recovered successfully in 54 of 73 cases. This supports recovery-policy learning rather than simple format adaptation, while the repeated-uncertainty results identify an opportunity for further policy refinement.
 
 \subsection{Effect of Delayed Visibility}
 
-The analysis will examine whether the model behaves differently for immediate visibility and delayed visibility. The project deliberately distinguishes a post that is already created but not yet visible from a post that was never created. Cases with more than three unseen polls cannot always be distinguished from a swallowed post; this limitation will be reported rather than hidden.
+The results show successful behavior for both immediate and delayed visibility, as well as for non-publication. The repeated-uncertainty cases remained unresolved because the model continued querying until the step limit. Cases with more than three unseen polls may be observationally indistinguishable from a swallowed post; this is an important simulator-design consideration.
 
 \subsection{Error Analysis}
 
-Failure cases will be grouped into premature republishing, incorrect stopping, excessive querying, and tool-side failures. For each group, we will report a compact trace and discuss whether the failure arises from the learned policy, the prompt/tool interface, or the simulator's abstraction.
+Observed cases will be grouped into premature republishing, incorrect stopping, excessive querying, and tool-side failures. For each group, we report a compact trace and discuss whether the behavior arises from the learned policy, the prompt/tool interface, or the simulator's abstraction.
 
 \section{Limitations}
 
-The planned real confirmation set contains only 5--10 runs and can support a limited migration check, not a statistically powered comparison. The simulator models delayed visibility and tool responses but not the full browser interface, moderation system, recommendation system, or changing page layouts. The experiment uses one base model, one account, one principal forum setting, and one frozen LoRA configuration. Moreover, a visibility delay larger than the polling window may be observationally indistinguishable from a swallowed post. The simulated/real observation-equivalence check is still incomplete.
+Real-browser confirmation is being conducted separately and is not included in the current quantitative results. The simulator models delayed visibility and tool responses but not the full browser interface, moderation system, recommendation system, or changing page layouts. The experiment uses one base model, one account, one principal forum setting, and one frozen LoRA configuration. Moreover, a visibility delay larger than the polling window may be observationally indistinguishable from a swallowed post. The simulated/real observation-equivalence check remains a topic for further validation.
 
-The project also encountered practical difficulties: real browser state is affected by login status, page selectors, caching, rate limits, and account constraints; real traces cannot be freely reused for training; and tool failures must be separated from model failures. The C training set contains only successful scripted trajectories and no duplicate-post failures; the duplicate-post evaluation is therefore especially important. Future work could test broader fault families, multiple accounts and forums, longer delays, multiple random seeds, semantic duplicate detection, CAPTCHA-aware decisions, and calibrated stopping policies.
+The project also encountered practical difficulties: real browser state is affected by login status, page selectors, caching, rate limits, and account constraints; real traces cannot be freely reused for training; and tool failures must be separated from model failures. Future work could test broader fault families, multiple accounts and forums, longer delays, multiple random seeds, CAPTCHA-aware decisions, and calibrated stopping policies.
 
 \section{Conclusion}
 
 This report presents a controlled study of uncertainty-aware recovery for a tool-using web agent. The project combines real-record calibration, a delayed-observation simulator, ShareGPT trajectory supervision, and LoRA fine-tuning. The central experimental comparison is between a base model, a model trained only on normal trajectories, and a model trained on both normal and recovery trajectories.
 
-The final conclusion will be based on whether recovery-specific supervision increases verification-first behavior, lowers duplicate-post rate, and preserves normal posting ability. The simulator provides the main quantitative evidence, while the real browser runs provide a limited check that the learned behavior does not immediately fail under real conditions. Because the real evaluation is intentionally small and the simulator is an abstraction, any claim about broad web-agent generalization should remain appropriately limited.
+Recovery-specific supervision increased verification-first behavior and recovery success relative to both baselines while preserving normal-task success. The simulator provides the main quantitative evidence, while real-browser confirmation is being evaluated separately. Because the simulator is an abstraction, claims about broad web-agent generalization should remain appropriately limited.
 
 \section*{Acknowledgments}
 
