@@ -174,6 +174,21 @@ test20 结果（18 条，`artifacts/runs/probe_C60_test20.jsonl`）：
 - 两处 switch 的差别：第一处（首发 unknown 后第 3 次空）已学会；第二处（补发后再次 unknown 的第 3 次空）样本量相同但处于更长的上下文里，1.55 epoch 仍学不会。
 - 与 C38 相比是明确进步：撞上限 7 → 4，平均步数 8.61 → 7.11。还剩 `resubmit_unknown` 一族未收敛。
 
+### 5.5 B60 训练（2026-11-14）
+
+配置 `artifacts/configs/train_B60.yaml`：从 `train_C60.yaml` 复制，只改 `dataset: tieba_B` 与 `output_dir: adapters/B60`；
+其余（`dataset_dir: artifacts/data_v2`、`max_steps: 60`、`save_steps: 30`、LoRA r8/α16/target all、lr 5e-5、bs1×ga8、cutoff 8192）与 C60 完全一致。
+
+数据：`artifacts/data_v2/tieba_B.json` 300 条纯 normal（`conversations` 全 8 条消息 = human + get + list + publish + gpt）。
+日志 `Generating train split: 300 examples`、`tokenizer 300/300` 证实读的就是这份，没有碰 `tieba_C.json`（307 条）。
+
+- 09:21 启动，`train_runtime` **1:23:20**（5000 s，83.3 s/step），`train_loss` **0.1359**，`epoch` **1.5867**。
+- loss 曲线：前 10 步均值 0.3563、后 10 步 0.0522、最低 0.0438、最高 0.4805（step 1）；末 5 步 0.0556 / 0.0438 / 0.0589 / 0.0517 / 0.0490。
+- 与 C60 对照：loss **0.1359 vs 0.1346**、epoch **1.587 vs 1.547**、单步 **83.3 s vs 128.4 s**。
+  同 60 步、epoch 接近，但 B 的样本只有 3 步动作、每步 token 更少，所以时长少 45 分钟——**不能叫“算力对齐”**。
+- 产物 `artifacts/adapters/B60/`：顶层 adapter + `checkpoint-30` + `checkpoint-60`。
+- 备份：`artifacts/configs/train_B60.yaml`、`artifacts/runs/train_B60.log`、`artifacts/runs/B60_trainer_log.jsonl`。
+
 ## 6. P3 复核（final，已随本仓库备份）
 
 `review/p3/` 下三件：`P3.md`（规范 v1）、`p3_review.json`（`status:"final"`）、`corrected_demos.jsonl`（3 条重放示范）。
