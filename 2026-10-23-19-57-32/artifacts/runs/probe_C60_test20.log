@@ -1,0 +1,40 @@
+[WARNING|logging.py:340] 2026-11-14 08:56:11,900 >> The fast path is not available because one of the required library is not installed. Falling back to torch implementation. To install follow https://github.com/fla-org/flash-linear-attention#installation and https://github.com/Dao-AILab/causal-conv1d
+[INFO|accelerate.py:285] 2026-11-14 08:56:12,109 >> We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+
+[INFO|utils.py:412] 2026-11-14 08:58:22,507 >> Generation config file not found, using a generation config created from the model config.
+[INFO|configuration_utils.py:1037] 2026-11-14 08:58:22,525 >> loading configuration file /public/home/scnsjwf2qh/models/Qwen3.5-9B/config.json
+[INFO|configuration_utils.py:1086] 2026-11-14 08:58:22,526 >> Generate config GenerationConfig {}
+
+[INFO|2026-11-14 08:58:22] llamafactory.model.model_utils.attention:144 >> Using vanilla attention implementation.
+[INFO|2026-11-14 08:58:32] llamafactory.model.adapter:144 >> Merged 1 adapter(s).
+[INFO|2026-11-14 08:58:32] llamafactory.model.adapter:144 >> Loaded adapter(s): artifacts/adapters/C60
+[INFO|2026-11-14 08:58:32] llamafactory.model.loader:144 >> all params: 9,409,813,744
+[WARNING|logging.py:340] 2026-11-14 08:58:36,387 >> Ignoring clean_up_tokenization_spaces=True for BPE tokenizer Qwen2Tokenizer. The clean_up_tokenization post-processing step is designed for WordPiece tokenizers and is destructive for BPE (it strips spaces before punctuation). Set clean_up_tokenization_spaces=False to suppress this warning, or set clean_up_tokenization_spaces_for_bpe_even_though_it_will_corrupt_output=True to force cleanup anyway.
+  done test-unknown_delayed-004
+  done test-normal-001
+  done test-unknown_visible-003
+  done test-unknown_not_published-003
+  done test-unknown_visible-001
+  done test-unknown_delayed-002
+  done test-unknown_resubmit_unknown-004
+  done test-unknown_visible-002
+  done test-unknown_not_published-004
+  done test-normal-002
+  done test-unknown_visible-004
+  done test-unknown_delayed-003
+  done test-unknown_resubmit_unknown-003
+  done test-normal-003
+  done test-normal-004
+  done test-unknown_resubmit_unknown-001
+  done test-unknown_resubmit_unknown-002
+  done test-unknown_not_published-001
+{
+  "mode": "test20",
+  "cases": 18,
+  "after_unknown_list": 14,
+  "after_unknown_other": 0,
+  "mean_steps": 7.11,
+  "step_limit_hits": 4,
+  "parse_errors": 0
+}
+→ artifacts/runs/probe_C60_test20.jsonl

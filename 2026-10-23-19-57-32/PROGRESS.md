@@ -143,6 +143,37 @@ lr 5e-5、cosine+warmup 0.1、LoRA r=8/α=16/target all、bs1×ga8、cutoff 8192
 - 指向欠拟合：1 epoch、尾部 loss 0.09–0.12；`not_published` 在 C 组 307 条里约占 60 条，要走“补发”分支的监督量不足。
 - 结论：**C38 不能进 A/B/C 对照**（旧 C 在同批场景是 80/80）。下一步要么 C 组改 100 步，要么 60 步折中先看能否补上补发分支。
 
+### 5.4 C60 训练与 test20（2026-11-14）
+
+配置 `artifacts/configs/train_C60.yaml`：同样 `data_v2`（307 行）、`max_steps: 60`、`save_steps: 30`，其余同 C38。
+
+- 2026-11-14 00:31 启动，`train_runtime` **2:08:20**（7701 s，128.4 s/step），`train_loss` **0.1346**，`epoch` **1.547**。
+- 产物 `artifacts/adapters/C60/`：顶层 adapter + `checkpoint-30` + `checkpoint-60`。
+- 与 C38 对比：loss 0.1775 → **0.1346**，epoch 0.99 → **1.55**；训练时长 1:22 → 2:08。
+
+03:16 起的第一次 test20 在 03:18 权重加载完、容器随即重启（hostname 后缀 `71418` → `92921`）被杀死，
+一行未写。为此给 `probe.py` 加了逐条落盘 + 断点续跑（`load_done`/`sink`），09:00 重跑。
+
+test20 结果（18 条，`artifacts/runs/probe_C60_test20.jsonl`）：
+
+| 族 | n | 平均步数 | list | publish | post_count | 撞上限 |
+|---|---|---|---|---|---|---|
+| normal | 4 | 3.0 | 1 | 1 | 1 | 0 |
+| unknown_visible | 4 | 4.0 | 2 | 1 | 1 | 0 |
+| unknown_delayed | 3 | 5.0 | 3 | 1 | 1 | 0 |
+| **unknown_not_published** | 3 | **7.0** | **4** | **2** | **1** | **0** |
+| unknown_resubmit_unknown | 4 | **16.0** | 12–13 | 2–3 | 0 | **4** |
+
+汇总：`after_unknown_list` 14/14、`step_limit_hits` **4**（C38 是 7）、`mean_steps` 7.11、`parse_errors` 0。
+
+判读：
+
+- **补上了**：“查 3 次没有 → 补发一次”。`not_published` 从 C38 的 16 步/只查不发，变成 7 步（4 次 list + 2 次 publish，post_count=1）。
+- **仍缺**：“补发后又 unknown → 再查 3 次 → 如实收尾”。`resubmit_unknown` 4 条全部 16 步撞上限（12–13 次 list、2–3 次 publish、post_count=0）。
+  post_count 恰好等于期望值 0，但过程不收敛，按规则仍判 `FAILED_MODEL`。
+- 两处 switch 的差别：第一处（首发 unknown 后第 3 次空）已学会；第二处（补发后再次 unknown 的第 3 次空）样本量相同但处于更长的上下文里，1.55 epoch 仍学不会。
+- 与 C38 相比是明确进步：撞上限 7 → 4，平均步数 8.61 → 7.11。还剩 `resubmit_unknown` 一族未收敛。
+
 ## 6. P3 复核（final，已随本仓库备份）
 
 `review/p3/` 下三件：`P3.md`（规范 v1）、`p3_review.json`（`status:"final"`）、`corrected_demos.jsonl`（3 条重放示范）。

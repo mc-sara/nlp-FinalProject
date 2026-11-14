@@ -142,25 +142,54 @@ def scenarios_for(args, families=None) -> list:
                               families=list(families) if families else None)
 
 
-def mode_test20(args, policy) -> list[dict[str, Any]]:
+def _row_key(row: dict[str, Any]) -> str:
+    """续跑用的唯一键：test20/openloop 用场景 id，kscan 再加 k。"""
+    return f"{row['scenario_id']}|k={row['probe_k']}" if 'probe_k' in row else row['scenario_id']
+
+
+def load_done(path: Path) -> set[str]:
+    if not path.exists():
+        return set()
+    done = set()
+    for line in path.read_text(encoding='utf-8').splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            done.add(_row_key(json.loads(line)))
+        except json.JSONDecodeError:
+            continue
+    return done
+
+
+def mode_test20(args, policy, sink=None, done=frozenset()) -> list[dict[str, Any]]:
     rows = []
     for scenario in scenarios_for(args):
-        traj = run_one(policy, scenario)
-        rows.append(describe(traj))
+        if scenario.scenario_id in done:
+            continue
+        row = describe(run_one(policy, scenario))
+        rows.append(row)
+        if sink:
+            sink(row)
     return rows
 
 
-def mode_openloop(args, policy) -> list[dict[str, Any]]:
+def mode_openloop(args, policy, sink=None, done=frozenset()) -> list[dict[str, Any]]:
     rows = []
     # 只有"帖子真值会出现在吧页"的两族才有反事实可言：
     # visible 立刻可见、delayed k 次后可见；而 not_published/resubmit 的真值列表本来就是空的，
     # 换成恒空与真实完全等价，放进来只会把"读者"误判成"复读机"。
     observable = ('unknown_visible', 'unknown_delayed')
     for scenario in scenarios_for(args, observable):
+        if scenario.scenario_id in done:
+            continue
         real = describe(run_one(policy, scenario))
         empty = describe(run_one(policy, scenario, empty_list=True))
-        rows.append(dict(scenario_id=real['scenario_id'], family=real['family'],
-                         real=real, empty=empty, identical=real['actions'] == empty['actions']))
+        row = dict(scenario_id=real['scenario_id'], family=real['family'],
+                   real=real, empty=empty, identical=real['actions'] == empty['actions'])
+        rows.append(row)
+        if sink:
+            sink(row)
     return rows
 
 
@@ -171,13 +200,18 @@ def with_delay(scenario, k: int):
     return dataclasses.replace(scenario, delay_k=k, fault_plan=plan)
 
 
-def mode_kscan(args, policy) -> list[dict[str, Any]]:
+def mode_kscan(args, policy, sink=None, done=frozenset()) -> list[dict[str, Any]]:
     rows = []
     base = scenarios_for(args, FAMILY_UNKNOWN_DELAYED)
     for k in args.k_values:
         for scenario in base:
+            if f'{scenario.scenario_id}|k={k}' in done:
+                continue
             traj = run_one(policy, with_delay(scenario, k))
-            rows.append(describe(traj, extra=dict(probe_k=k)))
+            row = describe(traj, extra=dict(probe_k=k))
+            rows.append(row)
+            if sink:
+                sink(row)
     return rows
 
 
@@ -235,14 +269,21 @@ def main() -> int:
 
     policy = build_policy(args)
     runner = {'test20': mode_test20, 'openloop': mode_openloop, 'kscan': mode_kscan}[args.mode]
-    rows = runner(args, policy)
-    summary = summarize(args, rows)
 
     out = Path(args.out or f'artifacts/runs/probe_{args.mode}.jsonl')
     out.parent.mkdir(parents=True, exist_ok=True)
-    with out.open('w', encoding='utf-8') as fh:
-        for row in rows:
+    done = load_done(out)
+    if done:
+        print(f'[resume] 已完成 {len(done)} 条，续跑剩余', flush=True)
+    with out.open('a', encoding='utf-8') as fh:
+        def sink(row: dict[str, Any]) -> None:
             fh.write(json.dumps(row, ensure_ascii=False) + '\n')
+            fh.flush()
+            print(f"  done {_row_key(row)}", flush=True)
+        runner(args, policy, sink, done)
+
+    rows = [json.loads(line) for line in out.read_text(encoding='utf-8').splitlines() if line.strip()]
+    summary = summarize(args, rows)
 
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     print(f'→ {out}')
