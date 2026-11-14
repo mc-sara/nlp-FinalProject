@@ -1,0 +1,81 @@
+{
+  "command": "collect",
+  "model": "/public/home/scnsjwf2qh/models/Qwen3.5-9B",
+  "adapter": "artifacts/adapters/C60",
+  "group": "C",
+  "split": "test",
+  "per_family": 20,
+  "seed": 1042,
+  "context": 8192,
+  "max_new": 512,
+  "out": "artifacts/runs/C_test_1042.jsonl",
+  "template": "qwen3_5_nothink",
+  "decoding": "greedy",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_candidates",
+        "description": "取候选热梗列表。",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "list_recent_posts",
+        "description": "读取指定吧的最新帖子列表，返回帖子标题与正文。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "kw": {
+              "type": "string",
+              "description": "吧名，例如「测试」"
+            },
+            "limit": {
+              "type": "integer",
+              "description": "最多返回多少条，默认 20"
+            }
+          },
+          "required": [
+            "kw"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "publish",
+        "description": "在指定吧提交一个主题帖，返回本次提交的状态。",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "kw": {
+              "type": "string",
+              "description": "吧名"
+            },
+            "title": {
+              "type": "string",
+              "description": "帖子标题，不超过 40 字"
+            },
+            "content": {
+              "type": "string",
+              "description": "帖子正文"
+            }
+          },
+          "required": [
+            "kw",
+            "title",
+            "content"
+          ]
+        }
+      }
+    }
+  ],
+  "environment": "P1 bundled mock, unchanged defaults"
+}

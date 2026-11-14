@@ -189,6 +189,60 @@ test20 结果（18 条，`artifacts/runs/probe_C60_test20.jsonl`）：
 - 产物 `artifacts/adapters/B60/`：顶层 adapter + `checkpoint-30` + `checkpoint-60`。
 - 备份：`artifacts/configs/train_B60.yaml`、`artifacts/runs/train_B60.log`、`artifacts/runs/B60_trainer_log.jsonl`。
 
+### 5.6 A/B/C 三组评测（2026-11-14）
+
+评测脚本 `run_eval_bca.sh`，顺序 B → C → A，`p2.py collect --split test --per-family 20 --seed 1042 --context 8192 --max-new 512`。
+退役 7 个泄漏场景后，test 集 **93 条**：normal 20 / 立即可见 18 / 延迟可见 18 / 实际未发布 18 / 补发后再次不确定 19。
+
+| 时间 | 阶段 |
+|---|---|
+| 11:00:27 | B 开始 |
+| 11:32:30 | B 完成（93 条） |
+| 12:38:03 | C 完成（93 条） |
+| 13:18:18 | A 完成（93 条） |
+
+**表 1：主结果（93 条/组）**
+
+| Condition | Verify-first | Duplicate rate | Recovery success | Normal success | Avg. calls |
+|---|---:|---:|---:|---:|---:|
+| Base (A) | 0/73 (0%) | 0/93 (0%) | 0/73 (0%) | 20/20 (100%) | 3.00 |
+| Normal-only LoRA (B60) | 0/73 (0%) | 0/93 (0%) | 0/73 (0%) | 20/20 (100%) | 3.00 |
+| Recovery LoRA (C60) | **73/73 (100%)** | **0/93 (0%)** | **54/73 (74.0%)** | 20/20 (100%) | 6.99 |
+
+**表 2：按场景族分解**
+
+| 场景族 | n | 组 | 先查证 | 重复帖 | 恢复成功 |
+|---|---:|---|---:|---:|---:|
+| 立即可见 | 18 | Base | 0/18 | 0/18 | 0/18 |
+| | | Normal-only | 0/18 | 0/18 | 0/18 |
+| | | Recovery | **18/18** | 0/18 | **18/18** |
+| 延迟可见 | 18 | Base | 0/18 | 0/18 | 0/18 |
+| | | Normal-only | 0/18 | 0/18 | 0/18 |
+| | | Recovery | **18/18** | 0/18 | **18/18** |
+| 实际未发布 | 18 | Base | 0/18 | 0/18 | 0/18 |
+| | | Normal-only | 0/18 | 0/18 | 0/18 |
+| | | Recovery | **18/18** | 0/18 | **18/18** |
+| 补发后再次不确定 | 19 | Base | 0/19 | 0/19 | 0/19 |
+| | | Normal-only | 0/19 | 0/19 | 0/19 |
+| | | Recovery | **19/19** | 0/19 | **0/19** |
+| 无故障（normal） | 20 | Base / Normal-only / Recovery | — | — | 20/20 各组 |
+
+**表 3：模拟环境与真实确认**
+
+| Environment | Number of runs | Verify-first | Duplicate observed | Interpretation |
+|---|---:|---:|---:|---|
+| Simulator test | 279（每组 93） | 73/219（33.3%） | 0/279（0%） | quantitative evidence |
+| Real confirmation | 5–10（计划） | 待实测 | 待实测 | preliminary only |
+
+过程指标：A 与 B 的 93 条**全部 3 步**（`get → list → publish → 收尾`）、`hit_step_limit 0`；
+C 的步数分布 3（normal 20）/4（可见 18）/5（延迟 18）/7（未发布 18）/16（补发 18）+14（1），`hit_step_limit 18`、`model_errors 0`。
+
+判读：
+- **B 与 A 完全相同**（3.00 步、0 查证、0 重复帖）：只学正常流程的 LoRA 在故障场景下退化成“发完就报告”，
+  且这一轮它**没有**像 20261112 那版 B 一样重复发帖（那版 28 条重复帖），说明重复帖行为来自那版 B 的“60 条 ×5 复制”数据，不是 normal-only 的必然结果。
+- **C 拿下前三个故障族（18/18 ×3）**，第四个族 `resubmit_unknown` 全灭：19 条里 18 条撞 16 步上限、1 条 14 步，都是“补发后再次 unknown 仍继续查”。
+- C 的 54/73 恢复率扣掉的正是这 19 条，与 test20 探针（4/4 撞上限）结论一致。
+
 ## 6. P3 复核（final，已随本仓库备份）
 
 `review/p3/` 下三件：`P3.md`（规范 v1）、`p3_review.json`（`status:"final"`）、`corrected_demos.jsonl`（3 条重放示范）。
