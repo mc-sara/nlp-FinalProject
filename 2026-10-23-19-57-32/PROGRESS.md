@@ -1,12 +1,13 @@
-# 进度备份（2026-11-10 13:55）
+# 进度备份（2026-11-14）
 
 本文件记录**当前真实状态**，包括已作废的实验，避免后面误当结论用。
 
 ## 一句话状态
 
-口径已冻结（标题 31 字截断 / 吧名 agenttest / `origin` 标注）；候选池扩到 100 条（train 60 / test 25 / real 15）；
-**ABC 实验按「方案 1」执行：每组 300 条场景、100 步**。C 组旧 adapter（100 条数据、8 epoch）作废，只当管线验证。
-三组跑完后再做一次真实环境确认（D6），本阶段实验即结束。
+口径已冻结（标题 31 字截断 / 吧名 agenttest / `origin` 标注）；候选池扩到 100 条（train 60 / test 25 / real 15）。
+**A/B/C 三组已跑完**（B60 / C60 各 60 步；C 用 307 行、B 用 300 行；test 93 条）：C 先查证 73/73、
+恢复 54/73（74.0%），A 与 B 都是 0/73、平均 3.00 步。**主指标重复帖率三组全 0，该测试集对它无区分度。**
+D6 真实确认的工具已就绪（集群 `/act` 服务 + 本机 `agent_confirm.py`），真实发帖**尚未执行**（被贴吧风控拦下）。
 
 ## 1. 口径冻结（v1，已提交）
 
@@ -277,3 +278,26 @@ v4 validator 判 3/3 `FAILED_MODEL`（差异只在 `validator.py:139` 是否把�
   `backup_pre_freeze/p2.py.bak`。
 - 集群 `p2.py` 已打两处补丁：`prepare` 的 origin 白名单加 `reference_policy`；`provenance.json` 记录
   `origins` 计数并把 `budget_note` 写明「B/C built from runs/sim/train.jsonl (ReferencePolicy rollouts)」。
+
+## 10. 真实确认（D6）的工具：已就绪，真实发帖尚未执行
+
+- 为什么分两台机器：本机是 Apple A18 Pro / **8 GB** 内存、没有 torch/MPS，装不下 9B（bf16 ≈18 GB）；
+  浏览器又只能在本机。所以「集群做 forward + 本机跑 agent 与浏览器」。
+- 集群侧 `real/serve_policy.py`：
+  - `GET /health` → `{"ok": true, "model": ..., "adapter": ...}`
+  - `POST /act {"task": str, "history": [{tool_name, arguments, observation}, ...]}`
+    → `{"raw", "finish_reason", "action", "error", "prompt_tokens", "completion_tokens"}`，
+    其中 `action` 是 `{"kind":"tool","tool_name",...}` 或 `{"kind":"final","text":...}`。
+  - 起服务：`real/start_serve.sh <port>`（source DTK 环境、加载 C60 adapter，约 5 分钟；
+    日志 `artifacts/runs/serve_policy.log`）。
+- 本机侧 `real/agent_confirm.py`：`--policy remote|replay`、`--runs`、`--dry-run`、`--max-steps 16`、
+  `--sleep 600`；每个 publish 前走 `PublishGuard.check()` 并要求人工输入 `y/N`；`unknown + captcha`
+  自动记 24 小时冷却。产物：`artifacts/runs/real_confirm_<ts>.jsonl`、`real/captures/cap-<ts>.jsonl`。
+- 使用文档：`real/REAL_CONFIRM.md`（三步：起服务 → 开隧道 → 跑脚本；换账号改 `real/config.json`
+  的 `kw` 与 `allowed_publish_kw`）。
+- 已通过的验证：`/act` 空历史返回 `get_candidates`（493 prompt tokens）；SSH 隧道后本机
+  `127.0.0.1:8000/health` 正常；dry-run 打通到浏览器层（`已登录 射手sarasong`、`等级 1`）。
+- **未执行**：`list` 与 `editor` 两项被贴吧风控（`wappass`）拦截，脚本按 PLAN 6.1 主动退出，
+  **真实发帖 0 次，没有任何真实数据进入任何记录**。待换账号或风控解除后再按 5–10 条执行，
+  结论届时补写，本节不预填任何结果。
+
